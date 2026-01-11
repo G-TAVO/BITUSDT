@@ -17,6 +17,7 @@ background:#0f172a;
 padding:15px;
 display:flex;
 justify-content:space-around;
+flex-wrap:wrap;
 }
 
 header button{
@@ -26,6 +27,7 @@ padding:10px 15px;
 border-radius:8px;
 font-weight:bold;
 cursor:pointer;
+margin:5px;
 }
 
 section{
@@ -37,19 +39,6 @@ padding:30px;
 display:block;
 }
 
-form input,form button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:8px;
-border:none;
-}
-
-form button{
-background:#22c55e;
-font-weight:bold;
-}
-
 .box{
 background:#111827;
 padding:20px;
@@ -57,16 +46,28 @@ border-radius:12px;
 max-width:400px;
 margin:auto;
 }
+
+input,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+}
+button{
+background:#22c55e;
+font-weight:bold;
+cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  <button onclick="show('login')">Iniciar sesión</button>
-
 <button onclick="show('home')">Inicio</button>
 <button onclick="show('register')">Registro</button>
+<button onclick="show('login')">Iniciar sesión</button>
 <button onclick="show('invest')">Invertir</button>
 <button onclick="show('profits')">Ganancias</button>
 <button onclick="show('withdraw')">Retiro</button>
@@ -88,11 +89,12 @@ margin:auto;
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Contraseña">
 
-<button onclick="register()">Registrar</button>
+<button onclick="register()">Registrarme</button>
 
 <p id="msg"></p>
 </div>
 </section>
+
 <!-- LOGIN -->
 <section id="login">
 <div class="box">
@@ -111,7 +113,6 @@ margin:auto;
 <section id="invest">
 <div class="box">
 <h2>Invertir</h2>
-<p>Planes:</p>
 <ul>
 <li>10 USD → 5%</li>
 <li>20 USD → 10%</li>
@@ -126,7 +127,7 @@ margin:auto;
 <section id="profits">
 <div class="box">
 <h2>Mis ganancias</h2>
-<p>Aquí se mostrará el progreso diario</p>
+<p>Inicia sesión para ver tus ganancias</p>
 </div>
 </section>
 
@@ -148,52 +149,6 @@ margin:auto;
 </div>
 </section>
 
-<script>
-function show(id){
-document.querySelectorAll("section").forEach(s=>{
-s.classList.remove("active");
-});
-document.getElementById(id).classList.add("active");
-}
-
-async function register(){
-const data={
-nombre:nombre.value,
-email:email.value,
-password:password.value
-};
-
-const res = await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
-
-const json = await res.json();
-msg.innerText=json.msg;
-}
-</script>
-  async function login(){
-
-const data={
-email: loginEmail.value,
-password: loginPass.value
-};
-
-const res = await fetch("/api/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
-
-const json = await res.json();
-loginMsg.innerText=json.msg;
-
-if(json.ok){
-show("profits");
-}
-}
-
-
+<script src="script.js"></script>
 </body>
 </html>
