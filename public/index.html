@@ -1,64 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
-
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#020617;
-color:white;
-}
-
-header{
-background:#0f172a;
-padding:15px;
-display:flex;
-justify-content:space-around;
-flex-wrap:wrap;
-}
-
-header button{
-background:#22c55e;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-margin:5px;
-}
-
-section{
-display:none;
-padding:30px;
-}
-
-.active{
-display:block;
-}
-
-.box{
-background:#111827;
-padding:20px;
-border-radius:12px;
-max-width:400px;
-margin:auto;
-}
-
-input,button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:8px;
-border:none;
-}
-button{
-background:#22c55e;
-font-weight:bold;
-cursor:pointer;
-}
+body{margin:0;font-family:Arial;background:#020617;color:white}
+header{background:#0f172a;padding:15px;display:flex;flex-wrap:wrap;justify-content:center}
+header button{margin:5px;background:#22c55e;border:none;padding:10px;border-radius:8px;font-weight:bold}
+section{display:none;padding:30px}
+.active{display:block}
+.box{background:#111827;padding:20px;border-radius:12px;max-width:400px;margin:auto}
+input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none}
+button{background:#22c55e;font-weight:bold}
 </style>
 </head>
 
@@ -67,85 +21,58 @@ cursor:pointer;
 <header>
 <button onclick="show('home')">Inicio</button>
 <button onclick="show('register')">Registro</button>
-<button onclick="show('login')">Iniciar sesión</button>
-<button onclick="show('invest')">Invertir</button>
-<button onclick="show('profits')">Ganancias</button>
-<button onclick="show('withdraw')">Retiro</button>
-<button onclick="show('contact')">Contacto</button>
+<button onclick="show('login')">Login</button>
+<button onclick="show('team')">Mi equipo</button>
+<button onclick="show('profits')">Panel</button>
+<button onclick="show('admin')">Admin</button>
 </header>
 
-<!-- INICIO -->
 <section id="home" class="active">
 <h1>BITUSDT</h1>
-<p>Plataforma segura de inversión</p>
+<p>Plataforma demo educativa</p>
 </section>
 
-<!-- REGISTRO -->
 <section id="register">
 <div class="box">
 <h2>Registro</h2>
-
 <input id="nombre" placeholder="Nombre">
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Contraseña">
-
+<input type="hidden" id="ref">
 <button onclick="register()">Registrarme</button>
-
 <p id="msg"></p>
 </div>
 </section>
 
-<!-- LOGIN -->
 <section id="login">
 <div class="box">
 <h2>Iniciar sesión</h2>
-
 <input id="loginEmail" placeholder="Email">
 <input id="loginPass" type="password" placeholder="Contraseña">
-
 <button onclick="login()">Entrar</button>
-
 <p id="loginMsg"></p>
 </div>
 </section>
 
-<!-- INVERTIR -->
-<section id="invest">
-<div class="box">
-<h2>Invertir</h2>
-<ul>
-<li>10 USD → 5%</li>
-<li>20 USD → 10%</li>
-<li>30 USD → 15%</li>
-<li>40 USD → 35%</li>
-<li>50 USD → 40%</li>
-</ul>
-</div>
-</section>
-
-<!-- GANANCIAS -->
 <section id="profits">
 <div class="box">
-<h2>Mis ganancias</h2>
-<p>Inicia sesión para ver tus ganancias</p>
+<h2>Panel</h2>
+<div id="panel"></div>
 </div>
 </section>
 
-<!-- RETIRO -->
-<section id="withdraw">
+<section id="team">
 <div class="box">
-<h2>Retiro</h2>
-<p>Mínimo retiro: 20 USD</p>
-<button>Solicitar retiro</button>
+<h2>Mi equipo</h2>
+<div id="teamBox"></div>
 </div>
 </section>
 
-<!-- CONTACTO -->
-<section id="contact">
+<section id="admin">
 <div class="box">
-<h2>Contacto</h2>
-<p>Email: Binancecoin958@gmail.com</p>
-<p>Red: TRC20</p>
+<h2>Panel Admin (demo)</h2>
+<button onclick="loadAdmin()">Ver usuarios</button>
+<pre id="adminBox"></pre>
 </div>
 </section>
 
