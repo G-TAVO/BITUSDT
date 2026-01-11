@@ -7,20 +7,23 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-/* BASE DE DATOS SIMPLE */
+/* BD TEMPORAL */
 let users = [];
 
 console.log("Servidor iniciado...");
 
-/* RUTA TEST */
+/* RUTA PRINCIPAL */
 app.get("/", (req, res) => {
   res.send("API BITUSDT ACTIVA");
 });
 
-/* REGISTRO */
-app.post("/register", (req, res) => {
-  console.log("Intento de registro...");
+/* GET REGISTER (NAVEGADOR) */
+app.get("/register", (req, res) => {
+  res.send("Ruta activa. Usa POST para registrar usuarios.");
+});
 
+/* POST REGISTER */
+app.post("/register", (req, res) => {
   const { phone, password } = req.body;
 
   if (!phone || !password) {
@@ -48,8 +51,6 @@ app.post("/register", (req, res) => {
 
   users.push(nuevo);
 
-  console.log("Usuario registrado:", phone);
-
   res.json({
     error: false,
     msg: "Registro exitoso",
@@ -59,8 +60,6 @@ app.post("/register", (req, res) => {
 
 /* LOGIN */
 app.post("/login", (req, res) => {
-  console.log("Intento login...");
-
   const { phone, password } = req.body;
 
   const user = users.find(
@@ -83,8 +82,6 @@ app.post("/login", (req, res) => {
 
 /* INVERTIR */
 app.post("/invest", (req, res) => {
-  console.log("Invirtiendo...");
-
   const { phone, amount } = req.body;
 
   const user = users.find(u => u.phone === phone);
@@ -95,7 +92,7 @@ app.post("/invest", (req, res) => {
     });
   }
 
-  const montos = [10,20,30,40,50];
+  const montos = [10, 20, 30, 40, 50];
   if (!montos.includes(amount)) {
     return res.status(400).json({
       error: true,
@@ -113,8 +110,6 @@ app.post("/invest", (req, res) => {
 
 /* GANANCIAS */
 app.post("/profit", (req, res) => {
-  console.log("Sumando ganancias...");
-
   const { phone } = req.body;
 
   const user = users.find(u => u.phone === phone);
@@ -144,8 +139,6 @@ app.post("/profit", (req, res) => {
 
 /* RETIRO */
 app.post("/withdraw", (req, res) => {
-  console.log("Procesando retiro...");
-
   const { phone } = req.body;
 
   const user = users.find(u => u.phone === phone);
@@ -197,3 +190,4 @@ app.post("/dashboard", (req, res) => {
 app.listen(PORT, () => {
   console.log("Servidor activo en puerto", PORT);
 });
+
