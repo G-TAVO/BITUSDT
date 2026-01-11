@@ -1,81 +1,50 @@
-
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>BITUSDT</title>
-<style>
-body{margin:0;font-family:Arial;background:#020617;color:white}
-header{background:#0f172a;padding:15px;display:flex;flex-wrap:wrap;justify-content:center}
-header button{margin:5px;background:#22c55e;border:none;padding:10px;border-radius:8px;font-weight:bold}
-section{display:none;padding:30px}
-.active{display:block}
-.box{background:#111827;padding:20px;border-radius:12px;max-width:400px;margin:auto}
-input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none}
-button{background:#22c55e;font-weight:bold}
-</style>
+<title>Simulador Educativo</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
-<button onclick="show('home')">Inicio</button>
-<button onclick="show('register')">Registro</button>
-<button onclick="show('login')">Login</button>
-<button onclick="show('team')">Mi equipo</button>
+<h1>📘 Plataforma Educativa</h1>
+<p class="aviso">⚠ SIMULACIÓN - NO DINERO REAL</p>
+
+<nav>
+<button onclick="show('reg')">Registro</button>
+<button onclick="show('log')">Login</button>
 <button onclick="show('profits')">Panel</button>
-<button onclick="show('admin')">Admin</button>
-</header>
+<button onclick="show('team')">Mi Equipo</button>
+</nav>
 
-<section id="home" class="active">
-<h1>BITUSDT</h1>
-<p>Plataforma demo educativa</p>
-</section>
-
-<section id="register">
-<div class="box">
+<section id="reg" class="active">
 <h2>Registro</h2>
-<input id="nombre" placeholder="Nombre">
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Contraseña">
-<input type="hidden" id="ref">
-<button onclick="register()">Registrarme</button>
+<input id="nombre" placeholder="Nombre"><br>
+<input id="email" placeholder="Correo"><br>
+<input id="password" placeholder="Contraseña"><br>
+<input id="ref" placeholder="Correo del referido (opcional)"><br>
+<button onclick="register()">Registrar</button>
 <p id="msg"></p>
-</div>
 </section>
 
-<section id="login">
-<div class="box">
-<h2>Iniciar sesión</h2>
-<input id="loginEmail" placeholder="Email">
-<input id="loginPass" type="password" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
+<section id="log">
+<h2>Login</h2>
+<input id="loginEmail" placeholder="Correo"><br>
+<input id="loginPass" placeholder="Contraseña"><br>
+<button onclick="login()">Ingresar</button>
 <p id="loginMsg"></p>
-</div>
 </section>
 
 <section id="profits">
-<div class="box">
 <h2>Panel</h2>
 <div id="panel"></div>
-</div>
 </section>
 
 <section id="team">
-<div class="box">
-<h2>Mi equipo</h2>
-<div id="teamBox"></div>
-</div>
+<h2>Mi Equipo</h2>
+<ul id="teamList"></ul>
 </section>
 
-<section id="admin">
-<div class="box">
-<h2>Panel Admin (demo)</h2>
-<button onclick="loadAdmin()">Ver usuarios</button>
-<pre id="adminBox"></pre>
-</div>
-</section>
-
-<script src="script.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
+
