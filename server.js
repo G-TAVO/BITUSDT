@@ -1,88 +1,67 @@
 const express = require("express");
-const path = require("path");
-
+const bodyParser = require("body-parser");
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(bodyParser.json());
+app.use(express.static("public"));
 
 let users = [];
 
-// Archivos públicos
-app.use(express.static("public"));
-
-// Página principal
-app.get("/", (req,res)=>{
-res.sendFile(path.join(__dirname,"public/index.html"));
-});
-
 // REGISTRO
 app.post("/api/register",(req,res)=>{
-const { nombre,email,password,ref } = req.body;
+const {nombre,email,password,ref} = req.body;
 
-if(!nombre || !email || !password){
-return res.json({ok:false,msg:"Completa todos los campos"});
-}
+const existe = users.find(u=>u.email===email);
+if(existe) return res.json({ok:false,msg:"Correo ya registrado"});
 
-// código único
-const code = "USR" + Math.floor(Math.random()*99999);
-
-users.push({
+const user={
 nombre,
 email,
 password,
-code,
-ref
-});
+balance:0,
+ganado:0,
+referidoPor: ref || null,
+equipo:[]
+};
 
-res.json({
-ok:true,
-msg:"Registro exitoso",
-code
-});
+users.push(user);
+
+// guardar equipo
+if(ref){
+const padre = users.find(u=>u.email===ref);
+if(padre) padre.equipo.push(email);
+}
+
+res.json({ok:true,msg:"Registro exitoso"});
 });
 
 // LOGIN
 app.post("/api/login",(req,res)=>{
-const { email,password } = req.body;
+const {email,password}=req.body;
+const user = users.find(u=>u.email===email && u.password===password);
 
-const user = users.find(u =>
-u.email===email &&
-u.password===password
-);
-
-if(!user){
-return res.json({ok:false,msg:"Datos incorrectos"});
-}
+if(!user) return res.json({ok:false,msg:"Datos incorrectos"});
 
 res.json({
 ok:true,
-msg:"Bienvenido " + user.nombre,
-code:user.code
+msg:"Bienvenido "+user.nombre,
+user
 });
 });
 
-// VER EQUIPO
-app.post("/api/team",(req,res)=>{
-const { code } = req.body;
-
-const team = users.filter(u=>u.ref===code);
-
-res.json({
-ok:true,
-team
-});
+// VER PERFIL
+app.post("/api/profile",(req,res)=>{
+const {email}=req.body;
+const user = users.find(u=>u.email===email);
+res.json(user);
 });
 
-// ADMIN (demo)
+// ADMIN
 app.get("/api/admin",(req,res)=>{
-res.json({
-usuarios:users.length,
-data:users
-});
+res.json(users);
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,()=>{
-console.log("Servidor activo",PORT);
-});
+app.listen(PORT,()=>console.log("Servidor activo"));
+
 
