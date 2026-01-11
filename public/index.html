@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>BITUSDT</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#020617;
+color:white;
+}
+
+header{
+background:#0f172a;
+padding:15px;
+display:flex;
+justify-content:space-around;
+}
+
+header button{
+background:#22c55e;
+border:none;
+padding:10px 15px;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+}
+
+section{
+display:none;
+padding:30px;
+}
+
+.active{
+display:block;
+}
+
+form input,form button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+}
+
+form button{
+background:#22c55e;
+font-weight:bold;
+}
+
+.box{
+background:#111827;
+padding:20px;
+border-radius:12px;
+max-width:400px;
+margin:auto;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<button onclick="show('home')">Inicio</button>
+<button onclick="show('register')">Registro</button>
+<button onclick="show('invest')">Invertir</button>
+<button onclick="show('profits')">Ganancias</button>
+<button onclick="show('withdraw')">Retiro</button>
+<button onclick="show('contact')">Contacto</button>
+</header>
+
+<!-- INICIO -->
+<section id="home" class="active">
+<h1>BITUSDT</h1>
+<p>Plataforma segura de inversión</p>
+</section>
+
+<!-- REGISTRO -->
+<section id="register">
+<div class="box">
+<h2>Registro</h2>
+
+<input id="nombre" placeholder="Nombre">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Contraseña">
+
+<button onclick="register()">Registrar</button>
+
+<p id="msg"></p>
+</div>
+</section>
+
+<!-- INVERTIR -->
+<section id="invest">
+<div class="box">
+<h2>Invertir</h2>
+<p>Planes:</p>
+<ul>
+<li>10 USD → 5%</li>
+<li>20 USD → 10%</li>
+<li>30 USD → 15%</li>
+<li>40 USD → 35%</li>
+<li>50 USD → 40%</li>
+</ul>
+</div>
+</section>
+
+<!-- GANANCIAS -->
+<section id="profits">
+<div class="box">
+<h2>Mis ganancias</h2>
+<p>Aquí se mostrará el progreso diario</p>
+</div>
+</section>
+
+<!-- RETIRO -->
+<section id="withdraw">
+<div class="box">
+<h2>Retiro</h2>
+<p>Mínimo retiro: 20 USD</p>
+<button>Solicitar retiro</button>
+</div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contact">
+<div class="box">
+<h2>Contacto</h2>
+<p>Email: Binancecoin958@gmail.com</p>
+<p>Red: TRC20</p>
+</div>
+</section>
+
+<script>
+function show(id){
+document.querySelectorAll("section").forEach(s=>{
+s.classList.remove("active");
+});
+document.getElementById(id).classList.add("active");
+}
+
+async function register(){
+const data={
+nombre:nombre.value,
+email:email.value,
+password:password.value
+};
+
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+const json = await res.json();
+msg.innerText=json.msg;
+}
+</script>
+
+</body>
+</html>
