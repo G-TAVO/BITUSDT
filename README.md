@@ -1,11 +1,28 @@
+# BITUSDT API
 
-# BITUSDT WEB (Demo)
+Backend básico para plataforma de inversión.
 
-Proyecto educativo.
-No procesa pagos reales.
+## Funciones
+- Registro
+- Login
+- Inversión
+- Ganancias diarias
+- Retiro
+- Dashboard
 
-## Instalar
+## Rutas
+
+POST /register  
+POST /login  
+POST /invest  
+POST /profit  
+POST /withdraw  
+POST /dashboard  
+
+## Cómo iniciar
+
+1. Instalar dependencias
 npm install
 
-## Ejecutar
+2. Ejecutar
 npm start
