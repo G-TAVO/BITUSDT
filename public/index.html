@@ -93,6 +93,19 @@ margin:auto;
 <p id="msg"></p>
 </div>
 </section>
+<!-- LOGIN -->
+<section id="login">
+<div class="box">
+<h2>Iniciar sesión</h2>
+
+<input id="loginEmail" placeholder="Email">
+<input id="loginPass" type="password" placeholder="Contraseña">
+
+<button onclick="login()">Entrar</button>
+
+<p id="loginMsg"></p>
+</div>
+</section>
 
 <!-- INVERTIR -->
 <section id="invest">
@@ -160,6 +173,27 @@ const json = await res.json();
 msg.innerText=json.msg;
 }
 </script>
+  async function login(){
+
+const data={
+email: loginEmail.value,
+password: loginPass.value
+};
+
+const res = await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+const json = await res.json();
+loginMsg.innerText=json.msg;
+
+if(json.ok){
+show("profits");
+}
+}
+
 
 </body>
 </html>
