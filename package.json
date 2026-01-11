@@ -1,7 +1,8 @@
+
 {
   "name": "bitusdt",
   "version": "1.0.0",
-  "description": "Plataforma web BITUSDT",
+  "description": "Plataforma demo BITUSDT",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
