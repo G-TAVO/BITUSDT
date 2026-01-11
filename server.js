@@ -2,6 +2,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+app.get("/register", (req, res) => {
+  res.send("Ruta activa. Usa POST para registrar usuarios.");
+});
 
 const app = express();
 app.use(cors());
