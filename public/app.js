@@ -1,71 +1,40 @@
-let usuarioActual=null;
+let saldo=0,total=0,hoy=0;
+let users=0,invTotal=0;
 
 function show(id){
-document.querySelectorAll("section").forEach(s=>{
-s.classList.remove("active");
-});
+document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 }
 
-// REGISTRO
-async function register(){
-const data={
-nombre:nombre.value,
-email:email.value,
-password:password.value,
-ref:ref.value
-};
-
-const res = await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
-
-const json = await res.json();
-msg.innerText=json.msg;
+// Registro
+function register(){
+users++;
+msg.innerText="Registro exitoso (demo)";
 }
 
-// LOGIN
-async function login(){
-const data={
-email: loginEmail.value,
-password: loginPass.value
-};
-
-const res = await fetch("/api/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
-
-const json = await res.json();
-loginMsg.innerText=json.msg;
-
-if(json.ok){
-usuarioActual=json.user;
-
-document.getElementById("panel").innerHTML=`
-<div class="box">
-<h3>${json.msg}</h3>
-<p>Saldo virtual: <b>${usuarioActual.balance} USD</b></p>
-<p>Ganado hoy: <b>${usuarioActual.ganado} USD</b></p>
-<p>Link referido:</p>
-<input value="${window.location.href}?ref=${usuarioActual.email}" readonly>
-</div>
-`;
-
-show("profits");
-cargarEquipo();
-}
+// Login
+function login(){
+loginMsg.innerText="Bienvenido (modo demo)";
+show("dash");
 }
 
-// EQUIPO
-function cargarEquipo(){
-teamList.innerHTML="";
-usuarioActual.equipo.forEach(e=>{
-let li=document.createElement("li");
-li.innerText=e;
-teamList.appendChild(li);
-});
+// Invertir (simulado)
+function invert(){
+let val=parseInt(amount.value);
+saldo+=val;
+invTotal+=val;
+hoy+=val*0.05;
+total+=val*0.05;
+
+update();
+invMsg.innerText="Inversión simulada exitosa";
 }
+
+function update(){
+document.getElementById("saldo").innerText=saldo.toFixed(2)+" USDT";
+document.getElementById("hoy").innerText=hoy.toFixed(2)+" USDT";
+document.getElementById("total").innerText=total.toFixed(2)+" USDT";
+document.getElementById("users").innerText=users;
+document.getElementById("totalInv").innerText=invTotal+" USDT";
+}
+
