@@ -1,159 +1,199 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Base de datos temporal (demo)
+const PORT = process.env.PORT || 3000;
+
+/* BASE DE DATOS SIMPLE */
 let users = [];
 
-// ===============================
-// UTILIDADES
-// ===============================
-const findUser = (phone) => {
-  return users.find(u => u.phone === phone);
-};
+console.log("Servidor iniciado...");
 
-// ===============================
-// RUTA TEST
-// ===============================
+/* RUTA TEST */
 app.get("/", (req, res) => {
-  res.send("API BITUSDT funcionando correctamente");
+  res.send("API BITUSDT ACTIVA");
 });
 
-app.get("/register", (req, res) => {
-  res.send("Ruta activa. Usa POST para registrar usuarios.");
-});
-
-// ===============================
-// REGISTRO
-// ===============================
+/* REGISTRO */
 app.post("/register", (req, res) => {
+  console.log("Intento de registro...");
+
   const { phone, password } = req.body;
 
   if (!phone || !password) {
     return res.status(400).json({
-      error: "Phone y password son obligatorios"
+      error: true,
+      msg: "Faltan datos"
     });
   }
 
-  if (findUser(phone)) {
-    return res.status(409).json({
-      error: "Usuario ya existe"
+  const existe = users.find(u => u.phone === phone);
+
+  if (existe) {
+    return res.status(400).json({
+      error: true,
+      msg: "Usuario ya existe"
     });
   }
 
-  const newUser = {
+  const nuevo = {
     phone,
     password,
-    balance: 0,
-    profit: 0,
-    createdAt: new Date()
+    investment: 0,
+    profit: 0
   };
 
-  users.push(newUser);
+  users.push(nuevo);
 
-  res.status(201).json({
-    message: "Usuario registrado correctamente",
-    user: {
-      phone: newUser.phone,
-      balance: newUser.balance
-    }
+  console.log("Usuario registrado:", phone);
+
+  res.json({
+    error: false,
+    msg: "Registro exitoso",
+    user: nuevo
   });
 });
 
-// ===============================
-// DEPOSITO
-// ===============================
-app.post("/deposit", (req, res) => {
+/* LOGIN */
+app.post("/login", (req, res) => {
+  console.log("Intento login...");
+
+  const { phone, password } = req.body;
+
+  const user = users.find(
+    u => u.phone === phone && u.password === password
+  );
+
+  if (!user) {
+    return res.status(401).json({
+      error: true,
+      msg: "Datos incorrectos"
+    });
+  }
+
+  res.json({
+    error: false,
+    msg: "Login correcto",
+    user
+  });
+});
+
+/* INVERTIR */
+app.post("/invest", (req, res) => {
+  console.log("Invirtiendo...");
+
   const { phone, amount } = req.body;
 
-  if (!phone || !amount) {
-    return res.status(400).json({
-      error: "Datos incompletos"
-    });
-  }
-
-  const user = findUser(phone);
+  const user = users.find(u => u.phone === phone);
   if (!user) {
     return res.status(404).json({
-      error: "Usuario no existe"
+      error: true,
+      msg: "Usuario no existe"
     });
   }
 
-  const value = Number(amount);
-  if (value <= 0) {
+  const montos = [10,20,30,40,50];
+  if (!montos.includes(amount)) {
     return res.status(400).json({
-      error: "Monto inválido"
+      error: true,
+      msg: "Monto inválido"
     });
   }
 
-  user.balance += value;
+  user.investment += amount;
 
   res.json({
-    message: "Depósito exitoso",
-    nuevo_saldo: user.balance
+    msg: "Inversión exitosa",
+    totalInvertido: user.investment
   });
 });
 
-// ===============================
-// GANANCIAS DIARIAS
-// ===============================
+/* GANANCIAS */
 app.post("/profit", (req, res) => {
+  console.log("Sumando ganancias...");
+
   const { phone } = req.body;
 
-  const user = findUser(phone);
+  const user = users.find(u => u.phone === phone);
   if (!user) {
     return res.status(404).json({
-      error: "Usuario no existe"
+      error: true,
+      msg: "Usuario no existe"
     });
   }
 
-  const rate = 0.05; // 5%
-  const gain = user.balance * rate;
+  let daily = 0;
 
-  user.profit += gain;
+  if (user.investment == 10) daily = 0.5;
+  if (user.investment == 20) daily = 2;
+  if (user.investment == 30) daily = 4.5;
+  if (user.investment == 40) daily = 14;
+  if (user.investment == 50) daily = 20;
+
+  user.profit += daily;
 
   res.json({
-    ganancia_hoy: gain,
-    total_ganado: user.profit
+    msg: "Ganancia añadida",
+    hoy: daily,
+    total: user.profit
   });
 });
 
-// ===============================
-// RETIRO
-// ===============================
+/* RETIRO */
 app.post("/withdraw", (req, res) => {
+  console.log("Procesando retiro...");
+
   const { phone } = req.body;
 
-  const user = findUser(phone);
+  const user = users.find(u => u.phone === phone);
   if (!user) {
     return res.status(404).json({
-      error: "Usuario no existe"
+      error: true,
+      msg: "Usuario no existe"
     });
   }
 
   if (user.profit < 20) {
     return res.status(400).json({
-      error: "Mínimo retiro: 20 USDT"
+      error: true,
+      msg: "Retiro mínimo 20 USDT"
     });
   }
 
   const fee = user.profit * 0.05;
-  const pay = user.profit - fee;
+  const receive = user.profit - fee;
 
   user.profit = 0;
 
   res.json({
-    message: "Retiro procesado",
-    enviado: pay,
-    comision_empresa: fee
+    msg: "Retiro exitoso",
+    empresa: fee,
+    usuario: receive
   });
 });
 
-// ===============================
-app.listen(3000, () => {
-  console.log("Servidor BITUSDT corriendo en puerto 3000");
+/* DASHBOARD */
+app.post("/dashboard", (req, res) => {
+  const { phone } = req.body;
+
+  const user = users.find(u => u.phone === phone);
+  if (!user) {
+    return res.status(404).json({
+      error: true,
+      msg: "Usuario no existe"
+    });
+  }
+
+  res.json({
+    inversion: user.investment,
+    ganancias: user.profit
+  });
+});
+
+/* START */
+app.listen(PORT, () => {
+  console.log("Servidor activo en puerto", PORT);
 });
