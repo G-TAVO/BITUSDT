@@ -2,32 +2,33 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Plataforma Educativa</title>
+<title>BITUSDT - Demo Educativa</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-<h1>🚀 Plataforma de Inversión (SIMULACIÓN)</h1>
-<p>Proyecto educativo – sin dinero real</p>
+<header class="top">
+<h1>BITUSDT</h1>
+<p>Plataforma educativa (SIMULACIÓN)</p>
 </header>
 
-<nav>
-<button onclick="show('reg')">📝 Registro</button>
-<button onclick="show('log')">🔑 Login</button>
-<button onclick="show('profits')">📊 Panel</button>
-<button onclick="show('team')">👥 Mi Equipo</button>
+<nav class="menu">
+<button onclick="show('reg')">Registro</button>
+<button onclick="show('log')">Login</button>
+<button onclick="show('dash')">Panel</button>
+<button onclick="show('team')">Equipo</button>
+<button onclick="show('admin')">Admin</button>
 </nav>
 
 <main>
 
 <section id="reg" class="card active">
 <h2>Crear cuenta</h2>
-<input id="nombre" placeholder="Nombre completo">
+<input id="nombre" placeholder="Nombre">
 <input id="email" placeholder="Correo">
 <input id="password" type="password" placeholder="Contraseña">
-<input id="ref" placeholder="Correo del referido (opcional)">
-<button onclick="register()">Registrarme</button>
+<input id="ref" placeholder="Correo referido (opcional)">
+<button onclick="register()">Registrarse</button>
 <p id="msg"></p>
 </section>
 
@@ -39,9 +40,37 @@
 <p id="loginMsg"></p>
 </section>
 
-<section id="profits" class="card">
-<h2>Panel principal</h2>
-<div id="panel"></div>
+<section id="dash" class="card">
+<h2>Dashboard</h2>
+
+<div class="grid">
+<div class="box">
+<h3>Saldo</h3>
+<p id="saldo">0.00 USDT</p>
+</div>
+
+<div class="box">
+<h3>Ganancia hoy</h3>
+<p id="hoy">0.00 USDT</p>
+</div>
+
+<div class="box">
+<h3>Total ganado</h3>
+<p id="total">0.00 USDT</p>
+</div>
+</div>
+
+<h3>Simular inversión</h3>
+<select id="amount">
+<option value="10">10 USDT</option>
+<option value="20">20 USDT</option>
+<option value="30">30 USDT</option>
+<option value="40">40 USDT</option>
+<option value="50">50 USDT</option>
+</select>
+<button onclick="invert()">Invertir</button>
+
+<p id="invMsg"></p>
 </section>
 
 <section id="team" class="card">
@@ -49,14 +78,18 @@
 <ul id="teamList"></ul>
 </section>
 
+<section id="admin" class="card">
+<h2>Panel administrador</h2>
+<p>Total usuarios: <b id="users">0</b></p>
+<p>Total invertido: <b id="totalInv">0 USDT</b></p>
+</section>
+
 </main>
 
 <footer>
-<p>⚠ Plataforma educativa | Ganancias ficticias</p>
+⚠ Proyecto educativo | Dinero ficticio
 </footer>
 
 <script src="app.js"></script>
 </body>
 </html>
-
-
