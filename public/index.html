@@ -1,50 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Simulador Educativo</title>
+<meta charset="UTF-8">
+<title>Plataforma Educativa</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>📘 Plataforma Educativa</h1>
-<p class="aviso">⚠ SIMULACIÓN - NO DINERO REAL</p>
+<header>
+<h1>🚀 Plataforma de Inversión (SIMULACIÓN)</h1>
+<p>Proyecto educativo – sin dinero real</p>
+</header>
 
 <nav>
-<button onclick="show('reg')">Registro</button>
-<button onclick="show('log')">Login</button>
-<button onclick="show('profits')">Panel</button>
-<button onclick="show('team')">Mi Equipo</button>
+<button onclick="show('reg')">📝 Registro</button>
+<button onclick="show('log')">🔑 Login</button>
+<button onclick="show('profits')">📊 Panel</button>
+<button onclick="show('team')">👥 Mi Equipo</button>
 </nav>
 
-<section id="reg" class="active">
-<h2>Registro</h2>
-<input id="nombre" placeholder="Nombre"><br>
-<input id="email" placeholder="Correo"><br>
-<input id="password" placeholder="Contraseña"><br>
-<input id="ref" placeholder="Correo del referido (opcional)"><br>
-<button onclick="register()">Registrar</button>
+<main>
+
+<section id="reg" class="card active">
+<h2>Crear cuenta</h2>
+<input id="nombre" placeholder="Nombre completo">
+<input id="email" placeholder="Correo">
+<input id="password" type="password" placeholder="Contraseña">
+<input id="ref" placeholder="Correo del referido (opcional)">
+<button onclick="register()">Registrarme</button>
 <p id="msg"></p>
 </section>
 
-<section id="log">
-<h2>Login</h2>
-<input id="loginEmail" placeholder="Correo"><br>
-<input id="loginPass" placeholder="Contraseña"><br>
-<button onclick="login()">Ingresar</button>
+<section id="log" class="card">
+<h2>Iniciar sesión</h2>
+<input id="loginEmail" placeholder="Correo">
+<input id="loginPass" type="password" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
 <p id="loginMsg"></p>
 </section>
 
-<section id="profits">
-<h2>Panel</h2>
+<section id="profits" class="card">
+<h2>Panel principal</h2>
 <div id="panel"></div>
 </section>
 
-<section id="team">
-<h2>Mi Equipo</h2>
+<section id="team" class="card">
+<h2>Mi equipo</h2>
 <ul id="teamList"></ul>
 </section>
+
+</main>
+
+<footer>
+<p>⚠ Plataforma educativa | Ganancias ficticias</p>
+</footer>
 
 <script src="app.js"></script>
 </body>
 </html>
+
 
