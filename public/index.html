@@ -1,28 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>BITUSDT | Plataforma de Inversión</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>BITUSDT</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>💰 BITUSDT</h1>
-  <p>Plataforma de inversión USDT</p>
-</header>
+<div class="card">
+<h1>BITUSDT</h1>
+<p>Plataforma de inversión</p>
 
-<section class="card">
-  <h2>Registro</h2>
+<input id="nombre" placeholder="Nombre">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Contraseña">
 
-  <input id="name" placeholder="Nombre">
-  <input id="email" placeholder="Correo">
-  <input id="password" type="password" placeholder="Contraseña">
+<button onclick="registrar()">Registrar</button>
 
-  <button onclick="register()">Registrarme</button>
-
-  <p id="msg"></p>
-</section>
+<p id="msg"></p>
+</div>
 
 <script src="script.js"></script>
 </body>
