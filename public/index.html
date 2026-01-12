@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="Style.css">
 </head>
 <body>
 
@@ -23,17 +23,14 @@
 
 <div class="container">
 
-<!-- REGISTRO -->
 <div id="register" class="card">
 <h2>Crear cuenta</h2>
 <input id="rname" placeholder="Nombre">
 <input id="remail" placeholder="Correo">
 <input id="rpass" type="password" placeholder="Contraseña">
-<input id="rref" placeholder="Correo referido (opcional)">
 <button onclick="register()">Registrarse</button>
 </div>
 
-<!-- LOGIN -->
 <div id="login" class="card">
 <h2>Iniciar sesión</h2>
 <input id="lemail" placeholder="Correo">
@@ -41,7 +38,6 @@
 <button onclick="login()">Entrar</button>
 </div>
 
-<!-- PANEL -->
 <div id="panel" class="card">
 <h2>📊 Dashboard</h2>
 
@@ -52,21 +48,21 @@
 </div>
 
 <select id="monto">
+<option value="">Seleccione monto</option>
 <option value="10">10 USDT</option>
 <option value="20">20 USDT</option>
+<option value="30">30 USDT</option>
 <option value="50">50 USDT</option>
 </select>
 
 <button onclick="invertir()">Invertir</button>
 </div>
 
-<!-- EQUIPO -->
 <div id="team" class="card">
 <h2>👥 Mi equipo</h2>
-<p id="teamData">Sin referidos</p>
+<p>Sin referidos</p>
 </div>
 
-<!-- ADMIN -->
 <div id="admin" class="card admin">
 <h2>🔐 Panel administrador</h2>
 <p>Total usuarios: <span id="u">0</span></p>
@@ -82,4 +78,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
