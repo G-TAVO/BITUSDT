@@ -1,97 +1,39 @@
-
-let myCode="";
-
-// capturar referido
-const params=new URLSearchParams(window.location.search);
-const r=params.get("ref");
-if(r){ref.value=r;}
-
 function show(id){
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+document.querySelectorAll('.card')
+.forEach(x=>x.style.display="none");
+document.getElementById(id).style.display="block";
 }
 
-// REGISTRO
-async function register(){
-const data={
-nombre:nombre.value,
-email:email.value,
-password:password.value,
-ref:ref.value
-};
+show("register");
 
-const res=await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
+// SIMULACIÓN
+let saldo=0, hoy=0, total=0, usuarios=0, invertido=0;
 
-const json=await res.json();
-msg.innerText=json.msg;
+function register(){
+usuarios++;
+alert("Registro exitoso (simulado)");
+document.getElementById("u").innerText=usuarios;
 }
 
-// LOGIN
-async function login(){
-const data={
-email:loginEmail.value,
-password:loginPass.value
-};
-
-const res=await fetch("/api/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-});
-
-const json=await res.json();
-loginMsg.innerText=json.msg;
-
-if(json.ok){
-myCode=json.code;
-
-panel.innerHTML=`
-<p><b>Tu código:</b> ${myCode}</p>
-<input value="https://bitusdt.onrender.com/?ref=${myCode}" readonly>
-<button onclick="copy()">Copiar link</button>
-`;
-
-show("profits");
-}
+function login(){
+alert("Login correcto (simulado)");
+show("panel");
 }
 
-// COPIAR LINK
-function copy(){
-const i=document.querySelector("#panel input");
-navigator.clipboard.writeText(i.value);
-alert("Link copiado");
+function invertir(){
+let m=Number(monto.value);
+let ganancia=m*0.15;
+saldo+=ganancia;
+hoy+=ganancia;
+total+=ganancia;
+invertido+=m;
+
+saldoUI();
+document.getElementById("inv").innerText=invertido;
 }
 
-// VER EQUIPO
-async function loadTeam(){
-const res=await fetch("/api/team",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({code:myCode})
-});
-
-const json=await res.json();
-teamBox.innerHTML="";
-
-if(json.team.length==0){
-teamBox.innerHTML="Sin referidos";
-return;
-}
-
-json.team.forEach(u=>{
-teamBox.innerHTML+=`<p>${u.nombre} (${u.email})</p>`;
-});
-}
-
-document.getElementById("team").addEventListener("click",loadTeam);
-
-// ADMIN
-async function loadAdmin(){
-const res=await fetch("/api/admin");
-const json=await res.json();
-adminBox.textContent=JSON.stringify(json,null,2);
+function saldoUI(){
+saldo.innerText=saldo.toFixed(2);
+hoy.innerText=hoy.toFixed(2);
+total.innerText=total.toFixed(2);
 }
