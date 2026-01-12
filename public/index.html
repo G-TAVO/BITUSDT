@@ -1,79 +1,91 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="Style.css">
+<style>
+body{font-family:Arial;background:#0f172a;color:white;text-align:center}
+.box{background:#111827;padding:20px;border-radius:10px;width:90%;max-width:400px;margin:20px auto}
+input,button{width:100%;padding:10px;margin:6px;border-radius:5px;border:none}
+button{background:#22c55e;color:black;font-weight:bold}
+a{color:#38bdf8}
+.oculto{display:none}
+</style>
 </head>
+
 <body>
 
-<header>
-<h1>🚀 BITUSDT</h1>
-<p>Plataforma educativa (SIMULACIÓN)</p>
-</header>
-
-<nav>
-<button onclick="show('register')">Registro</button>
-<button onclick="show('login')">Login</button>
-<button onclick="show('panel')">Panel</button>
-<button onclick="show('team')">Equipo</button>
-<button onclick="show('admin')">Admin</button>
-</nav>
-
-<div class="container">
-
-<div id="register" class="card">
-<h2>Crear cuenta</h2>
-<input id="rname" placeholder="Nombre">
-<input id="remail" placeholder="Correo">
-<input id="rpass" type="password" placeholder="Contraseña">
-<button onclick="register()">Registrarse</button>
+<!-- REGISTRO -->
+<div id="registro" class="box">
+<h2>Registrarse</h2>
+<input id="rCorreo" placeholder="Correo">
+<input id="rPass" type="password" placeholder="Contraseña">
+<button onclick="registrar()">Crear cuenta</button>
+<p>¿Ya tienes cuenta?
+<a onclick="mostrar('login')">Iniciar sesión</a></p>
 </div>
 
-<div id="login" class="card">
+<!-- LOGIN -->
+<div id="login" class="box oculto">
 <h2>Iniciar sesión</h2>
-<input id="lemail" placeholder="Correo">
-<input id="lpass" type="password" placeholder="Contraseña">
+<input id="correo" placeholder="Correo">
+<input id="password" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
 </div>
 
-<div id="panel" class="card">
-<h2>📊 Dashboard</h2>
+<!-- PANEL CLIENTE -->
+<div id="panel" class="box oculto">
+<h2>Bienvenido</h2>
 
-<div class="stats">
-<div><p>Saldo</p><h3 id="saldo">0</h3></div>
-<div><p>Hoy</p><h3 id="hoy">0</h3></div>
-<div><p>Total</p><h3 id="total">0</h3></div>
+<button onclick="mostrar('perfil')">Perfil</button>
+<button onclick="mostrar('invertir')">Invertir</button>
+<button onclick="mostrar('historial')">Historial</button>
+<button onclick="mostrar('retiro')">Retiro</button>
+<button onclick="mostrar('referidos')">Invitar amigo</button>
+<button onclick="salir()">Cerrar sesión</button>
 </div>
 
-<select id="monto">
-<option value="">Seleccione monto</option>
-<option value="10">10 USDT</option>
-<option value="20">20 USDT</option>
-<option value="30">30 USDT</option>
-<option value="50">50 USDT</option>
-</select>
-
-<button onclick="invertir()">Invertir</button>
+<!-- PERFIL -->
+<div id="perfil" class="box oculto">
+<h3>Perfil</h3>
+<input placeholder="Nombre">
+<input placeholder="Edad">
+<input placeholder="Contacto">
+<button onclick="mostrar('panel')">Volver</button>
 </div>
 
-<div id="team" class="card">
-<h2>👥 Mi equipo</h2>
-<p>Sin referidos</p>
+<!-- INVERTIR -->
+<div id="invertir" class="box oculto">
+<h3>Invertir</h3>
+<button onclick="invertir(10)">Invertir 10 → gana 0.4</button>
+<button onclick="invertir(20)">Invertir 20 → gana 0.5</button>
+<button onclick="invertir(30)">Invertir 30 → gana 0.6</button>
+<button onclick="invertir(40)">Invertir 40 → gana 0.7</button>
+<button onclick="invertir(50)">Invertir 50 → gana 0.8</button>
+<button onclick="mostrar('panel')">Volver</button>
 </div>
 
-<div id="admin" class="card admin">
-<h2>🔐 Panel administrador</h2>
-<p>Total usuarios: <span id="u">0</span></p>
-<p>Total invertido: <span id="inv">0</span> USDT</p>
+<!-- RETIRO -->
+<div id="retiro" class="box oculto">
+<h3>Retiro</h3>
+<input id="montoRetiro" placeholder="Monto">
+<button onclick="retirar()">Solicitar</button>
+<button onclick="mostrar('panel')">Volver</button>
 </div>
 
+<!-- REFERIDOS -->
+<div id="referidos" class="box oculto">
+<h3>Invitar amigo</h3>
+<input id="linkRef" readonly>
+<button onclick="copiar()">Copiar link</button>
+<button onclick="mostrar('panel')">Volver</button>
 </div>
 
-<footer>
-⚠ Proyecto educativo | Dinero ficticio
-</footer>
+<!-- ADMIN -->
+<div id="admin" class="box oculto">
+<h3>Panel Admin</h3>
+<div id="lista"></div>
+</div>
 
 <script src="script.js"></script>
 </body>
