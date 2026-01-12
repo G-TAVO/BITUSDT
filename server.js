@@ -1,206 +1,168 @@
-let user=null;
+const express = require("express");
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
-let usuarios=[
-{
-nombre:"Enrique",
-correo:"enriquevega201618@gmail.com",
-pass:"1998",
-rol:"admin",
-saldo:0,hoy:0,total:0
-}
-];
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-let solicitudes=[];
-let historial=[];
+mongoose.connect("TU_URL_MONGODB")
+.then(()=>console.log("BD conectada"))
+.catch(e=>console.log(e));
 
-function show(id){
-document.querySelectorAll(".card")
-.forEach(x=>x.style.display="none");
-document.getElementById(id).style.display="block";
-}
+// ================= MODELOS =================
 
-show("login");
-
-// REGISTRO
-function register(){
-
-let nombre=rname.value.trim();
-let correo=remail.value.trim();
-let pass=rpass.value.trim();
-
-if(!nombre||!correo||!pass){
-alert("Completa todo");
-return;
-}
-
-if(usuarios.some(x=>x.correo==correo)){
-alert("Correo ya existe");
-return;
-}
-
-usuarios.push({
-nombre,correo,pass,
-rol:"cliente",
-saldo:0,hoy:0,total:0
+const User = mongoose.model("User",{
+correo:String,
+pass:String,
+rol:{type:String,default:"cliente"},
+saldo:{type:Number,default:0},
+referido:String
 });
 
-alert("Cliente creado");
-show("login");
-}
-
-// LOGIN
-function login(){
-
-let c=lemail.value.trim();
-let p=lpass.value.trim();
-
-let u=usuarios.find(
-x=>x.correo==c && x.pass==p
-);
-
-if(!u){
-alert("Datos incorrectos");
-return;
-}
-
-user=u;
-
-if(u.rol=="admin"){
-show("admin");
-loadAdmin();
-}else{
-show("panel");
-updatePanel();
-}
-}
-
-// CERRAR
-function logout(){
-user=null;
-show("login");
-}
-
-// SOLICITAR INVERSIÓN
-function invertir(){
-
-let m=Number(monto.value);
-
-if(![10,20,30,40,50].includes(m)){
-alert("Solo 10,20,30,40,50");
-return;
-}
-
-solicitudes.push({
-correo:user.correo,
-monto:m,
-estado:"pendiente"
+const Inversion = mongoose.model("Inversion",{
+correo:String,
+monto:Number,
+ganancia:Number,
+estado:{type:String,default:"pendiente"}
 });
 
-alert("Solicitud enviada");
+const Retiro = mongoose.model("Retiro",{
+correo:String,
+monto:Number,
+estado:{type:String,default:"pendiente"}
+});
+
+// ================= UTIL =================
+
+function token(usuario){
+return jwt.sign(usuario,"CLAVESECRETA");
 }
 
-// GANANCIA
-function calcular(m){
-return {
+function auth(req,res,next){
+let t=req.headers.authorization;
+if(!t) return res.json({msg:"No autorizado"});
+jwt.verify(t,"CLAVESECRETA",(e,u)=>{
+if(e) return res.json({msg:"Token inválido"});
+req.user=u;
+next();
+});
+}
+
+// ================= REGISTRO =================
+
+app.post("/register", async(req,res)=>{
+let {correo,pass,ref}=req.body;
+
+let existe=await User.findOne({correo});
+if(existe) return res.json({msg:"Ya existe"});
+
+let hash=await bcrypt.hash(pass,10);
+
+await User.create({
+correo,
+pass:hash,
+referido:ref
+});
+
+res.json({msg:"Registrado"});
+});
+
+// ================= LOGIN =================
+
+app.post("/login", async(req,res)=>{
+
+let {correo,pass}=req.body;
+let u=await User.findOne({correo});
+if(!u) return res.json({ok:false});
+
+let ok=await bcrypt.compare(pass,u.pass);
+if(!ok) return res.json({ok:false});
+
+let t=token({correo:u.correo,rol:u.rol});
+
+res.json({ok:true,rol:u.rol,token:t});
+});
+
+// ================= INVERTIR =================
+
+app.post("/invertir",auth, async(req,res)=>{
+
+let {monto}=req.body;
+
+let map={
 10:0.4,
 20:0.5,
 30:0.6,
 40:0.7,
 50:0.8
-}[m];
-}
+};
 
-// PANEL CLIENTE
-function updatePanel(){
-
-saldo.innerText=user.saldo.toFixed(2);
-hoy.innerText=user.hoy.toFixed(2);
-total.innerText=user.total.toFixed(2);
-
-let h="";
-
-historial
-.filter(x=>x.correo==user.correo)
-.forEach(x=>{
-h+=`<p>${x.fecha} +${x.gana}</p>`;
+await Inversion.create({
+correo:req.user.correo,
+monto,
+ganancia:map[monto]
 });
 
-document.getElementById("historial").innerHTML=
-h||"Sin movimientos";
-}
-
-// ADMIN
-function loadAdmin(){
-
-if(user.rol!="admin"){
-alert("Acceso denegado");
-logout();
-}
-
-let html="";
-
-solicitudes.forEach((s,i)=>{
-
-if(s.estado=="pendiente"){
-
-html+=`
-<p>
-${s.correo} invierte ${s.monto}
-<button onclick="aprobar(${i})">Aceptar</button>
-<button onclick="rechazar(${i})">Rechazar</button>
-</p>
-`;
-
-}
-
+res.json({msg:"Solicitud enviada"});
 });
 
-admin.innerHTML=`
-<h2>ADMIN</h2>
-<button onclick="logout()">Salir</button>
-${html||"No solicitudes"}
-`;
-}
+// ================= ADMIN VER =================
 
-// APROBAR
-function aprobar(i){
-
-let s=solicitudes[i];
-let u=usuarios.find(
-x=>x.correo==s.correo
-);
-
-let g=calcular(s.monto);
-
-u.saldo+=g;
-u.hoy+=g;
-u.total+=g;
-
-historial.push({
-correo:u.correo,
-gana:g,
-fecha:new Date().toLocaleString()
+app.get("/admin/inversiones",auth, async(req,res)=>{
+if(req.user.rol!="admin") return res.json({msg:"No autorizado"});
+let inv=await Inversion.find({estado:"pendiente"});
+res.json(inv);
 });
 
-s.estado="ok";
-loadAdmin();
-}
+// ================= ADMIN APROBAR =================
 
-// RECHAZAR
-function rechazar(i){
-solicitudes[i].estado="no";
-loadAdmin();
-}
+app.post("/admin/aprobar",auth, async(req,res)=>{
+if(req.user.rol!="admin") return res.json({msg:"No autorizado"});
 
-// RETIRO
-function retirar(){
+let {id}=req.body;
 
-if(user.saldo<20){
-alert("Mínimo 20 USDT");
-return;
-}
+let inv=await Inversion.findById(id);
+inv.estado="aprobado";
+await inv.save();
 
-alert("Solicitud enviada al admin");
-user.saldo=0;
-updatePanel();
-}
+let u=await User.findOne({correo:inv.correo});
+u.saldo+=inv.ganancia;
+await u.save();
+
+res.json({msg:"Aprobado"});
+});
+
+// ================= RETIRO =================
+
+app.post("/retirar",auth, async(req,res)=>{
+
+let {monto}=req.body;
+
+if(monto<20)
+return res.json({msg:"Mínimo 20"});
+
+await Retiro.create({
+correo:req.user.correo,
+monto
+});
+
+res.json({msg:"Solicitud enviada"});
+});
+
+// ================= HISTORIAL =================
+
+app.get("/historial",auth, async(req,res)=>{
+
+let inv=await Inversion.find({correo:req.user.correo});
+let ret=await Retiro.find({correo:req.user.correo});
+
+res.json({inv,ret});
+});
+
+// ================= SERVER =================
+
+app.listen(3000,()=>console.log("Servidor activo"));
+
