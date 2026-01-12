@@ -1,148 +1,134 @@
-// =====================
-// VARIABLES
-// =====================
-let usuarioActual = null;
-let rolActual = null;
+let usuario=null;
+let token=null;
 
-// =====================
-// AL CARGAR PÁGINA
-// =====================
-document.addEventListener("DOMContentLoaded", ()=>{
-
-// detectar referido
-let params = new URLSearchParams(window.location.search);
-let ref = params.get("ref");
-
-if(ref){
-localStorage.setItem("referido", ref);
-}
-
-});
-
-// =====================
-// LOGIN
-// =====================
-function login(){
-
-let correo = document.getElementById("correo").value;
-let pass = document.getElementById("password").value;
-
-fetch("/login",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-correo,
-pass
-})
-})
-.then(r=>r.json())
-.then(data=>{
-
-if(data.ok){
-
-usuarioActual = correo;
-rolActual = data.rol;
-
-if(rolActual=="admin"){
-mostrar("admin");
-}
-
-if(rolActual=="cliente"){
-mostrar("panel");
-generarLink(correo);
-}
-
-}else{
-alert("Datos incorrectos");
-}
-
-});
-
-}
-
-// =====================
-// MOSTRAR SECCIONES
-// =====================
 function mostrar(id){
-
-document.querySelectorAll(".vista").forEach(v=>{
-v.style.display="none";
-});
-
-document.getElementById(id).style.display="block";
-
+document.querySelectorAll(".box").forEach(x=>x.classList.add("oculto"));
+document.getElementById(id).classList.remove("oculto");
 }
 
-// =====================
-// REFERIDOS
-// =====================
-function generarLink(correo){
-let l = location.origin + "/?ref=" + correo;
-document.getElementById("linkRef").value = l;
-}
-
-function copiar(){
-let input = document.getElementById("linkRef");
-navigator.clipboard.writeText(input.value);
-alert("Link copiado");
-}
-
-// =====================
 // REGISTRO
-// =====================
 function registrar(){
-
-let correo = document.getElementById("rCorreo").value;
-let pass = document.getElementById("rPass").value;
-
-let ref = localStorage.getItem("referido");
 
 fetch("/register",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-correo,
-pass,
-ref
+correo:rCorreo.value,
+pass:rPass.value
 })
 })
 .then(r=>r.json())
-.then(data=>{
-alert(data.msg);
+.then(d=>{
+alert("Registro exitoso");
+mostrar("login");
 });
-
 }
 
-// =====================
-// CERRAR SESIÓN
-// =====================
-function salir(){
-location.reload();
+// LOGIN
+function login(){
+
+fetch("/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+correo:correo.value,
+pass:password.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+
+if(!d.ok)return alert("Error");
+
+usuario=correo.value;
+token=d.token;
+
+if(d.rol=="admin"){
+mostrar("admin");
+cargarAdmin();
+}else{
+mostrar("panel");
+generarLink(usuario);
 }
 
-// =====================
+});
+}
+
+// REFERIDOS
+function generarLink(c){
+linkRef.value=location.origin+"?ref="+c;
+}
+
+function copiar(){
+navigator.clipboard.writeText(linkRef.value);
+alert("Copiado");
+}
+
 // INVERTIR
-// =====================
-function invertir(monto){
+function invertir(m){
 
 fetch("/invertir",{
 method:"POST",
 headers:{
-"Content-Type":"application/json"
+"Content-Type":"application/json",
+"Authorization":token
 },
-body:JSON.stringify({
-correo:usuarioActual,
-monto
+body:JSON.stringify({monto:m})
 })
+.then(r=>r.json())
+.then(d=>alert(d.msg));
+}
+
+// RETIRO
+function retirar(){
+
+fetch("/retirar",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":token
+},
+body:JSON.stringify({monto:montoRetiro.value})
+})
+.then(r=>r.json())
+.then(d=>alert(d.msg));
+}
+
+// ADMIN
+function cargarAdmin(){
+
+fetch("/admin/inversiones",{
+headers:{"Authorization":token}
 })
 .then(r=>r.json())
 .then(data=>{
-alert(data.msg);
+lista.innerHTML="";
+data.forEach(i=>{
+lista.innerHTML+=`
+<p>${i.correo} - ${i.monto}
+<button onclick="aprobar('${i._id}')">Aprobar</button>
+</p>`;
 });
-
+});
 }
+
+function aprobar(id){
+
+fetch("/admin/aprobar",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":token
+},
+body:JSON.stringify({id})
+})
+.then(r=>r.json())
+.then(d=>{
+alert(d.msg);
+cargarAdmin();
+});
+}
+
+// SALIR
+function salir(){location.reload();}
 
