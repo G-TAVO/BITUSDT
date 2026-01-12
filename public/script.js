@@ -1,124 +1,148 @@
-let token="";
-let userRol="";
+// =====================
+// VARIABLES
+// =====================
+let usuarioActual = null;
+let rolActual = null;
 
+// =====================
+// AL CARGAR PÁGINA
+// =====================
+document.addEventListener("DOMContentLoaded", ()=>{
+
+// detectar referido
+let params = new URLSearchParams(window.location.search);
+let ref = params.get("ref");
+
+if(ref){
+localStorage.setItem("referido", ref);
+}
+
+});
+
+// =====================
 // LOGIN
-async function login(){
+// =====================
+function login(){
 
-let correo=lemail.value;
-let pass=lpass.value;
+let correo = document.getElementById("correo").value;
+let pass = document.getElementById("password").value;
 
-let res=await fetch("/api/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({correo,pass})
-});
-
-let data=await res.json();
-
-if(!res.ok){
-alert(data.msg);
-return;
-}
-
-token=data.token;
-userRol=data.rol;
-
-if(userRol=="admin"){
-show("admin");
-loadAdmin();
-}else{
-show("panel");
-}
-}
-
-// REGISTRO
-async function register(){
-
-let nombre=rname.value;
-let correo=remail.value;
-let pass=rpass.value;
-
-let res=await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({nombre,correo,pass})
-});
-
-let data=await res.json();
-alert(data.msg);
-show("login");
-}
-
-// INVERTIR
-async function invertir(){
-
-let m=monto.value;
-
-let res=await fetch("/api/invert",{
+fetch("/login",{
 method:"POST",
 headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+token
+"Content-Type":"application/json"
 },
-body:JSON.stringify({monto:Number(m)})
-});
+body:JSON.stringify({
+correo,
+pass
+})
+})
+.then(r=>r.json())
+.then(data=>{
 
-let data=await res.json();
-alert(data.msg);
+if(data.ok){
+
+usuarioActual = correo;
+rolActual = data.rol;
+
+if(rolActual=="admin"){
+mostrar("admin");
 }
 
-// ADMIN
-async function loadAdmin(){
-
-let res=await fetch("/api/requests",{
-headers:{
-"Authorization":"Bearer "+token
+if(rolActual=="cliente"){
+mostrar("panel");
+generarLink(correo);
 }
-});
 
-let data=await res.json();
-
-let html="";
-
-data.forEach((s,i)=>{
-
-if(s.estado=="pendiente"){
-
-html+=`
-<p>
-${s.correo} invierte ${s.monto}
-<button onclick="aprobar(${i})">Aceptar</button>
-</p>
-`;
+}else{
+alert("Datos incorrectos");
 }
 
 });
 
-admin.innerHTML=`
-<h2>ADMIN</h2>
-<button onclick="logout()">Salir</button>
-${html||"No solicitudes"}
-`;
 }
 
-// APROBAR
-async function aprobar(i){
+// =====================
+// MOSTRAR SECCIONES
+// =====================
+function mostrar(id){
 
-let res=await fetch("/api/approve/"+i,{
+document.querySelectorAll(".vista").forEach(v=>{
+v.style.display="none";
+});
+
+document.getElementById(id).style.display="block";
+
+}
+
+// =====================
+// REFERIDOS
+// =====================
+function generarLink(correo){
+let l = location.origin + "/?ref=" + correo;
+document.getElementById("linkRef").value = l;
+}
+
+function copiar(){
+let input = document.getElementById("linkRef");
+navigator.clipboard.writeText(input.value);
+alert("Link copiado");
+}
+
+// =====================
+// REGISTRO
+// =====================
+function registrar(){
+
+let correo = document.getElementById("rCorreo").value;
+let pass = document.getElementById("rPass").value;
+
+let ref = localStorage.getItem("referido");
+
+fetch("/register",{
 method:"POST",
 headers:{
-"Authorization":"Bearer "+token
-}
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+correo,
+pass,
+ref
+})
+})
+.then(r=>r.json())
+.then(data=>{
+alert(data.msg);
 });
 
-let data=await res.json();
-alert(data.msg);
-loadAdmin();
 }
 
-// SALIR
-function logout(){
-token="";
-show("login");
+// =====================
+// CERRAR SESIÓN
+// =====================
+function salir(){
+location.reload();
+}
+
+// =====================
+// INVERTIR
+// =====================
+function invertir(monto){
+
+fetch("/invertir",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+correo:usuarioActual,
+monto
+})
+})
+.then(r=>r.json())
+.then(data=>{
+alert(data.msg);
+});
+
 }
 
