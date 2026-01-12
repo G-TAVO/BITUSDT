@@ -1,32 +1,42 @@
-let usuarioActual=null;
+let user=null;
 
-let usuarios=[];
-let solicitudes=[];
-let historial=[];
-
-// CREAR ADMIN FIJO
-usuarios.push({
+let usuarios=[
+{
 nombre:"Enrique",
 correo:"enriquevega201618@gmail.com",
 pass:"1998",
 rol:"admin",
 saldo:0,hoy:0,total:0
-});
+}
+];
+
+let solicitudes=[];
+let historial=[];
 
 function show(id){
-document.querySelectorAll('.card')
+document.querySelectorAll(".card")
 .forEach(x=>x.style.display="none");
 document.getElementById(id).style.display="block";
 }
 
 show("login");
 
-// REGISTRO CLIENTE
+// REGISTRO
 function register(){
 
-let nombre=rname.value;
-let correo=remail.value;
-let pass=rpass.value;
+let nombre=rname.value.trim();
+let correo=remail.value.trim();
+let pass=rpass.value.trim();
+
+if(!nombre||!correo||!pass){
+alert("Completa todo");
+return;
+}
+
+if(usuarios.some(x=>x.correo==correo)){
+alert("Correo ya existe");
+return;
+}
 
 usuarios.push({
 nombre,correo,pass,
@@ -41,69 +51,91 @@ show("login");
 // LOGIN
 function login(){
 
-let correo=lemail.value;
-let pass=lpass.value;
+let c=lemail.value.trim();
+let p=lpass.value.trim();
 
-let u=usuarios.find(x=>x.correo==correo && x.pass==pass);
+let u=usuarios.find(
+x=>x.correo==c && x.pass==p
+);
 
 if(!u){
 alert("Datos incorrectos");
 return;
 }
 
-usuarioActual=u;
+user=u;
 
 if(u.rol=="admin"){
 show("admin");
-cargarSolicitudes();
+loadAdmin();
 }else{
 show("panel");
-actualizarPanel();
+updatePanel();
 }
 }
 
-// CERRAR SESIÓN
+// CERRAR
 function logout(){
-usuarioActual=null;
-alert("Sesión cerrada");
+user=null;
 show("login");
 }
 
 // SOLICITAR INVERSIÓN
 function invertir(){
 
-let m=monto.value;
+let m=Number(monto.value);
+
+if(![10,20,30,40,50].includes(m)){
+alert("Solo 10,20,30,40,50");
+return;
+}
 
 solicitudes.push({
-usuario:usuarioActual,
-monto:Number(m),
+correo:user.correo,
+monto:m,
 estado:"pendiente"
 });
 
-alert("Solicitud enviada al admin");
+alert("Solicitud enviada");
+}
+
+// GANANCIA
+function calcular(m){
+return {
+10:0.4,
+20:0.5,
+30:0.6,
+40:0.7,
+50:0.8
+}[m];
 }
 
 // PANEL CLIENTE
-function actualizarPanel(){
+function updatePanel(){
 
-saldo.innerText=usuarioActual.saldo.toFixed(2);
-hoy.innerText=usuarioActual.hoy.toFixed(2);
-total.innerText=usuarioActual.total.toFixed(2);
+saldo.innerText=user.saldo.toFixed(2);
+hoy.innerText=user.hoy.toFixed(2);
+total.innerText=user.total.toFixed(2);
 
 let h="";
 
 historial
-.filter(x=>x.correo==usuarioActual.correo)
+.filter(x=>x.correo==user.correo)
 .forEach(x=>{
-h+=`<p>${x.fecha} - Ganó ${x.ganancia} USDT</p>`;
+h+=`<p>${x.fecha} +${x.gana}</p>`;
 });
 
 document.getElementById("historial").innerHTML=
-h || "Sin movimientos";
+h||"Sin movimientos";
 }
 
-// PANEL ADMIN
-function cargarSolicitudes(){
+// ADMIN
+function loadAdmin(){
+
+if(user.rol!="admin"){
+alert("Acceso denegado");
+logout();
+}
 
 let html="";
 
@@ -113,19 +145,20 @@ if(s.estado=="pendiente"){
 
 html+=`
 <p>
-${s.usuario.nombre} quiere invertir ${s.monto} USDT
+${s.correo} invierte ${s.monto}
 <button onclick="aprobar(${i})">Aceptar</button>
 <button onclick="rechazar(${i})">Rechazar</button>
 </p>
 `;
+
 }
 
 });
 
 admin.innerHTML=`
-<h2>Panel ADMIN</h2>
-<button onclick="logout()">Cerrar sesión</button>
-${html || "No hay solicitudes"}
+<h2>ADMIN</h2>
+<button onclick="logout()">Salir</button>
+${html||"No solicitudes"}
 `;
 }
 
@@ -133,27 +166,42 @@ ${html || "No hay solicitudes"}
 function aprobar(i){
 
 let s=solicitudes[i];
-let g=s.monto*0.04;
+let u=usuarios.find(
+x=>x.correo==s.correo
+);
 
-s.usuario.saldo+=g;
-s.usuario.hoy+=g;
-s.usuario.total+=g;
+let g=calcular(s.monto);
+
+u.saldo+=g;
+u.hoy+=g;
+u.total+=g;
 
 historial.push({
-correo:s.usuario.correo,
-ganancia:g,
+correo:u.correo,
+gana:g,
 fecha:new Date().toLocaleString()
 });
 
-s.estado="aprobado";
-alert("Aprobado");
-cargarSolicitudes();
+s.estado="ok";
+loadAdmin();
 }
 
 // RECHAZAR
 function rechazar(i){
-solicitudes[i].estado="rechazado";
-alert("Rechazado");
-cargarSolicitudes();
+solicitudes[i].estado="no";
+loadAdmin();
+}
+
+// RETIRO
+function retirar(){
+
+if(user.saldo<20){
+alert("Mínimo 20 USDT");
+return;
+}
+
+alert("Solicitud enviada al admin");
+user.saldo=0;
+updatePanel();
 }
 
