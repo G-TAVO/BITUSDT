@@ -1,7 +1,10 @@
-let logueado=false;
-let saldo=0,hoy=0,total=0;
-let usuarios=0, invertido=0;
+let usuarioActual=null;
+let esAdmin=false;
 
+let usuarios=[];
+let solicitudes=[];
+
+// MOSTRAR SECCIONES
 function show(id){
 document.querySelectorAll('.card')
 .forEach(x=>x.style.display="none");
@@ -10,47 +13,134 @@ document.getElementById(id).style.display="block";
 
 show("login");
 
+// REGISTRO
 function register(){
-usuarios++;
-alert("Registro exitoso");
-document.getElementById("u").innerText=usuarios;
+
+let nombre=rname.value;
+let correo=remail.value;
+let pass=rpass.value;
+
+usuarios.push({
+nombre,correo,pass,
+saldo:0,hoy:0,total:0
+});
+
+alert("Usuario creado");
 show("login");
 }
 
+// LOGIN
 function login(){
-logueado=true;
-alert("Sesión iniciada");
-show("panel");
-}
 
-function invertir(){
+let correo=lemail.value;
+let pass=lpass.value;
 
-if(!logueado){
-alert("Debes iniciar sesión");
+// ADMIN
+if(correo=="enriquevega201618@gmail.com" && pass=="1998"){
+usuarioActual="ADMIN";
+esAdmin=true;
+alert("Admin conectado");
+show("admin");
+cargarSolicitudes();
 return;
 }
 
-let m=document.getElementById("monto").value;
+// CLIENTE
+let u=usuarios.find(x=>x.correo==correo && x.pass==pass);
+
+if(!u){
+alert("Datos incorrectos");
+return;
+}
+
+usuarioActual=u;
+esAdmin=false;
+
+alert("Bienvenido "+u.nombre);
+show("panel");
+actualizarPanel();
+}
+
+// SOLICITAR INVERSIÓN
+function invertir(){
+
+if(!usuarioActual){
+alert("Debe iniciar sesión");
+return;
+}
+
+let m=monto.value;
 
 if(m==""){
 alert("Seleccione monto");
 return;
 }
 
-m=Number(m);
+solicitudes.push({
+usuario:usuarioActual,
+monto:Number(m),
+estado:"pendiente"
+});
 
-let ganancia=m*0.04; // 4%
+alert("Solicitud enviada al admin");
+}
 
-saldo+=ganancia;
-hoy+=ganancia;
-total+=ganancia;
-invertido+=m;
+// PANEL CLIENTE
+function actualizarPanel(){
 
-document.getElementById("saldo").innerText=saldo.toFixed(2);
-document.getElementById("hoy").innerText=hoy.toFixed(2);
-document.getElementById("total").innerText=total.toFixed(2);
-document.getElementById("inv").innerText=invertido;
+saldo.innerText=usuarioActual.saldo.toFixed(2);
+hoy.innerText=usuarioActual.hoy.toFixed(2);
+total.innerText=usuarioActual.total.toFixed(2);
 
-alert("Invertido "+m+" USDT | Ganancia "+ganancia.toFixed(2));
+}
+
+// PANEL ADMIN
+function cargarSolicitudes(){
+
+let html="";
+
+solicitudes.forEach((s,i)=>{
+
+if(s.estado=="pendiente"){
+
+html+=`
+<p>
+${s.usuario.nombre} quiere invertir ${s.monto} USDT
+<button onclick="aprobar(${i})">Aceptar</button>
+<button onclick="rechazar(${i})">Rechazar</button>
+</p>
+`;
+}
+
+});
+
+admin.innerHTML=`
+<h2>🔐 Panel administrador</h2>
+${html || "No hay solicitudes"}
+`;
+}
+
+// APROBAR
+function aprobar(i){
+
+let s=solicitudes[i];
+let ganancia=s.monto*0.04;
+
+s.usuario.saldo+=ganancia;
+s.usuario.hoy+=ganancia;
+s.usuario.total+=ganancia;
+
+s.estado="aprobado";
+
+alert("Aprobado");
+
+cargarSolicitudes();
+}
+
+// RECHAZAR
+function rechazar(i){
+solicitudes[i].estado="rechazado";
+alert("Rechazado");
+cargarSolicitudes();
 }
 
