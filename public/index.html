@@ -2,94 +2,84 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>BITUSDT - Demo Educativa</title>
+<title>BITUSDT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="top">
-<h1>BITUSDT</h1>
+<header>
+<h1>🚀 BITUSDT</h1>
 <p>Plataforma educativa (SIMULACIÓN)</p>
 </header>
 
-<nav class="menu">
-<button onclick="show('reg')">Registro</button>
-<button onclick="show('log')">Login</button>
-<button onclick="show('dash')">Panel</button>
+<nav>
+<button onclick="show('register')">Registro</button>
+<button onclick="show('login')">Login</button>
+<button onclick="show('panel')">Panel</button>
 <button onclick="show('team')">Equipo</button>
 <button onclick="show('admin')">Admin</button>
 </nav>
 
-<main>
+<div class="container">
 
-<section id="reg" class="card active">
+<!-- REGISTRO -->
+<div id="register" class="card">
 <h2>Crear cuenta</h2>
-<input id="nombre" placeholder="Nombre">
-<input id="email" placeholder="Correo">
-<input id="password" type="password" placeholder="Contraseña">
-<input id="ref" placeholder="Correo referido (opcional)">
+<input id="rname" placeholder="Nombre">
+<input id="remail" placeholder="Correo">
+<input id="rpass" type="password" placeholder="Contraseña">
+<input id="rref" placeholder="Correo referido (opcional)">
 <button onclick="register()">Registrarse</button>
-<p id="msg"></p>
-</section>
+</div>
 
-<section id="log" class="card">
+<!-- LOGIN -->
+<div id="login" class="card">
 <h2>Iniciar sesión</h2>
-<input id="loginEmail" placeholder="Correo">
-<input id="loginPass" type="password" placeholder="Contraseña">
+<input id="lemail" placeholder="Correo">
+<input id="lpass" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
-<p id="loginMsg"></p>
-</section>
-
-<section id="dash" class="card">
-<h2>Dashboard</h2>
-
-<div class="grid">
-<div class="box">
-<h3>Saldo</h3>
-<p id="saldo">0.00 USDT</p>
 </div>
 
-<div class="box">
-<h3>Ganancia hoy</h3>
-<p id="hoy">0.00 USDT</p>
+<!-- PANEL -->
+<div id="panel" class="card">
+<h2>📊 Dashboard</h2>
+
+<div class="stats">
+<div><p>Saldo</p><h3 id="saldo">0</h3></div>
+<div><p>Hoy</p><h3 id="hoy">0</h3></div>
+<div><p>Total</p><h3 id="total">0</h3></div>
 </div>
 
-<div class="box">
-<h3>Total ganado</h3>
-<p id="total">0.00 USDT</p>
-</div>
-</div>
-
-<h3>Simular inversión</h3>
-<select id="amount">
+<select id="monto">
 <option value="10">10 USDT</option>
 <option value="20">20 USDT</option>
-<option value="30">30 USDT</option>
-<option value="40">40 USDT</option>
 <option value="50">50 USDT</option>
 </select>
-<button onclick="invert()">Invertir</button>
 
-<p id="invMsg"></p>
-</section>
+<button onclick="invertir()">Invertir</button>
+</div>
 
-<section id="team" class="card">
-<h2>Mi equipo</h2>
-<ul id="teamList"></ul>
-</section>
+<!-- EQUIPO -->
+<div id="team" class="card">
+<h2>👥 Mi equipo</h2>
+<p id="teamData">Sin referidos</p>
+</div>
 
-<section id="admin" class="card">
-<h2>Panel administrador</h2>
-<p>Total usuarios: <b id="users">0</b></p>
-<p>Total invertido: <b id="totalInv">0 USDT</b></p>
-</section>
+<!-- ADMIN -->
+<div id="admin" class="card admin">
+<h2>🔐 Panel administrador</h2>
+<p>Total usuarios: <span id="u">0</span></p>
+<p>Total invertido: <span id="inv">0</span> USDT</p>
+</div>
 
-</main>
+</div>
 
 <footer>
 ⚠ Proyecto educativo | Dinero ficticio
 </footer>
 
-<script src="app.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
+
