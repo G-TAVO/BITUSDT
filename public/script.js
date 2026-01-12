@@ -1,145 +1,86 @@
-let user=null;
-
-let usuarios=[
-{
-nombre:"Enrique",
-correo:"enriquevega201618@gmail.com",
-pass:"1998",
-rol:"admin",
-saldo:0,hoy:0,total:0
-}
-];
-
-let solicitudes=[];
-let historial=[];
-
-function show(id){
-document.querySelectorAll(".card")
-.forEach(x=>x.style.display="none");
-document.getElementById(id).style.display="block";
-}
-
-show("login");
-
-// REGISTRO
-function register(){
-
-let nombre=rname.value.trim();
-let correo=remail.value.trim();
-let pass=rpass.value.trim();
-
-if(!nombre||!correo||!pass){
-alert("Completa todo");
-return;
-}
-
-if(usuarios.some(x=>x.correo==correo)){
-alert("Correo ya existe");
-return;
-}
-
-usuarios.push({
-nombre,correo,pass,
-rol:"cliente",
-saldo:0,hoy:0,total:0
-});
-
-alert("Cliente creado");
-show("login");
-}
+let token="";
+let userRol="";
 
 // LOGIN
-function login(){
+async function login(){
 
-let c=lemail.value.trim();
-let p=lpass.value.trim();
+let correo=lemail.value;
+let pass=lpass.value;
 
-let u=usuarios.find(
-x=>x.correo==c && x.pass==p
-);
+let res=await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({correo,pass})
+});
 
-if(!u){
-alert("Datos incorrectos");
+let data=await res.json();
+
+if(!res.ok){
+alert(data.msg);
 return;
 }
 
-user=u;
+token=data.token;
+userRol=data.rol;
 
-if(u.rol=="admin"){
+if(userRol=="admin"){
 show("admin");
 loadAdmin();
 }else{
 show("panel");
-updatePanel();
 }
 }
 
-// CERRAR
-function logout(){
-user=null;
+// REGISTRO
+async function register(){
+
+let nombre=rname.value;
+let correo=remail.value;
+let pass=rpass.value;
+
+let res=await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({nombre,correo,pass})
+});
+
+let data=await res.json();
+alert(data.msg);
 show("login");
 }
 
-// SOLICITAR INVERSIÓN
-function invertir(){
+// INVERTIR
+async function invertir(){
 
-let m=Number(monto.value);
+let m=monto.value;
 
-if(![10,20,30,40,50].includes(m)){
-alert("Solo 10,20,30,40,50");
-return;
-}
-
-solicitudes.push({
-correo:user.correo,
-monto:m,
-estado:"pendiente"
+let res=await fetch("/api/invert",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+token
+},
+body:JSON.stringify({monto:Number(m)})
 });
 
-alert("Solicitud enviada");
-}
-
-// GANANCIA
-function calcular(m){
-return {
-10:0.4,
-20:0.5,
-30:0.6,
-40:0.7,
-50:0.8
-}[m];
-}
-
-// PANEL CLIENTE
-function updatePanel(){
-
-saldo.innerText=user.saldo.toFixed(2);
-hoy.innerText=user.hoy.toFixed(2);
-total.innerText=user.total.toFixed(2);
-
-let h="";
-
-historial
-.filter(x=>x.correo==user.correo)
-.forEach(x=>{
-h+=`<p>${x.fecha} +${x.gana}</p>`;
-});
-
-document.getElementById("historial").innerHTML=
-h||"Sin movimientos";
+let data=await res.json();
+alert(data.msg);
 }
 
 // ADMIN
-function loadAdmin(){
+async function loadAdmin(){
 
-if(user.rol!="admin"){
-alert("Acceso denegado");
-logout();
+let res=await fetch("/api/requests",{
+headers:{
+"Authorization":"Bearer "+token
 }
+});
+
+let data=await res.json();
 
 let html="";
 
-solicitudes.forEach((s,i)=>{
+data.forEach((s,i)=>{
 
 if(s.estado=="pendiente"){
 
@@ -147,10 +88,8 @@ html+=`
 <p>
 ${s.correo} invierte ${s.monto}
 <button onclick="aprobar(${i})">Aceptar</button>
-<button onclick="rechazar(${i})">Rechazar</button>
 </p>
 `;
-
 }
 
 });
@@ -163,45 +102,23 @@ ${html||"No solicitudes"}
 }
 
 // APROBAR
-function aprobar(i){
+async function aprobar(i){
 
-let s=solicitudes[i];
-let u=usuarios.find(
-x=>x.correo==s.correo
-);
-
-let g=calcular(s.monto);
-
-u.saldo+=g;
-u.hoy+=g;
-u.total+=g;
-
-historial.push({
-correo:u.correo,
-gana:g,
-fecha:new Date().toLocaleString()
+let res=await fetch("/api/approve/"+i,{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token
+}
 });
 
-s.estado="ok";
+let data=await res.json();
+alert(data.msg);
 loadAdmin();
 }
 
-// RECHAZAR
-function rechazar(i){
-solicitudes[i].estado="no";
-loadAdmin();
-}
-
-// RETIRO
-function retirar(){
-
-if(user.saldo<20){
-alert("Mínimo 20 USDT");
-return;
-}
-
-alert("Solicitud enviada al admin");
-user.saldo=0;
-updatePanel();
+// SALIR
+function logout(){
+token="";
+show("login");
 }
 
