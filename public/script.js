@@ -1,10 +1,4 @@
-let usuario=null;
-let token=null;
-
-function mostrar(id){
-document.querySelectorAll(".box").forEach(x=>x.classList.add("oculto"));
-document.getElementById(id).classList.remove("oculto");
-}
+let token = localStorage.getItem("token");
 
 // REGISTRO
 function registrar(){
@@ -17,11 +11,7 @@ correo:rCorreo.value,
 pass:rPass.value
 })
 })
-.then(r=>r.json())
-.then(d=>{
-alert("Registro exitoso");
-mostrar("login");
-});
+.then(()=>location.href="login.html");
 }
 
 // LOGIN
@@ -38,27 +28,29 @@ pass:password.value
 .then(r=>r.json())
 .then(d=>{
 
-if(!d.ok)return alert("Error");
+if(!d.ok) return alert("Error");
 
-usuario=correo.value;
-token=d.token;
+localStorage.setItem("token",d.token);
+localStorage.setItem("rol",d.rol);
 
 if(d.rol=="admin"){
-mostrar("admin");
-cargarAdmin();
+location.href="admin.html";
 }else{
-mostrar("panel");
-generarLink(usuario);
+location.href="panel.html";
 }
 
 });
 }
 
-// REFERIDOS
-function generarLink(c){
-linkRef.value=location.origin+"?ref="+c;
+// PANEL
+function ver(id){
+document.querySelectorAll(".box")
+.forEach(x=>x.classList.add("oculto"));
+document.getElementById(id)
+.classList.remove("oculto");
 }
 
+// REFERIDOS
 function copiar(){
 navigator.clipboard.writeText(linkRef.value);
 alert("Copiado");
@@ -88,13 +80,19 @@ headers:{
 "Content-Type":"application/json",
 "Authorization":token
 },
-body:JSON.stringify({monto:montoRetiro.value})
+body:JSON.stringify({
+monto:montoRetiro.value
+})
 })
 .then(r=>r.json())
 .then(d=>alert(d.msg));
 }
 
 // ADMIN
+if(location.pathname.includes("admin")){
+cargarAdmin();
+}
+
 function cargarAdmin(){
 
 fetch("/admin/inversiones",{
@@ -122,13 +120,12 @@ headers:{
 },
 body:JSON.stringify({id})
 })
-.then(r=>r.json())
-.then(d=>{
-alert(d.msg);
-cargarAdmin();
-});
+.then(()=>cargarAdmin());
 }
 
-// SALIR
-function salir(){location.reload();}
+function salir(){
+localStorage.clear();
+location.href="login.html";
+}
+
 
