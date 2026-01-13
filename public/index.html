@@ -3,90 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
-<style>
-body{font-family:Arial;background:#0f172a;color:white;text-align:center}
-.box{background:#111827;padding:20px;border-radius:10px;width:90%;max-width:400px;margin:20px auto}
-input,button{width:100%;padding:10px;margin:6px;border-radius:5px;border:none}
-button{background:#22c55e;color:black;font-weight:bold}
-a{color:#38bdf8}
-.oculto{display:none}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- REGISTRO -->
-<div id="registro" class="box">
-<h2>Registrarse</h2>
+<div class="card">
+<h2>Crear cuenta</h2>
 <input id="rCorreo" placeholder="Correo">
 <input id="rPass" type="password" placeholder="Contraseña">
-<button onclick="registrar()">Crear cuenta</button>
+<button onclick="registrar()">Registrarse</button>
+
 <p>¿Ya tienes cuenta?
-<a onclick="mostrar('login')">Iniciar sesión</a></p>
-</div>
-
-<!-- LOGIN -->
-<div id="login" class="box oculto">
-<h2>Iniciar sesión</h2>
-<input id="correo" placeholder="Correo">
-<input id="password" type="password" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
-</div>
-
-<!-- PANEL CLIENTE -->
-<div id="panel" class="box oculto">
-<h2>Bienvenido</h2>
-
-<button onclick="mostrar('perfil')">Perfil</button>
-<button onclick="mostrar('invertir')">Invertir</button>
-<button onclick="mostrar('historial')">Historial</button>
-<button onclick="mostrar('retiro')">Retiro</button>
-<button onclick="mostrar('referidos')">Invitar amigo</button>
-<button onclick="salir()">Cerrar sesión</button>
-</div>
-
-<!-- PERFIL -->
-<div id="perfil" class="box oculto">
-<h3>Perfil</h3>
-<input placeholder="Nombre">
-<input placeholder="Edad">
-<input placeholder="Contacto">
-<button onclick="mostrar('panel')">Volver</button>
-</div>
-
-<!-- INVERTIR -->
-<div id="invertir" class="box oculto">
-<h3>Invertir</h3>
-<button onclick="invertir(10)">Invertir 10 → gana 0.4</button>
-<button onclick="invertir(20)">Invertir 20 → gana 0.5</button>
-<button onclick="invertir(30)">Invertir 30 → gana 0.6</button>
-<button onclick="invertir(40)">Invertir 40 → gana 0.7</button>
-<button onclick="invertir(50)">Invertir 50 → gana 0.8</button>
-<button onclick="mostrar('panel')">Volver</button>
-</div>
-
-<!-- RETIRO -->
-<div id="retiro" class="box oculto">
-<h3>Retiro</h3>
-<input id="montoRetiro" placeholder="Monto">
-<button onclick="retirar()">Solicitar</button>
-<button onclick="mostrar('panel')">Volver</button>
-</div>
-
-<!-- REFERIDOS -->
-<div id="referidos" class="box oculto">
-<h3>Invitar amigo</h3>
-<input id="linkRef" readonly>
-<button onclick="copiar()">Copiar link</button>
-<button onclick="mostrar('panel')">Volver</button>
-</div>
-
-<!-- ADMIN -->
-<div id="admin" class="box oculto">
-<h3>Panel Admin</h3>
-<div id="lista"></div>
+<a href="login.html">Iniciar sesión</a></p>
 </div>
 
 <script src="script.js"></script>
 </body>
 </html>
+
