@@ -1,64 +1,65 @@
+// VERIFICAR SESIÓN
+if(localStorage.getItem("rol")=="admin"){
+if(location.pathname.includes("login") ||
+location.pathname.includes("index")){
+location="admin.html";
+}
+}
+
+if(localStorage.getItem("rol")=="user"){
+if(location.pathname.includes("admin")){
+location="panel.html";
+}
+}
+
+// REGISTRO
+async function registrar(){
+
+const data={
+email:rCorreo.value,
+password:rPass.value
+};
+
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+let j = await res.json();
+alert(j.msg);
+}
+
+// LOGIN
 async function login(){
- let res=await fetch("/api/login",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-   email:loginEmail.value,
-   password:loginPass.value
-  })
- });
- let j=await res.json();
- loginMsg.innerText=j.msg||"";
 
- if(j.ok){
-  if(j.rol=="admin") location="/admin";
-  else location="panel.html";
- }
+const data={
+email:loginEmail.value,
+password:loginPass.value
+};
+
+const res = await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+let j = await res.json();
+if(!j.ok) return alert(j.msg);
+
+// GUARDAR ROL
+localStorage.setItem("rol",j.rol);
+
+if(j.rol=="admin"){
+location="admin.html";
+}else{
+location="panel.html";
+}
 }
 
-function guardarWallet(){
- fetch("/api/wallet",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({wallet:wallet.value})
- });
- alert("Wallet guardada");
+// CERRAR
+function logout(){
+localStorage.clear();
+location="login.html";
 }
-
-function invertir(){
- fetch("/api/solicitar",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({monto:monto.value})
- });
- alert("Solicitud enviada");
-}
-
-async function cargar(){
- let r=await fetch("/api/solicitudes");
- let d=await r.json();
-
- solicitudes.innerHTML="";
- d.forEach(s=>{
-  solicitudes.innerHTML+=`
-  <div class="card">
-   <b>${s.email}</b><br>
-   Monto: ${s.monto}<br>
-   Wallet: ${s.wallet}<br>
-   <button onclick="aprobar(${s.id})">Aprobar</button>
-  </div>`;
- });
-}
-
-async function aprobar(id){
- await fetch("/api/aprobar",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({id})
- });
- cargar();
-}
-
-if(typeof solicitudes!="undefined") cargar();
-
 
