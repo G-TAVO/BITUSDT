@@ -1,73 +1,58 @@
 const express = require("express");
-const session = require("express-session");
-const bodyParser = require("body-parser");
-const path = require("path");
-
+const fs = require("fs");
+const bcrypt = require("bcrypt");
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.static("public"));
 
-app.use(session({
- secret:"bitusdt_secret",
- resave:false,
- saveUninitialized:true
-}));
+const ADMIN = {
+email:"admin@bitusdt.com",
+password:"$2b$10$8h8Yq0..." // hash
+};
 
-// Usuarios demo
-let users=[
- {email:"admin@bitusdt.com",pass:"amAdmin1998",rol:"admin",wallet:""},
-];
-
-let solicitudes=[];
-
-// LOGIN
-app.post("/api/login",(req,res)=>{
- let u = users.find(x=>x.email==req.body.email && x.pass==req.body.password);
- if(!u) return res.json({ok:false,msg:"Credenciales incorrectas"});
-
- req.session.user=u;
- res.json({ok:true,rol:u.rol});
-});
-
-// GUARDAR WALLET
-app.post("/api/wallet",(req,res)=>{
- req.session.user.wallet=req.body.wallet;
- res.json({ok:true});
-});
-
-// SOLICITAR INVERSIÓN
-app.post("/api/solicitar",(req,res)=>{
- solicitudes.push({
-  id:Date.now(),
-  email:req.session.user.email,
-  monto:req.body.monto,
-  wallet:req.session.user.wallet
- });
- res.json({ok:true});
-});
-
-// VER SOLICITUDES (ADMIN)
-function isAdmin(req,res,next){
- if(!req.session.user || req.session.user.rol!="admin"){
-  return res.redirect("/login.html");
- }
- next();
+if(!fs.existsSync("users.json")){
+fs.writeFileSync("users.json","[]");
 }
 
-app.get("/api/solicitudes",isAdmin,(req,res)=>{
- res.json(solicitudes);
+// REGISTRO
+app.post("/api/register",async(req,res)=>{
+let users = JSON.parse(fs.readFileSync("users.json"));
+
+let exist = users.find(u=>u.email==req.body.email);
+if(exist) return res.json({msg:"Correo ya registrado"});
+
+let hash = await bcrypt.hash(req.body.password,10);
+
+users.push({
+email:req.body.email,
+password:hash,
+saldo:0
 });
 
-// APROBAR
-app.post("/api/aprobar",isAdmin,(req,res)=>{
- solicitudes=solicitudes.filter(s=>s.id!=req.body.id);
- res.json({ok:true});
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+res.json({msg:"Registro exitoso",ok:true});
 });
 
-app.get("/admin",isAdmin,(req,res)=>{
- res.sendFile(path.join(__dirname,"public/admin.html"));
+// LOGIN
+app.post("/api/login",async(req,res)=>{
+
+// ADMIN
+if(req.body.email==ADMIN.email){
+let ok = await bcrypt.compare(req.body.password,ADMIN.password);
+if(!ok) return res.json({msg:"Clave admin incorrecta"});
+return res.json({ok:true,rol:"admin"});
+}
+
+// USERS
+let users = JSON.parse(fs.readFileSync("users.json"));
+let user = users.find(u=>u.email==req.body.email);
+if(!user) return res.json({msg:"No existe"});
+
+let ok = await bcrypt.compare(req.body.password,user.password);
+if(!ok) return res.json({msg:"Clave incorrecta"});
+
+res.json({ok:true,rol:"user"});
 });
 
 app.listen(3000,()=>console.log("Servidor activo"));
-
