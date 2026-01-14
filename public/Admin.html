@@ -2,15 +2,34 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin</title>
+<title>ADMIN</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<script>
+if(localStorage.getItem("rol")!=="admin"){
+location="login.html";
+}
+</script>
+
 <h2>Panel ADMIN</h2>
 
-<div id="solicitudes"></div>
+<button onclick="verRoles()">Roles</button>
+<button onclick="logout()">Salir</button>
+
+<div id="roles" class="card oculto">
+<h3>Usuarios registrados</h3>
+<div id="lista"></div>
+</div>
 
 <script src="script.js"></script>
+
+<script>
+function verRoles(){
+document.getElementById("roles").classList.toggle("oculto");
+}
+</script>
+
 </body>
 </html>
