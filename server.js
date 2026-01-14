@@ -5,12 +5,6 @@ const path = require("path");
 
 const app = express();
 
-// Usuarios demo (luego puedes usar BD)
-const users = [
- {email:"admin@bitusdt.com", password:"amAdmin1998", rol:"admin"},
- {email:"cliente@test.com", password:"1234", rol:"user"}
-];
-
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
@@ -20,43 +14,60 @@ app.use(session({
  saveUninitialized:true
 }));
 
+// Usuarios demo
+let users=[
+ {email:"admin@bitusdt.com",pass:"amAdmin1998",rol:"admin",wallet:""},
+];
+
+let solicitudes=[];
+
 // LOGIN
 app.post("/api/login",(req,res)=>{
- const {email,password} = req.body;
+ let u = users.find(x=>x.email==req.body.email && x.pass==req.body.password);
+ if(!u) return res.json({ok:false,msg:"Credenciales incorrectas"});
 
- const user = users.find(u=>u.email==email && u.password==password);
-
- if(!user){
-   return res.json({ok:false,msg:"Credenciales incorrectas"});
- }
-
- req.session.user={
-   email:user.email,
-   rol:user.rol
- };
-
- res.json({ok:true,msg:"Bienvenido",rol:user.rol});
+ req.session.user=u;
+ res.json({ok:true,rol:u.rol});
 });
 
-// CERRAR SESIÓN
-app.get("/api/logout",(req,res)=>{
- req.session.destroy();
+// GUARDAR WALLET
+app.post("/api/wallet",(req,res)=>{
+ req.session.user.wallet=req.body.wallet;
  res.json({ok:true});
 });
 
-// PROTEGER ADMIN
+// SOLICITAR INVERSIÓN
+app.post("/api/solicitar",(req,res)=>{
+ solicitudes.push({
+  id:Date.now(),
+  email:req.session.user.email,
+  monto:req.body.monto,
+  wallet:req.session.user.wallet
+ });
+ res.json({ok:true});
+});
+
+// VER SOLICITUDES (ADMIN)
 function isAdmin(req,res,next){
- if(!req.session.user || req.session.user.rol!=="admin"){
-   return res.redirect("/login.html");
+ if(!req.session.user || req.session.user.rol!="admin"){
+  return res.redirect("/login.html");
  }
  next();
 }
 
-// RUTA ADMIN SEGURA
+app.get("/api/solicitudes",isAdmin,(req,res)=>{
+ res.json(solicitudes);
+});
+
+// APROBAR
+app.post("/api/aprobar",isAdmin,(req,res)=>{
+ solicitudes=solicitudes.filter(s=>s.id!=req.body.id);
+ res.json({ok:true});
+});
+
 app.get("/admin",isAdmin,(req,res)=>{
  res.sendFile(path.join(__dirname,"public/admin.html"));
 });
 
-app.listen(3000,()=>{
- console.log("Servidor activo puerto 3000");
-});
+app.listen(3000,()=>console.log("Servidor activo"));
+
