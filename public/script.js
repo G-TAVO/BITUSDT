@@ -1,131 +1,67 @@
-let token = localStorage.getItem("token");
+function show(id){
+document.querySelectorAll("section").forEach(s=>{
+s.classList.remove("active");
+});
+document.getElementById(id).classList.add("active");
+}
 
 // REGISTRO
-function registrar(){
+async function register(){
+const data={
+nombre:nombre.value,
+email:email.value,
+password:password.value
+};
 
-fetch("/register",{
+const res = await fetch("/api/register",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-correo:rCorreo.value,
-pass:rPass.value
-})
-})
-.then(()=>location.href="login.html");
+body:JSON.stringify(data)
+});
+
+const json = await res.json();
+msg.innerText=json.msg;
 }
 
 // LOGIN
-function login(){
+async function login(){
 
-fetch("/login",{
+const data={
+email: loginEmail.value,
+password: loginPass.value
+};
+
+const res = await fetch("/api/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-correo:correo.value,
-pass:password.value
-})
-})
-.then(r=>r.json())
-.then(d=>{
-
-if(!d.ok) return alert("Error");
-
-localStorage.setItem("token",d.token);
-localStorage.setItem("rol",d.rol);
-
-if(d.rol=="admin"){
-location.href="admin.html";
-}else{
-location.href="panel.html";
-}
-
+body:JSON.stringify(data)
 });
-}
 
-// PANEL
-function ver(id){
-document.querySelectorAll(".box")
-.forEach(x=>x.classList.add("oculto"));
-document.getElementById(id)
-.classList.remove("oculto");
-}
+const json = await res.json();
+loginMsg.innerText=json.msg;
 
-// REFERIDOS
-function copiar(){
-navigator.clipboard.writeText(linkRef.value);
-alert("Copiado");
-}
-
-// INVERTIR
-function invertir(m){
-
-fetch("/invertir",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":token
-},
-body:JSON.stringify({monto:m})
-})
-.then(r=>r.json())
-.then(d=>alert(d.msg));
-}
-
-// RETIRO
-function retirar(){
-
-fetch("/retirar",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":token
-},
-body:JSON.stringify({
-monto:montoRetiro.value
-})
-})
-.then(r=>r.json())
-.then(d=>alert(d.msg));
-}
+if(json.ok){
 
 // ADMIN
-if(location.pathname.includes("admin")){
-cargarAdmin();
+if(
+loginEmail.value=="admin@bitusdt.com" &&
+loginPass.value=="amAdmin1998"
+){
+    localStorage.setItem("rol","admin");
+    window.location="Admin.html";
+}else{
+    localStorage.setItem("rol","user");
+    window.location="Panel.html";
 }
 
-function cargarAdmin(){
-
-fetch("/admin/inversiones",{
-headers:{"Authorization":token}
-})
-.then(r=>r.json())
-.then(data=>{
-lista.innerHTML="";
-data.forEach(i=>{
-lista.innerHTML+=`
-<p>${i.correo} - ${i.monto}
-<button onclick="aprobar('${i._id}')">Aprobar</button>
-</p>`;
-});
-});
+}
 }
 
-function aprobar(id){
-
-fetch("/admin/aprobar",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":token
-},
-body:JSON.stringify({id})
-})
-.then(()=>cargarAdmin());
-}
-
-function salir(){
+// CERRAR SESIÓN
+function logout(){
 localStorage.clear();
-location.href="login.html";
+window.location="login.html";
 }
+
 
 
