@@ -10,36 +10,12 @@
 <h2>Bienvenido</h2>
 
 <div class="menu">
-<button onclick="ver('perfil')">Perfil</button>
-<button onclick="ver('invertir')">Invertir</button>
-<button onclick="ver('historial')">Historial</button>
-<button onclick="ver('retiro')">Retiro</button>
-<button onclick="ver('referidos')">Invitar amigo</button>
-<button onclick="salir()">Cerrar sesión</button>
-</div>
-
-<div id="perfil" class="box oculto">
-<input placeholder="Nombre">
-<input placeholder="Edad">
-<input placeholder="Contacto">
-</div>
-
-<div id="invertir" class="box oculto">
-<button onclick="invertir(10)">10 → 0.4</button>
-<button onclick="invertir(20)">20 → 0.5</button>
-<button onclick="invertir(30)">30 → 0.6</button>
-<button onclick="invertir(40)">40 → 0.7</button>
-<button onclick="invertir(50)">50 → 0.8</button>
-</div>
-
-<div id="retiro" class="box oculto">
-<input id="montoRetiro" placeholder="Monto">
-<button onclick="retirar()">Solicitar</button>
-</div>
-
-<div id="referidos" class="box oculto">
-<input id="linkRef" readonly>
-<button onclick="copiar()">Copiar</button>
+<button>Perfil</button>
+<button>Invertir</button>
+<button>Historial</button>
+<button>Retiro</button>
+<button>Invitar amigo</button>
+<button onclick="logout()">Cerrar sesión</button>
 </div>
 
 <script src="script.js"></script>
