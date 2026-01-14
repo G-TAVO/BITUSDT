@@ -1,22 +1,26 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>BITUSDT</title>
+<title>Panel</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="card">
-<h2>Crear cuenta</h2>
-<input placeholder="Correo">
-<input type="password" placeholder="Contraseña">
-<button>Registrarse</button>
+<h2>Panel Cliente</h2>
 
-<p>¿Ya tienes cuenta?
-<a href="login.html">Iniciar sesión</a></p>
+<div class="box">
+<h3>Mi billetera Binance</h3>
+<input id="wallet" placeholder="Dirección Binance">
+<button onclick="guardarWallet()">Guardar</button>
 </div>
 
+<div class="box">
+<h3>Invertir</h3>
+<input id="monto" placeholder="Monto">
+<button onclick="invertir()">Enviar solicitud</button>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
