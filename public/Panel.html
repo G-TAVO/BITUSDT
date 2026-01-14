@@ -2,14 +2,52 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin</title>
+<title>Panel Usuario</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Panel ADMIN</h2>
+<!-- PROTECCIÓN -->
+<script>
+if(localStorage.getItem("rol")!=="user"){
+location="login.html";
+}
+</script>
 
-<div id="solicitudes"></div>
+<h2>Panel del Cliente</h2>
+
+<div class="menu">
+<button onclick="mostrar('perfil')">Perfil</button>
+<button onclick="mostrar('invertir')">Invertir</button>
+<button onclick="mostrar('historial')">Historial</button>
+<button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- PERFIL -->
+<div id="perfil" class="card oculto">
+<h3>Mi perfil</h3>
+
+<input id="wallet" placeholder="Dirección Binance">
+
+<button onclick="guardarWallet()">Guardar</button>
+</div>
+
+<!-- INVERTIR -->
+<div id="invertir" class="card oculto">
+<h3>Solicitar inversión</h3>
+
+<input id="monto" placeholder="Monto a invertir">
+
+<button onclick="solicitar()">Enviar solicitud</button>
+
+<p id="invMsg"></p>
+</div>
+
+<!-- HISTORIAL -->
+<div id="historial" class="card oculto">
+<h3>Historial</h3>
+<p>Esperando aprobación del admin</p>
+</div>
 
 <script src="script.js"></script>
 </body>
