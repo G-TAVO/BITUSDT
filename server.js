@@ -13,10 +13,9 @@ const PORT = process.env.PORT || 3000;
 
 const ADMIN = {
  email: "admin@bitusdt.com",
- password: "$2b$10$7M3d6AqfB6mN0u0c5Z0M0u6vW5vM5pJZ3RrH3h1m3b1wE4q" 
+ password: "$2b$10$7M3d6AqfB6mN0u0c5Z0M0u6vW5vM5pJZ3RrH3h1m3b1wE4q"
 };
-
-// hash de: amAdmin1998
+// contraseña real: amAdmin1998
 
 /* ================= BD ================= */
 
@@ -37,6 +36,7 @@ const transporter = nodemailer.createTransport({
 /* ================= REGISTRO ================= */
 
 app.post("/api/register", async (req, res) => {
+ try{
 
  let users = JSON.parse(fs.readFileSync("users.json"));
 
@@ -54,20 +54,23 @@ app.post("/api/register", async (req, res) => {
 
  fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
  res.json({ msg: "Registro exitoso", ok: true });
+
+ }catch(e){
+  res.json({msg:"Error servidor"});
+ }
 });
 
 /* ================= LOGIN ================= */
 
 app.post("/api/login", async (req, res) => {
+ try{
 
- // ADMIN
  if (req.body.email == ADMIN.email) {
    let ok = await bcrypt.compare(req.body.password, ADMIN.password);
    if (!ok) return res.json({ msg: "Clave admin incorrecta" });
    return res.json({ ok: true, rol: "admin" });
  }
 
- // CLIENTES
  let users = JSON.parse(fs.readFileSync("users.json"));
  let user = users.find(u => u.email == req.body.email);
  if (!user) return res.json({ msg: "No existe" });
@@ -76,11 +79,16 @@ app.post("/api/login", async (req, res) => {
  if (!ok) return res.json({ msg: "Clave incorrecta" });
 
  res.json({ ok: true, rol: "cliente" });
+
+ }catch(e){
+  res.json({msg:"Error servidor"});
+ }
 });
 
-/* ================= RECUPERAR CLAVE ================= */
+/* ================= RECUPERAR ================= */
 
 app.post("/api/forgot", async (req, res) => {
+ try{
 
  let users = JSON.parse(fs.readFileSync("users.json"));
  let user = users.find(u => u.email == req.body.email);
@@ -99,9 +107,13 @@ app.post("/api/forgot", async (req, res) => {
  });
 
  res.json({ok:true,msg:"Revisa tu correo"});
+
+ }catch(e){
+  res.json({msg:"Error enviando correo"});
+ }
 });
 
-/* ================= ADMIN LISTAR ================= */
+/* ================= ADMIN ================= */
 
 app.get("/api/users", (req, res) => {
  let users = JSON.parse(fs.readFileSync("users.json"));
