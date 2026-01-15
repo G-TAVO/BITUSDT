@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,7 +16,7 @@ location="login.html";
 
 <h2>Panel ADMIN</h2>
 
-<button onclick="verRoles()">Roles</button>
+<button onclick="verRoles()">Ver usuarios</button>
 <button onclick="logout()">Salir</button>
 
 <div id="roles" class="card oculto">
@@ -26,8 +27,19 @@ location="login.html";
 <script src="script.js"></script>
 
 <script>
-function verRoles(){
+async function verRoles(){
+
 document.getElementById("roles").classList.toggle("oculto");
+
+const res = await fetch("/api/users");
+const data = await res.json();
+
+let html="";
+data.forEach(u=>{
+html+=`<p>${u.email}</p>`;
+});
+
+lista.innerHTML=html;
 }
 </script>
 
