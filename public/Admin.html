@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>ADMIN</title>
-<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -14,22 +12,16 @@ location="login.html";
 }
 </script>
 
-<h2>Panel ADMIN</h2>
+<h2>ADMIN</h2>
 
-<button onclick="verRoles()">Ver usuarios</button>
-<button onclick="logout()">Salir</button>
+<button onclick="ver()">Ver usuarios</button>
 
-<div id="roles" class="card oculto">
-<h3>Usuarios registrados</h3>
 <div id="lista"></div>
-</div>
 
 <script src="script.js"></script>
 
 <script>
-async function verRoles(){
-
-document.getElementById("roles").classList.toggle("oculto");
+async function ver(){
 
 const res = await fetch("/api/users");
 const data = await res.json();
@@ -45,3 +37,4 @@ lista.innerHTML=html;
 
 </body>
 </html>
+
