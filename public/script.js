@@ -1,25 +1,59 @@
-
-/* ======================
-   MOSTRAR SECCIONES
-====================== */
-function mostrar(id){
-document.querySelectorAll(".card")
-.forEach(d=>d.classList.add("oculto"));
-
-document.getElementById(id)
-.classList.remove("oculto");
+function show(id){
+document.querySelectorAll("section").forEach(s=>{
+s.classList.remove("active");
+});
+document.getElementById(id).classList.add("active");
 }
 
-/* ======================
-   GUARDAR WALLET
-====================== */
-function guardarWallet(){
-alert("Wallet guardada (demo)");
+// REGISTRO
+async function register(){
+const data={
+email:email.value,
+password:password.value
+};
+
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+const json = await res.json();
+msg.innerText=json.msg;
 }
 
-/* ======================
-   SOLICITAR INVERSIÓN
-====================== */
-function solicitar(){
-alert("Solicitud enviada al admin");
+// LOGIN
+async function login(){
+
+const data={
+email: loginEmail.value,
+password: loginPass.value
+};
+
+const res = await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+const json = await res.json();
+loginMsg.innerText=json.msg;
+
+if(json.ok){
+
+localStorage.setItem("rol",json.rol);
+
+if(json.rol==="admin"){
+window.location="admin.html";
+}else{
+window.location="panel.html";
+}
+
+}
+}
+
+// CERRAR
+function logout(){
+localStorage.clear();
+window.location="login.html";
 }
