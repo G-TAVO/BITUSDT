@@ -1,26 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
- <meta charset="UTF-8">
- <title>BITUSDT</title>
- <link rel="stylesheet" href="/css/style.css">
+<meta charset="UTF-8">
+<title>BITUSDT</title>
+<link rel="stylesheet" href="/css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
- <header>
-  <h1>Bienvenido a BITUSDT</h1>
- </header>
 
- <section id="registro">
-  <h2>Registro</h2>
-  <form id="form-register">
-    <input type="email" id="email" placeholder="Correo">
-    <input type="password" id="password" placeholder="Contraseña">
-    <button type="submit">Registrar</button>
-  </form>
- </section>
+<div class="app">
 
- <script src="/js/app.js"></script>
+<h1>💰 BITUSDT</h1>
+<p class="sub">Simulador financiero</p>
+
+<div class="tabs">
+<button onclick="show('login')">Login</button>
+<button onclick="show('register')">Registro</button>
+<button onclick="show('forgot')">Recuperar</button>
+</div>
+
+<section id="login" class="active">
+<h2>Iniciar sesión</h2>
+<input id="l_email" placeholder="Correo">
+<input id="l_pass" type="password" placeholder="Contraseña">
+<label><input type="checkbox" onclick="ver('l_pass')"> Ver</label>
+<button onclick="login()">Entrar</button>
+<p id="l_msg"></p>
+</section>
+
+<section id="register">
+<h2>Crear cuenta</h2>
+<input id="r_email" placeholder="Correo">
+<input id="r_pass" type="password" placeholder="Contraseña">
+<label><input type="checkbox" onclick="ver('r_pass')"> Ver</label>
+<button onclick="register()">Registrarse</button>
+<p id="r_msg"></p>
+</section>
+
+<section id="forgot">
+<h2>Recuperar clave</h2>
+<input id="f_email" placeholder="Correo registrado">
+<button onclick="forgot()">Enviar</button>
+<p id="f_msg"></p>
+</section>
+
+</div>
+
+<script src="/js/app.js"></script>
 </body>
 </html>
-
-
