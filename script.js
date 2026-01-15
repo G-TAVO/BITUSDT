@@ -1,23 +1,15 @@
-// VERIFICAR SESIÓN
-if(localStorage.getItem("rol")=="admin"){
-if(location.pathname.includes("login") ||
-location.pathname.includes("index")){
-location="admin.html";
-}
-}
-
-if(localStorage.getItem("rol")=="user"){
-if(location.pathname.includes("admin")){
-location="panel.html";
-}
+function show(id){
+document.querySelectorAll("section").forEach(s=>{
+s.classList.remove("active");
+});
+document.getElementById(id).classList.add("active");
 }
 
 // REGISTRO
-async function registrar(){
-
+async function register(){
 const data={
-email:rCorreo.value,
-password:rPass.value
+email:email.value,
+password:password.value
 };
 
 const res = await fetch("/api/register",{
@@ -26,16 +18,16 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
 
-let j = await res.json();
-alert(j.msg);
+const json = await res.json();
+msg.innerText=json.msg;
 }
 
 // LOGIN
 async function login(){
 
 const data={
-email:loginEmail.value,
-password:loginPass.value
+email: loginEmail.value,
+password: loginPass.value
 };
 
 const res = await fetch("/api/login",{
@@ -44,21 +36,25 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
 
-let j = await res.json();
-if(!j.ok) return alert(j.msg);
+const json = await res.json();
+loginMsg.innerText=json.msg;
 
-// GUARDAR ROL
-localStorage.setItem("rol",j.rol);
+if(json.ok){
 
-if(j.rol=="admin"){
-location="admin.html";
+localStorage.setItem("rol",json.rol);
+
+if(json.rol==="admin"){
+window.location="admin.html";
 }else{
-location="panel.html";
+window.location="panel.html";
+}
+
 }
 }
 
 // CERRAR
 function logout(){
 localStorage.clear();
-location="login.html";
+window.location="login.html";
 }
+
