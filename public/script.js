@@ -1,15 +1,12 @@
-function show(id){
-document.querySelectorAll("section").forEach(s=>{
-s.classList.remove("active");
-});
-document.getElementById(id).classList.add("active");
-}
+let saldo=0,total=0,hoy=0;
+let users=0,invTotal=0;
 
 // REGISTRO
 async function register(){
+
 const data={
-email:email.value,
-password:password.value
+email:rCorreo.value,
+password:rPass.value
 };
 
 const res = await fetch("/api/register",{
@@ -19,7 +16,7 @@ body:JSON.stringify(data)
 });
 
 const json = await res.json();
-msg.innerText=json.msg;
+alert(json.msg);
 }
 
 // LOGIN
@@ -37,23 +34,43 @@ body:JSON.stringify(data)
 });
 
 const json = await res.json();
-loginMsg.innerText=json.msg;
+alert(json.msg);
 
 if(json.ok){
 
 localStorage.setItem("rol",json.rol);
 
-if(json.rol==="admin"){
-window.location="admin.html";
+if(json.rol=="admin"){
+location="admin.html";
 }else{
-window.location="panel.html";
+location="panel.html";
+}
+}
 }
 
-}
+// INVERTIR (SIMULADO)
+function invertir(){
+
+let val=parseInt(amount.value);
+
+saldo+=val;
+invTotal+=val;
+hoy+=val*0.05;
+total+=val*0.05;
+
+update();
+alert("Solicitud enviada al admin");
 }
 
-// CERRAR
+// ACTUALIZAR
+function update(){
+saldoTxt.innerText=saldo+" USDT";
+hoyTxt.innerText=hoy.toFixed(2)+" USDT";
+totalTxt.innerText=total.toFixed(2)+" USDT";
+}
+
+// SALIR
 function logout(){
 localStorage.clear();
-window.location="login.html";
+location="login.html";
 }
