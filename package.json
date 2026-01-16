@@ -1,14 +1,15 @@
 {
   "name": "bitusdt",
   "version": "1.0.0",
-  "description": "Plataforma simulada BITUSDT",
+  "description": "Simulador financiero BITUSDT",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "bcrypt": "^5.1.0",
-    "nodemailer": "^6.9.8"
+    "express": "^4.18.2",
+    "fs": "0.0.1-security",
+    "nodemailer": "^6.9.4"
   }
 }
