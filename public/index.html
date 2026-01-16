@@ -62,14 +62,16 @@ margin:5px 0;
 <input id="l_pass" type="password" placeholder="Clave">
 <button onclick="login()">Entrar</button>
 <p id="l_msg"></p>
+<button onclick="show('register')">Crear cuenta</button>
 </section>
 
 <section id="register">
 <h3>Registro</h3>
 <input id="r_email" placeholder="Correo">
 <input id="r_pass" type="password" placeholder="Clave">
-<button onclick="register()">Crear cuenta</button>
+<button onclick="register()">Registrar</button>
 <p id="r_msg"></p>
+<button onclick="show('login')">Volver</button>
 </section>
 
 <section id="panel">
@@ -80,8 +82,8 @@ margin:5px 0;
 
 <input id="amount" placeholder="Monto invertir">
 
-<button onclick="invertir()">Invertir</button>
-<button onclick="retirar()">Retirar</button>
+<button onclick="invertir()">Solicitar inversión</button>
+<button onclick="retirar()">Solicitar retiro</button>
 
 <button onclick="logout()">Salir</button>
 </section>
@@ -93,10 +95,6 @@ margin:5px 0;
 <button onclick="logout()">Salir</button>
 </section>
 
-<hr>
-<button onclick="show('login')">Login</button>
-<button onclick="show('register')">Registro</button>
-
 </div>
 
 <script>
@@ -105,25 +103,36 @@ margin:5px 0;
 const ADMIN_EMAIL="Binancecoin958@gmail.com";
 const ADMIN_PASS="Enriique1998";
 
-let user=null;
-let tasa=0.035; // 3.5% diario
+let tasa=0.035;
 
+// BASE DE DATOS LOCAL
+let db = JSON.parse(localStorage.getItem("DB")) || [];
+
+// MOSTRAR
 function show(id){
 document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 }
 
+// GUARDAR BD
+function save(){
+localStorage.setItem("DB",JSON.stringify(db));
+}
+
 // REGISTRO
 function register(){
+
 let u={
 email:r_email.value,
 pass:r_pass.value,
 saldo:0,
 estado:"sin invertir",
 ultima:null
-}
-localStorage.setItem(u.email,JSON.stringify(u));
-r_msg.innerText="Registrado ✔";
+};
+
+db.push(u);
+save();
+r_msg.innerText="Registrado correctamente ✔";
 }
 
 // LOGIN
@@ -134,120 +143,120 @@ show("admin");
 return;
 }
 
-let u=JSON.parse(localStorage.getItem(l_email.value));
-if(!u || u.pass!=l_pass.value){
+let u=db.find(x=>x.email==l_email.value && x.pass==l_pass.value);
+
+if(!u){
 l_msg.innerText="Datos incorrectos";
 return;
 }
 
-user=u;
-localStorage.setItem("actual",user.email);
-
-actualizarGanancia();
-update();
+localStorage.setItem("actual",u.email);
+actualizarGanancia(u);
+update(u);
 show("panel");
 }
 
 // INVERTIR
 function invertir(){
 
-if(user.estado=="pendiente"||user.estado=="aprobado")
-return alert("Ya tienes solicitud");
+let email=localStorage.getItem("actual");
+let u=db.find(x=>x.email==email);
+
+if(u.estado!="sin invertir")
+return alert("Ya tienes solicitud activa");
 
 let m=parseFloat(amount.value);
 if(m<=0) return alert("Monto inválido");
 
-user.saldo=m;
-user.estado="pendiente";
-user.ultima=null;
-
-localStorage.setItem(user.email,JSON.stringify(user));
+u.saldo=m;
+u.estado="pendiente";
+u.ultima=null;
+save();
 
 alert("Solicitud enviada al admin");
-update();
+update(u);
 }
 
-// ADMIN VER
+// ADMIN
 function verSolicitudes(){
 
 let html="";
-for(let i=0;i<localStorage.length;i++){
-let k=localStorage.key(i);
-let u=JSON.parse(localStorage.getItem(k));
-
-if(u && u.estado=="pendiente"){
+db.forEach(u=>{
+if(u.estado=="pendiente"){
 html+=`
 <div class="card">
 <b>${u.email}</b><br>
 Monto: ${u.saldo}
 <br>
-<button onclick="aprobar('${k}')">Aprobar</button>
-<button onclick="rechazar('${k}')">Rechazar</button>
+<button onclick="aprobar('${u.email}')">Aprobar</button>
+<button onclick="rechazar('${u.email}')">Rechazar</button>
 </div>`;
 }
-}
-lista.innerHTML=html || "Sin solicitudes";
+});
+
+lista.innerHTML=html || "No hay solicitudes";
 }
 
 // APROBAR
-function aprobar(id){
-let u=JSON.parse(localStorage.getItem(id));
+function aprobar(email){
+let u=db.find(x=>x.email==email);
 u.estado="aprobado";
 u.ultima=Date.now();
-localStorage.setItem(id,JSON.stringify(u));
-alert("Aprobado");
+save();
+alert("Inversión aprobada");
 verSolicitudes();
 }
 
 // RECHAZAR
-function rechazar(id){
-let u=JSON.parse(localStorage.getItem(id));
+function rechazar(email){
+let u=db.find(x=>x.email==email);
 u.estado="rechazado";
-localStorage.setItem(id,JSON.stringify(u));
-alert("Rechazado");
+save();
+alert("Solicitud rechazada");
 verSolicitudes();
 }
 
 // GANANCIA
-function actualizarGanancia(){
+function actualizarGanancia(u){
 
-if(user.estado!="aprobado") return;
+if(u.estado!="aprobado") return;
 
 let ahora=Date.now();
-let dias=Math.floor((ahora-user.ultima)/(1000*60*60*24));
+let dias=Math.floor((ahora-u.ultima)/(1000*60*60*24));
 
 if(dias>0){
 for(let i=0;i<dias;i++){
-user.saldo+=user.saldo*tasa;
+u.saldo+=u.saldo*tasa;
 }
-user.ultima=ahora;
-localStorage.setItem(user.email,JSON.stringify(user));
+u.ultima=ahora;
+save();
 }
 }
 
 // RETIRO
 function retirar(){
 
-if(user.saldo<20)
+let email=localStorage.getItem("actual");
+let u=db.find(x=>x.email==email);
+
+if(u.saldo<20)
 return alert("Mínimo 20 USDT");
 
-let descuento=4;
-let recibir=user.saldo-descuento;
+let recibir=u.saldo-4;
 
 alert("Retiro aprobado\nRecibe: "+recibir.toFixed(2));
 
-user.saldo=0;
-user.estado="sin invertir";
-user.ultima=null;
-
-localStorage.setItem(user.email,JSON.stringify(user));
-update();
+u.saldo=0;
+u.estado="sin invertir";
+u.ultima=null;
+save();
+update(u);
 }
 
 // ACTUALIZAR
-function update(){
-estadoTxt.innerText=user.estado;
-saldoTxt.innerText=user.saldo.toFixed(2)+" USDT";
+function update(u){
+estadoTxt.innerText=u.estado;
+saldoTxt.innerText=u.saldo.toFixed(2)+" USDT";
 }
 
 // SALIR
