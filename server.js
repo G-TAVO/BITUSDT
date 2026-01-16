@@ -9,115 +9,130 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
-/* ================= ADMIN ================= */
-
+/* ADMIN */
 const ADMIN = {
- email: "admin@bitusdt.com",
- password: "$2b$10$7M3d6AqfB6mN0u0c5Z0M0u6vW5vM5pJZ3RrH3h1m3b1wE4q"
+ email:"Binancecoin958@gmail.com",
+ pass:"Enriique1998"
 };
-// contraseña real: amAdmin1998
 
-/* ================= BD ================= */
-
-if (!fs.existsSync("users.json")) {
- fs.writeFileSync("users.json", "[]");
+/* BD */
+if(!fs.existsSync("users.json")){
+ fs.writeFileSync("users.json","[]");
 }
 
-/* ================= EMAIL ================= */
-
+/* EMAIL */
 const transporter = nodemailer.createTransport({
- service: "gmail",
- auth: {
-   user: "TU_CORREO@gmail.com",
-   pass: "CLAVE_APP_GMAIL"
+ service:"gmail",
+ auth:{
+   user:"Binancecoin958@gmail.com",
+   pass:"CLAVE_APP_GMAIL"
  }
 });
 
-/* ================= REGISTRO ================= */
-
-app.post("/api/register", async (req, res) => {
- try{
-
+/* REGISTRO */
+app.post("/api/register",async(req,res)=>{
  let users = JSON.parse(fs.readFileSync("users.json"));
 
- let exist = users.find(u => u.email == req.body.email);
- if (exist) return res.json({ msg: "Correo ya registrado" });
+ let exist = users.find(u=>u.email==req.body.email);
+ if(exist) return res.json({msg:"Correo ya registrado"});
 
- let hash = await bcrypt.hash(req.body.password, 10);
+ let hash = await bcrypt.hash(req.body.password,10);
 
  users.push({
-   email: req.body.email,
-   password: hash,
-   saldo: 0,
-   rol: "cliente"
+  email:req.body.email,
+  password:hash,
+  wallet:req.body.wallet,
+  saldo:0,
+  hoy:0,
+  total:0,
+  invPend:0,
+  retPend:0,
+  ref:req.body.ref || ""
  });
 
- fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
- res.json({ msg: "Registro exitoso", ok: true });
-
- }catch(e){
-  res.json({msg:"Error servidor"});
- }
+ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+ res.json({ok:true,msg:"Registro exitoso"});
 });
 
-/* ================= LOGIN ================= */
+/* LOGIN */
+app.post("/api/login",async(req,res)=>{
+ let {email,password}=req.body;
 
-app.post("/api/login", async (req, res) => {
- try{
-
- if (req.body.email == ADMIN.email) {
-   let ok = await bcrypt.compare(req.body.password, ADMIN.password);
-   if (!ok) return res.json({ msg: "Clave admin incorrecta" });
-   return res.json({ ok: true, rol: "admin" });
+ if(email==ADMIN.email && password==ADMIN.pass){
+  return res.json({ok:true,rol:"admin"});
  }
 
  let users = JSON.parse(fs.readFileSync("users.json"));
- let user = users.find(u => u.email == req.body.email);
- if (!user) return res.json({ msg: "No existe" });
+ let user = users.find(u=>u.email==email);
+ if(!user) return res.json({msg:"Datos incorrectos"});
 
- let ok = await bcrypt.compare(req.body.password, user.password);
- if (!ok) return res.json({ msg: "Clave incorrecta" });
+ let ok = await bcrypt.compare(password,user.password);
+ if(!ok) return res.json({msg:"Datos incorrectos"});
 
- res.json({ ok: true, rol: "cliente" });
-
- }catch(e){
-  res.json({msg:"Error servidor"});
- }
+ res.json({ok:true,rol:"user",email:user.email});
 });
 
-/* ================= RECUPERAR ================= */
-
-app.post("/api/forgot", async (req, res) => {
- try{
-
- let users = JSON.parse(fs.readFileSync("users.json"));
- let user = users.find(u => u.email == req.body.email);
- if (!user) return res.json({ msg: "Correo no registrado" });
-
- let nueva = Math.random().toString(36).slice(2,8);
-
- user.password = await bcrypt.hash(nueva,10);
- fs.writeFileSync("users.json", JSON.stringify(users,null,2));
-
- await transporter.sendMail({
-   from:"BITUSDT",
-   to:req.body.email,
-   subject:"Recuperar contraseña",
-   html:`Tu nueva contraseña es: <b>${nueva}</b>`
- });
-
- res.json({ok:true,msg:"Revisa tu correo"});
-
- }catch(e){
-  res.json({msg:"Error enviando correo"});
- }
-});
-
-/* ================= ADMIN ================= */
-
-app.get("/api/users", (req, res) => {
+/* LISTAR */
+app.get("/api/users",(req,res)=>{
  let users = JSON.parse(fs.readFileSync("users.json"));
  res.json(users);
 });
 
-app.listen(PORT, () => console.log("Servidor activo"));
+/* SOLICITAR INVERSION */
+app.post("/api/invert",(req,res)=>{
+ let users = JSON.parse(fs.readFileSync("users.json"));
+ let u = users.find(x=>x.email==req.body.email);
+ u.invPend=req.body.amount;
+ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+ res.json({msg:"Solicitud enviada"});
+});
+
+/* SOLICITAR RETIRO */
+app.post("/api/retirar",(req,res)=>{
+ let users = JSON.parse(fs.readFileSync("users.json"));
+ let u = users.find(x=>x.email==req.body.email);
+ u.retPend=u.saldo;
+ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+ res.json({msg:"Solicitud enviada"});
+});
+
+/* APROBAR */
+app.post("/api/aprobar",(req,res)=>{
+ let users = JSON.parse(fs.readFileSync("users.json"));
+ let u = users.find(x=>x.email==req.body.email);
+
+ if(req.body.tipo=="inv"){
+  u.saldo+=u.invPend;
+  u.hoy+=u.invPend*0.05;
+  u.total+=u.invPend*0.05;
+  u.invPend=0;
+ }
+
+ if(req.body.tipo=="ret"){
+  u.saldo=0;
+  u.hoy=0;
+  u.total=0;
+  u.retPend=0;
+ }
+
+ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+ res.json({msg:"Acción aplicada"});
+});
+
+/* RECUPERAR */
+app.post("/api/forgot",(req,res)=>{
+ let users = JSON.parse(fs.readFileSync("users.json"));
+ let u = users.find(x=>x.email==req.body.email);
+ if(!u) return res.json({msg:"Correo no existe"});
+
+ transporter.sendMail({
+  from:"BITUSDT",
+  to:u.email,
+  subject:"Recuperación contraseña",
+  text:"Contacta al admin para restablecer tu acceso."
+ });
+
+ res.json({msg:"Correo enviado"});
+});
+
+app.listen(PORT,()=>console.log("Activo"));
