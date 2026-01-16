@@ -3,144 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
+
 <style>
-body{font-family:Arial;background:#0f172a;color:white;margin:0}
-.card{background:#111827;margin:15px;padding:15px;border-radius:10px}
-input,button{width:100%;padding:10px;margin:5px;border-radius:6px;border:none}
-button{background:#22c55e;color:black;font-weight:bold}
-button:hover{opacity:.8}
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+margin:0;
+padding:0;
+}
+
+.card{
+background:#111827;
+margin:15px;
+padding:15px;
+border-radius:12px;
+box-shadow:0 0 15px #22c55e;
+}
+
+input,button{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:6px;
+border:none;
+font-size:15px;
+}
+
+button{
+background:#22c55e;
+color:black;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+background:#16a34a;
+}
+
 .hide{display:none}
-.admin{background:#1f2933}
+
+.admin{
+background:#1f2933;
+}
+
+.small{
+font-size:12px;
+color:#aaa;
+text-align:center;
+}
+
+.progress{
+background:#1e293b;
+height:12px;
+border-radius:10px;
+overflow:hidden;
+}
+
+.bar{
+background:#22c55e;
+height:100%;
+width:0%;
+}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div class="card" id="loginBox">
-<h3>LOGIN</h3>
+<h3>🔐 LOGIN</h3>
 <input id="email" placeholder="Correo">
 <input id="pass" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
 <p id="msg"></p>
+
+<p class="small">
+<a href="#" onclick="recuperar()">¿Olvidó su contraseña?</a>
+</p>
 </div>
 
+<!-- PANEL USUARIO -->
 <div class="card hide" id="panel">
-<h3>Panel Usuario</h3>
+<h3>👤 Panel Usuario</h3>
+
 <p>Saldo: <b id="saldo">0</b> USDT</p>
-<p>Día: <b id="dia">0</b>/20</p>
-<p>Ganancia diaria: 1 USDT</p>
+<p>Días: <b id="dia">0</b>/20</p>
+<p>Ganancia diaria: <b>1 USDT</b></p>
+
+<div class="progress">
+<div class="bar" id="barra"></div>
+</div>
 
 <input id="monto" placeholder="Monto a invertir">
-<button onclick="invertir()">Invertir</button>
 
-<button onclick="retirar()">Retirar</button>
-
-<button onclick="referir()">Compartir WhatsApp</button>
-
+<button onclick="invertir()">📩 Enviar inversión</button>
+<button onclick="retirar()">💸 Retirar</button>
+<button onclick="referir()">📲 Compartir WhatsApp</button>
 <button onclick="logout()">Salir</button>
 </div>
 
+<!-- ADMIN -->
 <div class="card admin hide" id="admin">
-<h3>ADMIN</h3>
+<h3>🛡 ADMIN</h3>
 <p>Solicitudes:</p>
 <div id="sol"></div>
 <button onclick="logout()">Salir</button>
 </div>
 
 <script>
-let users=JSON.parse(localStorage.getItem("users"))||[];
-let solicitudes=JSON.parse(localStorage.getItem("sol"))||[];
-let actual=null;
+// ===== BASE DATOS LOCAL =====
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let solicitudes = JSON.parse(localStorage.getItem("sol")) || [];
+let actual = null;
 
+// ===== LOGIN =====
 function login(){
-let e=email.value,p=pass.value;
 
+let e=email.value;
+let p=pass.value;
+
+// ADMIN
 if(e=="Binancecoin958@gmail.com" && p=="Enriique1998"){
 admin.classList.remove("hide");
 loginBox.classList.add("hide");
+cargarAdmin();
 return;
 }
 
-actual=users.find(u=>u.e==e && u.p==p);
+// USUARIO
+actual = users.find(u=>u.e==e && u.p==p);
+
 if(!actual){
-msg.innerHTML="Datos incorrectos";
+msg.innerHTML="❌ Usuario o contraseña incorrectos";
 return;
 }
+
 loginBox.classList.add("hide");
 panel.classList.remove("hide");
 cargar();
 }
 
+// ===== REGISTRAR USUARIO AUTOMATICO =====
+function registrar(e,p){
+users.push({
+e:e,
+p:p,
+s:0,
+d:0,
+act:false
+});
+guardar();
+}
+
+// ===== INVERTIR =====
 function invertir(){
-solicitudes.push({e:actual.e,m:monto.value});
+
+if(!monto.value){
+alert("Ingrese monto");
+return;
+}
+
+solicitudes.push({
+e:actual.e,
+m:monto.value
+});
+
 guardar();
 alert("Solicitud enviada al admin");
 }
 
-function cargar(){
-saldo.innerHTML=actual.s;
-dia.innerHTML=actual.d||0;
+// ===== RETIRO =====
+function retirar(){
+
+if(actual.s < 20){
+alert("Mínimo 20 USDT");
+return;
 }
 
-function retirar(){
-if(actual.s<20){alert("Mínimo 20 USDT");return;}
-alert("Retiro exitoso (simulado)");
+let recibido = actual.s - 4;
+
+alert("Retiro exitoso\nRecibes: "+recibido+" USDT");
+
 actual.s=0;
 actual.d=0;
+actual.act=false;
+
 guardar();
 cargar();
 }
 
+// ===== CARGAR PANEL =====
+function cargar(){
+saldo.innerHTML=actual.s;
+dia.innerHTML=actual.d;
+
+let porc = (actual.d/20)*100;
+barra.style.width = porc+"%";
+}
+
+// ===== LOGOUT =====
 function logout(){
 location.reload();
 }
 
+// ===== REFERIDOS =====
 function referir(){
-let link=location.href;
+let link = location.href;
 window.open("https://wa.me/?text=Regístrate aquí "+link);
 }
 
+// ===== GUARDAR =====
 function guardar(){
 localStorage.setItem("users",JSON.stringify(users));
 localStorage.setItem("sol",JSON.stringify(solicitudes));
 }
 
+// ===== GANANCIA DIARIA =====
 setInterval(()=>{
-if(actual && actual.d<20){
-actual.d=(actual.d||0)+1;
-actual.s=(actual.s||0)+1;
+
+if(actual && actual.act && actual.d < 20){
+
+actual.d++;
+actual.s++;
+
 guardar();
 cargar();
 }
-},86400000); // cada 24h
 
+},86400000); // 24 horas
+
+// ===== ADMIN =====
 function cargarAdmin(){
+
 sol.innerHTML="";
+
 solicitudes.forEach((x,i)=>{
+
 sol.innerHTML+=`
-<p>${x.e} - ${x.m} USDT 
-<button onclick="aprobar(${i})">Aprobar</button>
-<button onclick="rechazar(${i})">Rechazar</button>
+<p>
+${x.e} - ${x.m} USDT
+
+<button onclick="aprobar(${i})">✔ Aprobar</button>
+<button onclick="rechazar(${i})">✖ Rechazar</button>
 </p>`;
 });
 }
 
 function aprobar(i){
-let u=users.find(x=>x.e==solicitudes[i].e);
-if(!u){users.push({e:solicitudes[i].e,p:"123",s:0,d:0});}
+
+let u = users.find(x=>x.e==solicitudes[i].e);
+
+if(!u){
+registrar(solicitudes[i].e,"123");
+u = users.find(x=>x.e==solicitudes[i].e);
+}
+
+u.act = true;
+
 solicitudes.splice(i,1);
-guardar();cargarAdmin();
+guardar();
+cargarAdmin();
 }
 
 function rechazar(i){
 solicitudes.splice(i,1);
-guardar();cargarAdmin();
+guardar();
+cargarAdmin();
 }
 
-setInterval(()=>{cargarAdmin()},1000);
+// ===== RECUPERAR =====
+function recuperar(){
+alert("Sistema de correo pendiente (simulado)");
+}
+
+setInterval(()=>{cargarAdmin()},1500);
 </script>
 
 </body>
 </html>
+
 
 
