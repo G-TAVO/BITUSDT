@@ -21,30 +21,32 @@ background:#111;
 padding:25px;
 width:360px;
 border-radius:15px;
-box-shadow:0 0 25px #00ffc8;
+box-shadow:0 0 20px #00ffc8;
 text-align:center;
 }
 
 h1{color:#00ffc8}
-button{
+input,button{
 width:100%;
-padding:12px;
+padding:10px;
 margin:6px 0;
-background:#00ffc8;
 border:none;
-border-radius:8px;
+border-radius:5px;
+}
+button{
+background:#00ffc8;
 font-weight:bold;
 cursor:pointer;
 }
 button:hover{background:#00c9a7}
-input{
-width:100%;
+section{display:none}
+.active{display:block}
+.card{
+background:#1c1c1c;
 padding:10px;
-border:none;
-border-radius:6px;
+border-radius:10px;
 margin:5px 0;
 }
-.hidden{display:none}
 </style>
 </head>
 
@@ -53,185 +55,210 @@ margin:5px 0;
 <div class="app">
 
 <h1>💰 BITUSDT</h1>
-<p>Simulador financiero</p>
 
-<!-- LOGIN -->
-<div id="loginBox">
-<input id="loginEmail" placeholder="Correo">
-<input id="loginPass" type="password" placeholder="Contraseña">
+<section id="login" class="active">
+<h3>Login</h3>
+<input id="l_email" placeholder="Correo">
+<input id="l_pass" type="password" placeholder="Clave">
 <button onclick="login()">Entrar</button>
-<button onclick="mostrarRegistro()">Registrarse</button>
-</div>
+<p id="l_msg"></p>
+</section>
 
-<!-- REGISTRO -->
-<div id="registroBox" class="hidden">
-<input id="regEmail" placeholder="Correo">
-<input id="regPass" type="password" placeholder="Contraseña">
-<input id="wallet" placeholder="Wallet Binance (TRC20)">
-<button onclick="registrar()">Crear cuenta</button>
-<button onclick="volver()">Volver</button>
-</div>
+<section id="register">
+<h3>Registro</h3>
+<input id="r_email" placeholder="Correo">
+<input id="r_pass" type="password" placeholder="Clave">
+<button onclick="register()">Crear cuenta</button>
+<p id="r_msg"></p>
+</section>
 
-<!-- PANEL CLIENTE -->
-<div id="panel" class="hidden">
-<p>Email: <b id="pEmail"></b></p>
-<p>Saldo: <b id="saldoTxt">0</b> USDT</p>
-<p>Ganancias: <b id="ganTxt">0</b> USDT</p>
-<p>Tu wallet: <b id="userWallet"></b></p>
-<p>Depositar en: <b>TRC20: TU_BILLETERA_TRON</b></p>
+<section id="panel">
+<h3>Panel Cliente</h3>
 
-<input id="monto" placeholder="Monto a invertir">
-<button onclick="solicitarInversion()">Solicitar inversión</button>
-<button onclick="retirar()">Solicitar retiro (mín $20)</button>
-<button onclick="referir()">Invitar por WhatsApp (+0.1)</button>
-<button onclick="salir()">Salir</button>
-</div>
+<p>Estado: <b id="estadoTxt"></b></p>
+<p>Saldo: <b id="saldoTxt"></b></p>
 
-<!-- PANEL ADMIN -->
-<div id="admin" class="hidden">
+<input id="amount" placeholder="Monto invertir">
+
+<button onclick="invertir()">Invertir</button>
+<button onclick="retirar()">Retirar</button>
+
+<button onclick="logout()">Salir</button>
+</section>
+
+<section id="admin">
 <h3>ADMIN</h3>
+<button onclick="verSolicitudes()">Ver solicitudes</button>
 <div id="lista"></div>
-<button onclick="salir()">Cerrar</button>
-</div>
+<button onclick="logout()">Salir</button>
+</section>
+
+<hr>
+<button onclick="show('login')">Login</button>
+<button onclick="show('register')">Registro</button>
 
 </div>
 
 <script>
-// CREDENCIALES ADMIN
+
+// ADMIN
 const ADMIN_EMAIL="Binancecoin958@gmail.com";
 const ADMIN_PASS="Enriique1998";
 
-// VARIABLES
-let usuarios = JSON.parse(localStorage.getItem("users")) || [];
-let actual=null;
+let user=null;
+let tasa=0.035; // 3.5% diario
+
+function show(id){
+document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
 
 // REGISTRO
-function registrar(){
+function register(){
 let u={
-email:regEmail.value,
-pass:regPass.value,
-wallet:wallet.value,
+email:r_email.value,
+pass:r_pass.value,
 saldo:0,
-gan:0,
-ultima:Date.now()
-};
-usuarios.push(u);
-guardar();
-alert("Cuenta creada");
-volver();
+estado:"sin invertir",
+ultima:null
+}
+localStorage.setItem(u.email,JSON.stringify(u));
+r_msg.innerText="Registrado ✔";
 }
 
 // LOGIN
 function login(){
 
-// ADMIN
-if(loginEmail.value==ADMIN_EMAIL && loginPass.value==ADMIN_PASS){
-document.getElementById("loginBox").classList.add("hidden");
-admin.classList.remove("hidden");
-cargarAdmin();
+if(l_email.value==ADMIN_EMAIL && l_pass.value==ADMIN_PASS){
+show("admin");
 return;
 }
 
-// USUARIOS
-let u=usuarios.find(x=>x.email==loginEmail.value && x.pass==loginPass.value);
-if(!u) return alert("Datos incorrectos");
-
-actual=u;
-document.getElementById("loginBox").classList.add("hidden");
-panel.classList.remove("hidden");
-
-pEmail.innerText=u.email;
-userWallet.innerText=u.wallet;
-calcular();
+let u=JSON.parse(localStorage.getItem(l_email.value));
+if(!u || u.pass!=l_pass.value){
+l_msg.innerText="Datos incorrectos";
+return;
 }
 
-// GANANCIA DIARIA
-function calcular(){
+user=u;
+localStorage.setItem("actual",user.email);
+
+actualizarGanancia();
+update();
+show("panel");
+}
+
+// INVERTIR
+function invertir(){
+
+if(user.estado=="pendiente"||user.estado=="aprobado")
+return alert("Ya tienes solicitud");
+
+let m=parseFloat(amount.value);
+if(m<=0) return alert("Monto inválido");
+
+user.saldo=m;
+user.estado="pendiente";
+user.ultima=null;
+
+localStorage.setItem(user.email,JSON.stringify(user));
+
+alert("Solicitud enviada al admin");
+update();
+}
+
+// ADMIN VER
+function verSolicitudes(){
+
+let html="";
+for(let i=0;i<localStorage.length;i++){
+let k=localStorage.key(i);
+let u=JSON.parse(localStorage.getItem(k));
+
+if(u && u.estado=="pendiente"){
+html+=`
+<div class="card">
+<b>${u.email}</b><br>
+Monto: ${u.saldo}
+<br>
+<button onclick="aprobar('${k}')">Aprobar</button>
+<button onclick="rechazar('${k}')">Rechazar</button>
+</div>`;
+}
+}
+lista.innerHTML=html || "Sin solicitudes";
+}
+
+// APROBAR
+function aprobar(id){
+let u=JSON.parse(localStorage.getItem(id));
+u.estado="aprobado";
+u.ultima=Date.now();
+localStorage.setItem(id,JSON.stringify(u));
+alert("Aprobado");
+verSolicitudes();
+}
+
+// RECHAZAR
+function rechazar(id){
+let u=JSON.parse(localStorage.getItem(id));
+u.estado="rechazado";
+localStorage.setItem(id,JSON.stringify(u));
+alert("Rechazado");
+verSolicitudes();
+}
+
+// GANANCIA
+function actualizarGanancia(){
+
+if(user.estado!="aprobado") return;
+
 let ahora=Date.now();
-let dias=Math.floor((ahora-actual.ultima)/(1000*60*60*24));
+let dias=Math.floor((ahora-user.ultima)/(1000*60*60*24));
 
 if(dias>0){
 for(let i=0;i<dias;i++){
-actual.saldo += actual.saldo*0.035;
-actual.gan += actual.saldo*0.035;
+user.saldo+=user.saldo*tasa;
 }
-actual.ultima=ahora;
-guardar();
+user.ultima=ahora;
+localStorage.setItem(user.email,JSON.stringify(user));
 }
-mostrar();
-}
-
-function mostrar(){
-saldoTxt.innerText=actual.saldo.toFixed(2);
-ganTxt.innerText=actual.gan.toFixed(2);
-}
-
-// SOLICITAR INVERSIÓN
-function solicitarInversion(){
-let m=parseFloat(monto.value);
-actual.saldo+=m;
-guardar();
-alert("Solicitud enviada al admin");
-mostrar();
 }
 
 // RETIRO
 function retirar(){
-if(actual.saldo<20) return alert("Mínimo 20 USDT");
 
-let total=actual.saldo;
-let recibido=total-4; // descuento fijo
+if(user.saldo<20)
+return alert("Mínimo 20 USDT");
 
-alert("Recibirás "+recibido+" USDT (simulado)");
+let descuento=4;
+let recibir=user.saldo-descuento;
 
-actual.saldo=0;
-actual.gan=0;
-guardar();
-mostrar();
+alert("Retiro aprobado\nRecibe: "+recibir.toFixed(2));
+
+user.saldo=0;
+user.estado="sin invertir";
+user.ultima=null;
+
+localStorage.setItem(user.email,JSON.stringify(user));
+update();
 }
 
-// REFERIDOS
-function referir(){
-actual.saldo+=0.1;
-guardar();
-let link=location.href;
-window.open("https://wa.me/?text=Regístrate "+link);
+// ACTUALIZAR
+function update(){
+estadoTxt.innerText=user.estado;
+saldoTxt.innerText=user.saldo.toFixed(2)+" USDT";
 }
 
-// ADMIN
-function cargarAdmin(){
-let html="";
-usuarios.forEach((u,i)=>{
-html+=`
-<p>
-${u.email}<br>
-Wallet: ${u.wallet}<br>
-Saldo: ${u.saldo.toFixed(2)}
-</p><hr>`;
-});
-lista.innerHTML=html;
+// SALIR
+function logout(){
+localStorage.removeItem("actual");
+show("login");
 }
 
-// UTIL
-function guardar(){
-localStorage.setItem("users",JSON.stringify(usuarios));
-}
-
-function mostrarRegistro(){
-loginBox.classList.add("hidden");
-registroBox.classList.remove("hidden");
-}
-
-function volver(){
-registroBox.classList.add("hidden");
-loginBox.classList.remove("hidden");
-}
-
-function salir(){
-location.reload();
-}
 </script>
 
 </body>
 </html>
+
 
