@@ -12,14 +12,15 @@ body{
   color:white;
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:flex-start;
   min-height:100vh;
+  padding:20px 0;
 }
 
 .app{
   background:#111;
   padding:25px;
-  width:350px;
+  width:400px;
   border-radius:15px;
   box-shadow:0 0 20px #00ffc8;
   text-align:center;
@@ -48,6 +49,7 @@ h1{
 section{
   display:none;
   margin-top:15px;
+  text-align:left;
 }
 
 .active{
@@ -80,6 +82,23 @@ p{
   font-size:14px;
   margin-top:5px;
 }
+
+table{
+  width:100%;
+  border-collapse: collapse;
+  margin-top:10px;
+}
+
+th, td{
+  border:1px solid #00ffc8;
+  padding:5px;
+  text-align:center;
+}
+
+th{
+  background:#00ffc8;
+  color:#111;
+}
 </style>
 </head>
 <body>
@@ -92,6 +111,7 @@ p{
   <button onclick="show('register')">Registro</button>
   <button onclick="show('forgot')">Recuperar</button>
   <button onclick="show('panel')">Panel</button>
+  <button onclick="show('admin')">Admin</button>
 </div>
 
 <!-- LOGIN -->
@@ -134,17 +154,35 @@ p{
 <p>Billetera de la plataforma: <span id="platformWallet">PLATAFORMA123</span></p>
 
 <input id="amount" placeholder="Monto a invertir">
-<button onclick="invertir()">Invertir</button>
-<button onclick="retiro()">Retirar ($4 comisión, mínimo $20)</button>
+<button onclick="solicitarInversion()">Solicitar inversión</button>
+<button onclick="solicitarRetiro()">Solicitar retiro ($4 comisión, mínimo $20)</button>
 <button onclick="logout()">Salir</button>
+
+<p id="userMsg"></p>
+</section>
+
+<!-- PANEL ADMIN -->
+<section id="admin">
+<h2>Panel Admin</h2>
+<p>Email admin: admin@bitusdt.com</p>
+<table id="adminTable">
+<tr>
+<th>Email</th>
+<th>Saldo</th>
+<th>Wallet</th>
+<th>Inversión pendiente</th>
+<th>Retiro pendiente</th>
+<th>Acciones</th>
+</tr>
+</table>
 </section>
 
 </div>
 
 <script>
 /* ==== JS ==== */
-let saldo=0, total=0, hoy=0;
-let userEmail="", userWallet="";
+let users = []; // Lista de usuarios en memoria
+let currentUser = null;
 
 // Mostrar sección
 function show(id){
@@ -159,75 +197,155 @@ function ver(id){
 }
 
 // Registro
-async function register(){
+function register(){
   if(!r_email.value || !r_pass.value){
     r_msg.innerText="Completa correo y contraseña";
     return;
   }
-  userEmail=r_email.value;
-  userWallet=wallet.value || "No registrada";
+  let user = {
+    email:r_email.value,
+    password:r_pass.value,
+    rol:"user",
+    saldo:0,
+    hoy:0,
+    total:0,
+    wallet:wallet.value || "No registrada",
+    solicitudInversion:0,
+    solicitudRetiro:0
+  };
+  users.push(user);
   r_msg.innerText="Registro exitoso";
-  alert("Usuario registrado: "+userEmail);
+  alert("Usuario registrado: "+user.email);
   show('login');
 }
 
 // Login
-async function login(){
-  if(l_email.value===userEmail && l_pass.value===r_pass.value){
-    showPanel();
-    alert("Bienvenido "+userEmail);
-  }else{
+function login(){
+  let email = l_email.value;
+  let pass = l_pass.value;
+  if(email==="admin@bitusdt.com" && pass==="admin123"){
+    currentUser = {rol:"admin", email};
+    showAdmin();
+    alert("Bienvenido Admin");
+    return;
+  }
+  let u = users.find(x=>x.email===email && x.password===pass);
+  if(u){
+    currentUser = u;
+    showPanelUser();
+    alert("Bienvenido "+u.email);
+  } else{
     l_msg.innerText="Correo o contraseña incorrectos";
   }
 }
 
-// Mostrar panel usuario
-function showPanel(){
-  document.getElementById("userEmail").innerText = userEmail;
-  document.getElementById("userWallet").innerText = userWallet;
-  update();
+// Panel usuario
+function showPanelUser(){
+  userEmail.innerText = currentUser.email;
+  userWallet.innerText = currentUser.wallet;
+  updatePanel();
   show('panel');
 }
 
-// Invertir (simulado)
-function invertir(){
+// Solicitar inversión
+function solicitarInversion(){
   let val=parseInt(amount.value);
   if(isNaN(val) || val<=0){ alert("Monto inválido"); return; }
-  saldo+=val;
-  hoy+=val*0.05;
-  total+=val*0.05;
-  update();
-  alert("Inversión registrada");
+  currentUser.solicitudInversion = val;
+  userMsg.innerText="Inversión solicitada. Esperando aprobación del admin.";
   amount.value="";
+  showAdminTable();
 }
 
-// Retiro con $4 de comisión
-function retiro(){
-  if(saldo<20){
+// Solicitar retiro
+function solicitarRetiro(){
+  if(currentUser.saldo<20){
     alert("Saldo insuficiente para retirar. Mínimo $20");
     return;
   }
-  let comision = 4;
-  let recibido = saldo - comision;
-  alert("Retiro solicitado: " + saldo + " USDT\nComisión: " + comision + " USDT\nRecibirá: " + recibido + " USDT (simulado)");
-  // Resetear inversión y ganancias
-  saldo=0; hoy=0; total=0;
-  update();
+  currentUser.solicitudRetiro = currentUser.saldo;
+  userMsg.innerText="Retiro solicitado. Esperando aprobación del admin.";
+  showAdminTable();
 }
 
-// Actualizar panel
-function update(){
-  saldoTxt.innerText=saldo;
-  hoyTxt.innerText=hoy.toFixed(2);
-  totalTxt.innerText=total.toFixed(2);
+// Actualizar panel usuario
+function updatePanel(){
+  saldoTxt.innerText=currentUser.saldo;
+  hoyTxt.innerText=currentUser.hoy.toFixed(2);
+  totalTxt.innerText=currentUser.total.toFixed(2);
 }
 
 // Logout
 function logout(){
+  currentUser=null;
   show('login');
-  saldo=0; hoy=0; total=0;
-  update();
 }
+
+// PANEL ADMIN
+function showAdmin(){
+  show('admin');
+  showAdminTable();
+}
+
+function showAdminTable(){
+  let table = document.getElementById("adminTable");
+  table.innerHTML = `
+<tr>
+<th>Email</th>
+<th>Saldo</th>
+<th>Wallet</th>
+<th>Inversión pendiente</th>
+<th>Retiro pendiente</th>
+<th>Acciones</th>
+</tr>`;
+  users.forEach((u,i)=>{
+    let row = table.insertRow();
+    row.insertCell(0).innerText=u.email;
+    row.insertCell(1).innerText=u.saldo;
+    row.insertCell(2).innerText=u.wallet;
+    row.insertCell(3).innerText=u.solicitudInversion;
+    row.insertCell(4).innerText=u.solicitudRetiro;
+    let actionCell = row.insertCell(5);
+    if(u.solicitudInversion>0){
+      let btn = document.createElement("button");
+      btn.innerText="Aprobar inversión";
+      btn.onclick = ()=>aprobarInversion(u);
+      actionCell.appendChild(btn);
+    }
+    if(u.solicitudRetiro>0){
+      let btn2 = document.createElement("button");
+      btn2.innerText="Aprobar retiro";
+      btn2.onclick = ()=>aprobarRetiro(u);
+      actionCell.appendChild(btn2);
+    }
+  });
+}
+
+// Aprobar inversión
+function aprobarInversion(u){
+  u.saldo += u.solicitudInversion;
+  u.hoy += u.solicitudInversion*0.05;
+  u.total += u.solicitudInversion*0.05;
+  u.solicitudInversion = 0;
+  showAdminTable();
+  if(currentUser && currentUser.email===u.email) updatePanel();
+  alert("Inversión aprobada para "+u.email);
+}
+
+// Aprobar retiro
+function aprobarRetiro(u){
+  let comision=4;
+  let recibido = u.solicitudRetiro - comision;
+  alert("Retiro aprobado para "+u.email+
+        "\nMonto: "+u.solicitudRetiro+
+        "\nComisión: "+comision+
+        "\nRecibirá (simulado): "+recibido);
+  u.saldo=0; u.hoy=0; u.total=0; u.solicitudRetiro=0;
+  showAdminTable();
+  if(currentUser && currentUser.email===u.email) updatePanel();
+}
+
 </script>
 </body>
 </html>
+
