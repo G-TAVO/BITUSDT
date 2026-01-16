@@ -1,273 +1,208 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body{
-background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
-font-family:Arial;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-
-.app{
-background:#111;
-padding:25px;
-width:360px;
-border-radius:15px;
-box-shadow:0 0 20px #00ffc8;
-text-align:center;
-}
-
-h1{color:#00ffc8}
-input,button{
-width:100%;
-padding:10px;
-margin:6px 0;
-border:none;
-border-radius:5px;
-}
-button{
-background:#00ffc8;
-font-weight:bold;
-cursor:pointer;
-}
-button:hover{background:#00c9a7}
-section{display:none}
-.active{display:block}
-.card{
-background:#1c1c1c;
-padding:10px;
-border-radius:10px;
-margin:5px 0;
-}
+body{font-family:Arial;background:#0b1220;color:#fff}
+.card{background:#121a2f;padding:15px;border-radius:10px;margin:10px}
+input,button{padding:8px;border-radius:6px;border:none}
+button{background:#00ff9d;font-weight:bold;cursor:pointer}
+.hidden{display:none}
+.progress{background:#222;border-radius:8px;overflow:hidden}
+.bar{height:15px;background:#00ff9d;width:0%}
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<h2>BITUSDT</h2>
 
-<h1>💰 BITUSDT</h1>
-
-<section id="login" class="active">
+<div id="login" class="card">
 <h3>Login</h3>
-<input id="l_email" placeholder="Correo">
-<input id="l_pass" type="password" placeholder="Clave">
-<button onclick="login()">Entrar</button>
-<p id="l_msg"></p>
-<button onclick="show('register')">Crear cuenta</button>
-</section>
+<input id="luser" placeholder="Correo"><br><br>
+<input id="lpass" type="password" placeholder="Contraseña"><br><br>
+<button onclick="login()">Ingresar</button>
+<p id="msg"></p>
+</div>
 
-<section id="register">
+<div id="registro" class="card">
 <h3>Registro</h3>
-<input id="r_email" placeholder="Correo">
-<input id="r_pass" type="password" placeholder="Clave">
-<button onclick="register()">Registrar</button>
-<p id="r_msg"></p>
-<button onclick="show('login')">Volver</button>
-</section>
+<input id="ruser" placeholder="Correo"><br><br>
+<input id="rpass" type="password" placeholder="Contraseña"><br><br>
+<input id="wallet" placeholder="Billetera Binance"><br><br>
+<input id="ref" placeholder="Código referido (opcional)"><br><br>
+<button onclick="registro()">Registrarse</button>
+</div>
 
-<section id="panel">
+<!-- CLIENTE -->
+<div id="cliente" class="card hidden">
 <h3>Panel Cliente</h3>
 
-<p>Estado: <b id="estadoTxt"></b></p>
-<p>Saldo: <b id="saldoTxt"></b></p>
+<p>Saldo: <b id="saldo">0</b> USD</p>
+<p>Días: <b id="dias">0</b> / 15</p>
 
-<input id="amount" placeholder="Monto invertir">
+<div class="progress">
+<div id="barra" class="bar"></div>
+</div><br>
 
-<button onclick="invertir()">Solicitar inversión</button>
-<button onclick="retirar()">Solicitar retiro</button>
+<button onclick="invertir()">Invertir</button>
+<button onclick="retirar()">Retirar</button>
 
-<button onclick="logout()">Salir</button>
-</section>
+<hr>
+<h4>Referidos</h4>
+<p>Tu código: <b id="codigo"></b></p>
+<button onclick="compartir()">Compartir por WhatsApp</button>
 
-<section id="admin">
-<h3>ADMIN</h3>
-<button onclick="verSolicitudes()">Ver solicitudes</button>
-<div id="lista"></div>
-<button onclick="logout()">Salir</button>
-</section>
+<p>Billetera Admin: <b>TRON20-ADMIN-12345</b></p>
+</div>
 
+<!-- ADMIN -->
+<div id="admin" class="card hidden">
+<h3>Panel Admin</h3>
+<div id="solicitudes"></div>
 </div>
 
 <script>
 
-// ADMIN
-const ADMIN_EMAIL="Binancecoin958@gmail.com";
-const ADMIN_PASS="Enriique1998";
+let usuarios = JSON.parse(localStorage.getItem("usuarios"))||[];
+let sesion = null;
 
-let tasa=0.035;
-
-// BASE DE DATOS LOCAL
-let db = JSON.parse(localStorage.getItem("DB")) || [];
-
-// MOSTRAR
-function show(id){
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+function generarCodigo(){
+return Math.random().toString(36).substring(2,8);
 }
 
-// GUARDAR BD
-function save(){
-localStorage.setItem("DB",JSON.stringify(db));
-}
+function registro(){
+let codigo=generarCodigo();
 
-// REGISTRO
-function register(){
-
-let u={
-email:r_email.value,
-pass:r_pass.value,
+usuarios.push({
+user:ruser.value,
+pass:rpass.value,
+wallet:wallet.value,
 saldo:0,
-estado:"sin invertir",
-ultima:null
-};
-
-db.push(u);
-save();
-r_msg.innerText="Registrado correctamente ✔";
-}
-
-// LOGIN
-function login(){
-
-if(l_email.value==ADMIN_EMAIL && l_pass.value==ADMIN_PASS){
-show("admin");
-return;
-}
-
-let u=db.find(x=>x.email==l_email.value && x.pass==l_pass.value);
-
-if(!u){
-l_msg.innerText="Datos incorrectos";
-return;
-}
-
-localStorage.setItem("actual",u.email);
-actualizarGanancia(u);
-update(u);
-show("panel");
-}
-
-// INVERTIR
-function invertir(){
-
-let email=localStorage.getItem("actual");
-let u=db.find(x=>x.email==email);
-
-if(u.estado!="sin invertir")
-return alert("Ya tienes solicitud activa");
-
-let m=parseFloat(amount.value);
-if(m<=0) return alert("Monto inválido");
-
-u.saldo=m;
-u.estado="pendiente";
-u.ultima=null;
-save();
-
-alert("Solicitud enviada al admin");
-update(u);
-}
-
-// ADMIN
-function verSolicitudes(){
-
-let html="";
-db.forEach(u=>{
-if(u.estado=="pendiente"){
-html+=`
-<div class="card">
-<b>${u.email}</b><br>
-Monto: ${u.saldo}
-<br>
-<button onclick="aprobar('${u.email}')">Aprobar</button>
-<button onclick="rechazar('${u.email}')">Rechazar</button>
-</div>`;
-}
+dias:0,
+estado:"libre",
+solicitud:false,
+codigo:codigo
 });
 
-lista.innerHTML=html || "No hay solicitudes";
-}
-
-// APROBAR
-function aprobar(email){
-let u=db.find(x=>x.email==email);
-u.estado="aprobado";
-u.ultima=Date.now();
-save();
-alert("Inversión aprobada");
-verSolicitudes();
-}
-
-// RECHAZAR
-function rechazar(email){
-let u=db.find(x=>x.email==email);
-u.estado="rechazado";
-save();
-alert("Solicitud rechazada");
-verSolicitudes();
-}
-
-// GANANCIA
-function actualizarGanancia(u){
-
-if(u.estado!="aprobado") return;
-
-let ahora=Date.now();
-let dias=Math.floor((ahora-u.ultima)/(1000*60*60*24));
-
-if(dias>0){
-for(let i=0;i<dias;i++){
-u.saldo+=u.saldo*tasa;
-}
-u.ultima=ahora;
-save();
+let refCod=ref.value;
+if(refCod){
+let dueño=usuarios.find(u=>u.codigo==refCod);
+if(dueño){
+dueño.saldo+=0.1;
+alert("Referido válido +0.1 USD");
 }
 }
 
-// RETIRO
+guardar();
+alert("Registrado");
+}
+
+function login(){
+let u=luser.value,p=lpass.value;
+
+if(u=="Binancecoin958@gmail.com" && p=="Enriique1998"){
+admin.style.display="block";
+login.style.display="none";
+registro.style.display="none";
+cargarSolicitudes();
+return;
+}
+
+sesion=usuarios.find(x=>x.user==u && x.pass==p);
+if(!sesion)return msg.innerHTML="Datos incorrectos";
+
+login.style.display="none";
+registro.style.display="none";
+cliente.style.display="block";
+
+codigo.innerHTML=sesion.codigo;
+actualizar();
+}
+
+function compartir(){
+let link="https://bitusdt.onrender.com";
+let msg=`Invierte en BITUSDT conmigo 🚀
+Regístrate aquí: ${link}
+Usa mi código: ${sesion.codigo}`;
+window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+}
+
+function invertir(){
+sesion.solicitud=true;
+guardar();
+alert("Solicitud enviada al admin");
+}
+
+function cargarSolicitudes(){
+let html="";
+usuarios.forEach((u,i)=>{
+if(u.solicitud){
+html+=`
+<div class="card">
+${u.user}<br>
+Billetera: ${u.wallet}<br>
+<button onclick="aprobar(${i})">Aprobar</button>
+<button onclick="rechazar(${i})">Rechazar</button>
+</div>`;
+}});
+solicitudes.innerHTML=html;
+}
+
+function aprobar(i){
+usuarios[i].estado="activo";
+usuarios[i].dias=0;
+usuarios[i].saldo=10;
+usuarios[i].inicio=Date.now();
+usuarios[i].solicitud=false;
+guardar(); cargarSolicitudes();
+}
+
+function rechazar(i){
+usuarios[i].solicitud=false;
+guardar(); cargarSolicitudes();
+}
+
+function actualizar(){
+let u=sesion;
+if(u.estado=="activo"){
+let dias=Math.floor((Date.now()-u.inicio)/86400000);
+u.dias=dias;
+u.saldo=10 + dias*(10/15);
+
+if(u.saldo>20)u.saldo=20;
+}
+
+saldo.innerHTML=u.saldo.toFixed(2);
+dias.innerHTML=u.dias;
+barra.style.width=(u.dias/15*100)+"%";
+guardar();
+}
+
+setInterval(()=>{
+if(sesion)actualizar();
+},5000);
+
 function retirar(){
+if(sesion.saldo<20)return alert("Debe llegar a 20 USD");
 
-let email=localStorage.getItem("actual");
-let u=db.find(x=>x.email==email);
+let recibe=sesion.saldo-4;
+alert("Recibe: "+recibe+" USD");
 
-if(u.saldo<20)
-return alert("Mínimo 20 USDT");
-
-let recibir=u.saldo-4;
-
-alert("Retiro aprobado\nRecibe: "+recibir.toFixed(2));
-
-u.saldo=0;
-u.estado="sin invertir";
-u.ultima=null;
-save();
-update(u);
+sesion.saldo=0;
+sesion.dias=0;
+sesion.estado="libre";
+guardar();
+actualizar();
 }
 
-// ACTUALIZAR
-function update(u){
-estadoTxt.innerText=u.estado;
-saldoTxt.innerText=u.saldo.toFixed(2)+" USDT";
-}
-
-// SALIR
-function logout(){
-localStorage.removeItem("actual");
-show("login");
+function guardar(){
+localStorage.setItem("usuarios",JSON.stringify(usuarios));
 }
 
 </script>
-
 </body>
 </html>
-
 
