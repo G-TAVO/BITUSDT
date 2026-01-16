@@ -91,6 +91,7 @@ p{
   <button onclick="show('login')">Login</button>
   <button onclick="show('register')">Registro</button>
   <button onclick="show('forgot')">Recuperar</button>
+  <button onclick="show('panel')">Panel</button>
 </div>
 
 <!-- LOGIN -->
@@ -108,7 +109,8 @@ p{
 <h2>Crear cuenta</h2>
 <input id="r_email" placeholder="Correo">
 <input id="r_pass" type="password" placeholder="Contraseña">
-<label><input type="checkbox" onclick="ver('r_pass')"> Ver</label>
+<input id="wallet" placeholder="Tu billetera de Binance">
+<label><input type="checkbox" onclick="ver('r_pass')"> Ver contraseña</label>
 <button onclick="register()">Registrarse</button>
 <p id="r_msg"></p>
 </section>
@@ -121,14 +123,19 @@ p{
 <p id="f_msg"></p>
 </section>
 
-<!-- PANEL USUARIO SIMULADO -->
-<section id="panel" style="display:none;">
+<!-- PANEL USUARIO -->
+<section id="panel">
 <h2>Panel Cliente</h2>
+<p>Email: <span id="userEmail"></span></p>
+<p>Saldo: <span id="saldoTxt">0</span> USDT</p>
+<p>Ganancias hoy: <span id="hoyTxt">0</span> USDT</p>
+<p>Total Ganancias: <span id="totalTxt">0</span> USDT</p>
+<p>Tu billetera: <span id="userWallet"></span></p>
+<p>Billetera de la plataforma: <span id="platformWallet">PLATAFORMA123</span></p>
+
 <input id="amount" placeholder="Monto a invertir">
 <button onclick="invertir()">Invertir</button>
-<p>Saldo: <span id="saldoTxt">0</span> USDT</p>
-<p>Hoy: <span id="hoyTxt">0</span> USDT</p>
-<p>Total Ganancias: <span id="totalTxt">0</span> USDT</p>
+<button onclick="retiro()">Retirar ($4 comisión, mínimo $20)</button>
 <button onclick="logout()">Salir</button>
 </section>
 
@@ -137,6 +144,7 @@ p{
 <script>
 /* ==== JS ==== */
 let saldo=0, total=0, hoy=0;
+let userEmail="", userWallet="";
 
 // Mostrar sección
 function show(id){
@@ -150,65 +158,35 @@ function ver(id){
   p.type = p.type==="password"?"text":"password";
 }
 
-// Registro (simulado)
+// Registro
 async function register(){
-  let data={
-    email:r_email.value,
-    password:r_pass.value
-  };
-  const res = await fetch("/api/register",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
-  const json = await res.json();
-  r_msg.innerText = json.msg;
+  if(!r_email.value || !r_pass.value){
+    r_msg.innerText="Completa correo y contraseña";
+    return;
+  }
+  userEmail=r_email.value;
+  userWallet=wallet.value || "No registrada";
+  r_msg.innerText="Registro exitoso";
+  alert("Usuario registrado: "+userEmail);
+  show('login');
 }
 
 // Login
 async function login(){
-  let data={
-    email:l_email.value,
-    password:l_pass.value
-  };
-  const res = await fetch("/api/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
-  });
-  const json = await res.json();
-  
-  if(json.ok){
-    localStorage.setItem("rol", json.rol);
-    alert("Bienvenido "+json.rol);
-    if(json.rol=="admin"){
-      location="admin.html";
-    }else{
-      showPanel();
-    }
+  if(l_email.value===userEmail && l_pass.value===r_pass.value){
+    showPanel();
+    alert("Bienvenido "+userEmail);
   }else{
-    l_msg.innerText = json.msg;
+    l_msg.innerText="Correo o contraseña incorrectos";
   }
 }
 
 // Mostrar panel usuario
 function showPanel(){
-  document.getElementById("login").style.display="none";
-  document.getElementById("register").style.display="none";
-  document.getElementById("forgot").style.display="none";
-  document.getElementById("panel").style.display="block";
+  document.getElementById("userEmail").innerText = userEmail;
+  document.getElementById("userWallet").innerText = userWallet;
   update();
-}
-
-// Recuperar clave (simulado)
-async function forgot(){
-  const res = await fetch("/api/forgot",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:f_email.value})
-  });
-  const data = await res.json();
-  f_msg.innerText = data.msg;
+  show('panel');
 }
 
 // Invertir (simulado)
@@ -219,8 +197,22 @@ function invertir(){
   hoy+=val*0.05;
   total+=val*0.05;
   update();
-  alert("Inversión enviada al admin");
+  alert("Inversión registrada");
   amount.value="";
+}
+
+// Retiro con $4 de comisión
+function retiro(){
+  if(saldo<20){
+    alert("Saldo insuficiente para retirar. Mínimo $20");
+    return;
+  }
+  let comision = 4;
+  let recibido = saldo - comision;
+  alert("Retiro solicitado: " + saldo + " USDT\nComisión: " + comision + " USDT\nRecibirá: " + recibido + " USDT (simulado)");
+  // Resetear inversión y ganancias
+  saldo=0; hoy=0; total=0;
+  update();
 }
 
 // Actualizar panel
@@ -232,12 +224,10 @@ function update(){
 
 // Logout
 function logout(){
-  localStorage.clear();
   show('login');
-  saldo=0; total=0; hoy=0;
+  saldo=0; hoy=0; total=0;
   update();
 }
 </script>
 </body>
 </html>
-
