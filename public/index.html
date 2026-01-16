@@ -2,350 +2,227 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>BITUSDT - Simulador Financiero</title>
+<title>BITUSDT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-/* ==== CSS ==== */
-body{
-  background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
-  font-family:Arial;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  min-height:100vh;
-  padding:20px 0;
-}
 
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
+  color:white;
+  min-height:100vh;
+}
 .app{
+  max-width:420px;
+  margin:30px auto;
   background:#111;
   padding:25px;
-  width:400px;
-  border-radius:15px;
-  box-shadow:0 0 20px #00ffc8;
-  text-align:center;
+  border-radius:18px;
+  box-shadow:0 0 25px #00ffc8;
 }
-
-h1{
-  color:#00ffc8;
-  margin-bottom:5px;
-}
-
-.sub{
-  color:#aaa;
-  margin-bottom:15px;
-}
-
-.tabs button{
-  background:#222;
-  color:white;
-  border:none;
-  padding:10px;
-  margin:3px;
-  border-radius:5px;
-  cursor:pointer;
-}
-
-section{
-  display:none;
-  margin-top:15px;
-  text-align:left;
-}
-
-.active{
-  display:block;
-}
-
+h1{color:#00ffc8;text-align:center}
+.sub{text-align:center;color:#aaa;margin-bottom:15px}
 input{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border:none;
-  border-radius:5px;
+  width:100%;padding:12px;margin:6px 0;
+  border:none;border-radius:8px;
 }
-
-button{
+.btn{
   width:100%;
-  padding:10px;
-  background:#00ffc8;
+  padding:12px;
+  margin-top:8px;
   border:none;
-  border-radius:5px;
+  border-radius:8px;
   font-weight:bold;
   cursor:pointer;
+  background:linear-gradient(90deg,#00ffc8,#00c9a7);
+  color:#000;
 }
-
-button:hover{
-  background:#00c9a7;
-}
-
-p{
-  font-size:14px;
-  margin-top:5px;
-}
-
+.btn:hover{opacity:.9}
+.small{font-size:12px;color:#aaa;text-align:center}
+.hide{display:none}
 table{
-  width:100%;
-  border-collapse: collapse;
-  margin-top:10px;
+  width:100%;border-collapse:collapse;margin-top:10px
 }
-
-th, td{
+th,td{
   border:1px solid #00ffc8;
-  padding:5px;
+  padding:6px;
+  font-size:12px;
   text-align:center;
 }
-
-th{
-  background:#00ffc8;
-  color:#111;
-}
+th{background:#00ffc8;color:#000}
 </style>
 </head>
-<body>
-<div class="app">
-<h1>💰 BITUSDT</h1>
-<p class="sub">Simulador financiero</p>
 
-<div class="tabs">
-  <button onclick="show('login')">Login</button>
-  <button onclick="show('register')">Registro</button>
-  <button onclick="show('forgot')">Recuperar</button>
-  <button onclick="show('panel')">Panel</button>
-  <button onclick="show('admin')">Admin</button>
-</div>
+<body oncontextmenu="return false">
+
+<div class="app">
+
+<h1>💰 BITUSDT</h1>
+<p class="sub">Simulador de inversión</p>
 
 <!-- LOGIN -->
-<section id="login" class="active">
-<h2>Iniciar sesión</h2>
+<div id="loginBox">
 <input id="l_email" placeholder="Correo">
 <input id="l_pass" type="password" placeholder="Contraseña">
-<label><input type="checkbox" onclick="ver('l_pass')"> Ver</label>
-<button onclick="login()">Entrar</button>
-<p id="l_msg"></p>
-</section>
+<button class="btn" onclick="login()">Entrar</button>
+<p class="small"><a href="#" onclick="showRecover()">¿Olvidaste tu contraseña?</a></p>
+<p id="loginMsg"></p>
+</div>
 
 <!-- REGISTRO -->
-<section id="register">
-<h2>Crear cuenta</h2>
+<div id="registerBox">
+<hr>
+<h3>Registro</h3>
 <input id="r_email" placeholder="Correo">
 <input id="r_pass" type="password" placeholder="Contraseña">
-<input id="wallet" placeholder="Tu billetera de Binance">
-<label><input type="checkbox" onclick="ver('r_pass')"> Ver contraseña</label>
-<button onclick="register()">Registrarse</button>
-<p id="r_msg"></p>
-</section>
-
-<!-- RECUPERAR -->
-<section id="forgot">
-<h2>Recuperar clave</h2>
-<input id="f_email" placeholder="Correo registrado">
-<button onclick="forgot()">Enviar</button>
-<p id="f_msg"></p>
-</section>
+<input id="r_wallet" placeholder="Wallet Binance (TRC20)">
+<button class="btn" onclick="register()">Registrarse</button>
+<p id="regMsg"></p>
+</div>
 
 <!-- PANEL USUARIO -->
-<section id="panel">
-<h2>Panel Cliente</h2>
-<p>Email: <span id="userEmail"></span></p>
-<p>Saldo: <span id="saldoTxt">0</span> USDT</p>
-<p>Ganancias hoy: <span id="hoyTxt">0</span> USDT</p>
-<p>Total Ganancias: <span id="totalTxt">0</span> USDT</p>
-<p>Tu billetera: <span id="userWallet"></span></p>
-<p>Billetera de la plataforma: <span id="platformWallet">PLATAFORMA123</span></p>
+<div id="userPanel" class="hide">
+<h3>Panel Cliente</h3>
+<p>Email: <b id="uEmail"></b></p>
+<p>Saldo: <b id="uSaldo">0</b> USDT</p>
+<p>Ganancias: <b id="uGan">0</b> USDT</p>
+<p>Tu wallet: <b id="uWallet"></b></p>
+<p>Depositar en: <b>TRC20: TU_BILLETERA_TRON</b></p>
 
-<input id="amount" placeholder="Monto a invertir">
-<button onclick="solicitarInversion()">Solicitar inversión</button>
-<button onclick="solicitarRetiro()">Solicitar retiro ($4 comisión, mínimo $20)</button>
-<button onclick="logout()">Salir</button>
+<input id="invAmount" placeholder="Monto a invertir">
+<button class="btn" onclick="solInv()">Solicitar inversión</button>
 
-<p id="userMsg"></p>
-</section>
+<button class="btn" onclick="solRet()">Solicitar retiro (mín $20)</button>
+
+<button class="btn" onclick="share()">Invitar por WhatsApp (+0.1 USDT)</button>
+<button class="btn" onclick="logout()">Salir</button>
+<p id="uMsg"></p>
+</div>
 
 <!-- PANEL ADMIN -->
-<section id="admin">
-<h2>Panel Admin</h2>
-<p>Email admin: admin@bitusdt.com</p>
+<div id="adminPanel" class="hide">
+<h3>ADMIN</h3>
 <table id="adminTable">
 <tr>
-<th>Email</th>
-<th>Saldo</th>
-<th>Wallet</th>
-<th>Inversión pendiente</th>
-<th>Retiro pendiente</th>
-<th>Acciones</th>
+<th>Email</th><th>Saldo</th><th>Wallet</th>
+<th>Inv</th><th>Ret</th><th>Acción</th>
 </tr>
 </table>
-</section>
+<button class="btn" onclick="logout()">Salir admin</button>
+</div>
 
 </div>
 
 <script>
-/* ==== JS ==== */
-let users = []; // Lista de usuarios en memoria
-let currentUser = null;
+/* ===== PROTECCIÓN BÁSICA ===== */
+document.addEventListener("keydown",e=>{
+ if(e.key=="F12"||e.ctrlKey&&e.shiftKey||e.ctrlKey&&e.key=="u"){
+   e.preventDefault(); alert("Acceso bloqueado");
+ }
+});
 
-// Mostrar sección
-function show(id){
-  document.querySelectorAll("section").forEach(s=>s.style.display="none");
-  document.getElementById(id).style.display="block";
+/* ===== VARIABLES ===== */
+let user=null;
+
+/* ===== REGISTRO ===== */
+async function register(){
+ const res=await fetch("/api/register",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+  email:r_email.value,
+  password:r_pass.value,
+  wallet:r_wallet.value
+ })});
+ const d=await res.json();
+ regMsg.innerText=d.msg;
 }
 
-// Ver/Ocultar contraseña
-function ver(id){
-  let p=document.getElementById(id);
-  p.type = p.type==="password"?"text":"password";
+/* ===== LOGIN ===== */
+async function login(){
+ const res=await fetch("/api/login",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+  email:l_email.value,
+  password:l_pass.value
+ })});
+ const d=await res.json();
+ if(!d.ok){loginMsg.innerText=d.msg;return;}
+ user=d.user;
+ if(d.rol=="admin"){showAdmin();}
+ else{showUser();}
 }
 
-// Registro
-function register(){
-  if(!r_email.value || !r_pass.value){
-    r_msg.innerText="Completa correo y contraseña";
-    return;
-  }
-  let user = {
-    email:r_email.value,
-    password:r_pass.value,
-    rol:"user",
-    saldo:0,
-    hoy:0,
-    total:0,
-    wallet:wallet.value || "No registrada",
-    solicitudInversion:0,
-    solicitudRetiro:0
-  };
-  users.push(user);
-  r_msg.innerText="Registro exitoso";
-  alert("Usuario registrado: "+user.email);
-  show('login');
+/* ===== MOSTRAR ===== */
+function showUser(){
+ loginBox.classList.add("hide");
+ registerBox.classList.add("hide");
+ userPanel.classList.remove("hide");
+ uEmail.innerText=user.email;
+ uSaldo.innerText=user.saldo;
+ uGan.innerText=user.ganancias;
+ uWallet.innerText=user.wallet;
 }
-
-// Login
-function login(){
-  let email = l_email.value;
-  let pass = l_pass.value;
-  if(email==="admin@bitusdt.com" && pass==="admin123"){
-    currentUser = {rol:"admin", email};
-    showAdmin();
-    alert("Bienvenido Admin");
-    return;
-  }
-  let u = users.find(x=>x.email===email && x.password===pass);
-  if(u){
-    currentUser = u;
-    showPanelUser();
-    alert("Bienvenido "+u.email);
-  } else{
-    l_msg.innerText="Correo o contraseña incorrectos";
-  }
-}
-
-// Panel usuario
-function showPanelUser(){
-  userEmail.innerText = currentUser.email;
-  userWallet.innerText = currentUser.wallet;
-  updatePanel();
-  show('panel');
-}
-
-// Solicitar inversión
-function solicitarInversion(){
-  let val=parseInt(amount.value);
-  if(isNaN(val) || val<=0){ alert("Monto inválido"); return; }
-  currentUser.solicitudInversion = val;
-  userMsg.innerText="Inversión solicitada. Esperando aprobación del admin.";
-  amount.value="";
-  showAdminTable();
-}
-
-// Solicitar retiro
-function solicitarRetiro(){
-  if(currentUser.saldo<20){
-    alert("Saldo insuficiente para retirar. Mínimo $20");
-    return;
-  }
-  currentUser.solicitudRetiro = currentUser.saldo;
-  userMsg.innerText="Retiro solicitado. Esperando aprobación del admin.";
-  showAdminTable();
-}
-
-// Actualizar panel usuario
-function updatePanel(){
-  saldoTxt.innerText=currentUser.saldo;
-  hoyTxt.innerText=currentUser.hoy.toFixed(2);
-  totalTxt.innerText=currentUser.total.toFixed(2);
-}
-
-// Logout
-function logout(){
-  currentUser=null;
-  show('login');
-}
-
-// PANEL ADMIN
 function showAdmin(){
-  show('admin');
-  showAdminTable();
+ loginBox.classList.add("hide");
+ registerBox.classList.add("hide");
+ adminPanel.classList.remove("hide");
+ loadAdmin();
 }
 
-function showAdminTable(){
-  let table = document.getElementById("adminTable");
-  table.innerHTML = `
-<tr>
-<th>Email</th>
-<th>Saldo</th>
-<th>Wallet</th>
-<th>Inversión pendiente</th>
-<th>Retiro pendiente</th>
-<th>Acciones</th>
-</tr>`;
-  users.forEach((u,i)=>{
-    let row = table.insertRow();
-    row.insertCell(0).innerText=u.email;
-    row.insertCell(1).innerText=u.saldo;
-    row.insertCell(2).innerText=u.wallet;
-    row.insertCell(3).innerText=u.solicitudInversion;
-    row.insertCell(4).innerText=u.solicitudRetiro;
-    let actionCell = row.insertCell(5);
-    if(u.solicitudInversion>0){
-      let btn = document.createElement("button");
-      btn.innerText="Aprobar inversión";
-      btn.onclick = ()=>aprobarInversion(u);
-      actionCell.appendChild(btn);
-    }
-    if(u.solicitudRetiro>0){
-      let btn2 = document.createElement("button");
-      btn2.innerText="Aprobar retiro";
-      btn2.onclick = ()=>aprobarRetiro(u);
-      actionCell.appendChild(btn2);
-    }
-  });
+/* ===== USUARIO ===== */
+async function solInv(){
+ let v=parseInt(invAmount.value);
+ if(!v)return;
+ await fetch("/api/invert",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({email:user.email,amount:v})});
+ uMsg.innerText="Solicitud enviada";
+}
+async function solRet(){
+ await fetch("/api/retire",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({email:user.email})});
+ uMsg.innerText="Retiro solicitado";
 }
 
-// Aprobar inversión
-function aprobarInversion(u){
-  u.saldo += u.solicitudInversion;
-  u.hoy += u.solicitudInversion*0.05;
-  u.total += u.solicitudInversion*0.05;
-  u.solicitudInversion = 0;
-  showAdminTable();
-  if(currentUser && currentUser.email===u.email) updatePanel();
-  alert("Inversión aprobada para "+u.email);
+/* ===== ADMIN ===== */
+async function loadAdmin(){
+ const res=await fetch("/api/admin");
+ const users=await res.json();
+ let t=document.getElementById("adminTable");
+ t.innerHTML=`<tr>
+<th>Email</th><th>Saldo</th><th>Wallet</th>
+<th>Inv</th><th>Ret</th><th>Acción</th></tr>`;
+ users.forEach(u=>{
+  let r=t.insertRow();
+  r.innerHTML=`<td>${u.email}</td><td>${u.saldo}</td>
+<td>${u.wallet}</td><td>${u.inv}</td><td>${u.ret}</td>
+<td>
+<button onclick="apInv('${u.email}')">✔</button>
+<button onclick="apRet('${u.email}')">💸</button>
+</td>`;
+ });
+}
+async function apInv(e){
+ await fetch("/api/admin/inv",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({email:e})});
+ loadAdmin();
+}
+async function apRet(e){
+ await fetch("/api/admin/ret",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({email:e})});
+ loadAdmin();
 }
 
-// Aprobar retiro
-function aprobarRetiro(u){
-  let comision=4;
-  let recibido = u.solicitudRetiro - comision;
-  alert("Retiro aprobado para "+u.email+
-        "\nMonto: "+u.solicitudRetiro+
-        "\nComisión: "+comision+
-        "\nRecibirá (simulado): "+recibido);
-  u.saldo=0; u.hoy=0; u.total=0; u.solicitudRetiro=0;
-  showAdminTable();
-  if(currentUser && currentUser.email===u.email) updatePanel();
+/* ===== OTROS ===== */
+function share(){
+ let url=location.origin+"?ref="+user.email;
+ location.href=`https://wa.me/?text=Únete a BITUSDT ${url}`;
 }
-
+function logout(){location.reload();}
 </script>
 </body>
 </html>
-
