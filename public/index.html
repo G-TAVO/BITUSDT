@@ -1,208 +1,146 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>BITUSDT</title>
 <style>
-body{font-family:Arial;background:#0b1220;color:#fff}
-.card{background:#121a2f;padding:15px;border-radius:10px;margin:10px}
-input,button{padding:8px;border-radius:6px;border:none}
-button{background:#00ff9d;font-weight:bold;cursor:pointer}
-.hidden{display:none}
-.progress{background:#222;border-radius:8px;overflow:hidden}
-.bar{height:15px;background:#00ff9d;width:0%}
+body{font-family:Arial;background:#0f172a;color:white;margin:0}
+.card{background:#111827;margin:15px;padding:15px;border-radius:10px}
+input,button{width:100%;padding:10px;margin:5px;border-radius:6px;border:none}
+button{background:#22c55e;color:black;font-weight:bold}
+button:hover{opacity:.8}
+.hide{display:none}
+.admin{background:#1f2933}
 </style>
 </head>
 
 <body>
 
-<h2>BITUSDT</h2>
-
-<div id="login" class="card">
-<h3>Login</h3>
-<input id="luser" placeholder="Correo"><br><br>
-<input id="lpass" type="password" placeholder="Contraseña"><br><br>
-<button onclick="login()">Ingresar</button>
+<div class="card" id="loginBox">
+<h3>LOGIN</h3>
+<input id="email" placeholder="Correo">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
 <p id="msg"></p>
 </div>
 
-<div id="registro" class="card">
-<h3>Registro</h3>
-<input id="ruser" placeholder="Correo"><br><br>
-<input id="rpass" type="password" placeholder="Contraseña"><br><br>
-<input id="wallet" placeholder="Billetera Binance"><br><br>
-<input id="ref" placeholder="Código referido (opcional)"><br><br>
-<button onclick="registro()">Registrarse</button>
-</div>
+<div class="card hide" id="panel">
+<h3>Panel Usuario</h3>
+<p>Saldo: <b id="saldo">0</b> USDT</p>
+<p>Día: <b id="dia">0</b>/20</p>
+<p>Ganancia diaria: 1 USDT</p>
 
-<!-- CLIENTE -->
-<div id="cliente" class="card hidden">
-<h3>Panel Cliente</h3>
-
-<p>Saldo: <b id="saldo">0</b> USD</p>
-<p>Días: <b id="dias">0</b> / 15</p>
-
-<div class="progress">
-<div id="barra" class="bar"></div>
-</div><br>
-
+<input id="monto" placeholder="Monto a invertir">
 <button onclick="invertir()">Invertir</button>
+
 <button onclick="retirar()">Retirar</button>
 
-<hr>
-<h4>Referidos</h4>
-<p>Tu código: <b id="codigo"></b></p>
-<button onclick="compartir()">Compartir por WhatsApp</button>
+<button onclick="referir()">Compartir WhatsApp</button>
 
-<p>Billetera Admin: <b>TRON20-ADMIN-12345</b></p>
+<button onclick="logout()">Salir</button>
 </div>
 
-<!-- ADMIN -->
-<div id="admin" class="card hidden">
-<h3>Panel Admin</h3>
-<div id="solicitudes"></div>
+<div class="card admin hide" id="admin">
+<h3>ADMIN</h3>
+<p>Solicitudes:</p>
+<div id="sol"></div>
+<button onclick="logout()">Salir</button>
 </div>
 
 <script>
-
-let usuarios = JSON.parse(localStorage.getItem("usuarios"))||[];
-let sesion = null;
-
-function generarCodigo(){
-return Math.random().toString(36).substring(2,8);
-}
-
-function registro(){
-let codigo=generarCodigo();
-
-usuarios.push({
-user:ruser.value,
-pass:rpass.value,
-wallet:wallet.value,
-saldo:0,
-dias:0,
-estado:"libre",
-solicitud:false,
-codigo:codigo
-});
-
-let refCod=ref.value;
-if(refCod){
-let dueño=usuarios.find(u=>u.codigo==refCod);
-if(dueño){
-dueño.saldo+=0.1;
-alert("Referido válido +0.1 USD");
-}
-}
-
-guardar();
-alert("Registrado");
-}
+let users=JSON.parse(localStorage.getItem("users"))||[];
+let solicitudes=JSON.parse(localStorage.getItem("sol"))||[];
+let actual=null;
 
 function login(){
-let u=luser.value,p=lpass.value;
+let e=email.value,p=pass.value;
 
-if(u=="Binancecoin958@gmail.com" && p=="Enriique1998"){
-admin.style.display="block";
-login.style.display="none";
-registro.style.display="none";
-cargarSolicitudes();
+if(e=="Binancecoin958@gmail.com" && p=="Enriique1998"){
+admin.classList.remove("hide");
+loginBox.classList.add("hide");
 return;
 }
 
-sesion=usuarios.find(x=>x.user==u && x.pass==p);
-if(!sesion)return msg.innerHTML="Datos incorrectos";
-
-login.style.display="none";
-registro.style.display="none";
-cliente.style.display="block";
-
-codigo.innerHTML=sesion.codigo;
-actualizar();
+actual=users.find(u=>u.e==e && u.p==p);
+if(!actual){
+msg.innerHTML="Datos incorrectos";
+return;
 }
-
-function compartir(){
-let link="https://bitusdt.onrender.com";
-let msg=`Invierte en BITUSDT conmigo 🚀
-Regístrate aquí: ${link}
-Usa mi código: ${sesion.codigo}`;
-window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+loginBox.classList.add("hide");
+panel.classList.remove("hide");
+cargar();
 }
 
 function invertir(){
-sesion.solicitud=true;
+solicitudes.push({e:actual.e,m:monto.value});
 guardar();
 alert("Solicitud enviada al admin");
 }
 
-function cargarSolicitudes(){
-let html="";
-usuarios.forEach((u,i)=>{
-if(u.solicitud){
-html+=`
-<div class="card">
-${u.user}<br>
-Billetera: ${u.wallet}<br>
-<button onclick="aprobar(${i})">Aprobar</button>
-<button onclick="rechazar(${i})">Rechazar</button>
-</div>`;
-}});
-solicitudes.innerHTML=html;
+function cargar(){
+saldo.innerHTML=actual.s;
+dia.innerHTML=actual.d||0;
 }
-
-function aprobar(i){
-usuarios[i].estado="activo";
-usuarios[i].dias=0;
-usuarios[i].saldo=10;
-usuarios[i].inicio=Date.now();
-usuarios[i].solicitud=false;
-guardar(); cargarSolicitudes();
-}
-
-function rechazar(i){
-usuarios[i].solicitud=false;
-guardar(); cargarSolicitudes();
-}
-
-function actualizar(){
-let u=sesion;
-if(u.estado=="activo"){
-let dias=Math.floor((Date.now()-u.inicio)/86400000);
-u.dias=dias;
-u.saldo=10 + dias*(10/15);
-
-if(u.saldo>20)u.saldo=20;
-}
-
-saldo.innerHTML=u.saldo.toFixed(2);
-dias.innerHTML=u.dias;
-barra.style.width=(u.dias/15*100)+"%";
-guardar();
-}
-
-setInterval(()=>{
-if(sesion)actualizar();
-},5000);
 
 function retirar(){
-if(sesion.saldo<20)return alert("Debe llegar a 20 USD");
-
-let recibe=sesion.saldo-4;
-alert("Recibe: "+recibe+" USD");
-
-sesion.saldo=0;
-sesion.dias=0;
-sesion.estado="libre";
+if(actual.s<20){alert("Mínimo 20 USDT");return;}
+alert("Retiro exitoso (simulado)");
+actual.s=0;
+actual.d=0;
 guardar();
-actualizar();
+cargar();
+}
+
+function logout(){
+location.reload();
+}
+
+function referir(){
+let link=location.href;
+window.open("https://wa.me/?text=Regístrate aquí "+link);
 }
 
 function guardar(){
-localStorage.setItem("usuarios",JSON.stringify(usuarios));
+localStorage.setItem("users",JSON.stringify(users));
+localStorage.setItem("sol",JSON.stringify(solicitudes));
 }
 
+setInterval(()=>{
+if(actual && actual.d<20){
+actual.d=(actual.d||0)+1;
+actual.s=(actual.s||0)+1;
+guardar();
+cargar();
+}
+},86400000); // cada 24h
+
+function cargarAdmin(){
+sol.innerHTML="";
+solicitudes.forEach((x,i)=>{
+sol.innerHTML+=`
+<p>${x.e} - ${x.m} USDT 
+<button onclick="aprobar(${i})">Aprobar</button>
+<button onclick="rechazar(${i})">Rechazar</button>
+</p>`;
+});
+}
+
+function aprobar(i){
+let u=users.find(x=>x.e==solicitudes[i].e);
+if(!u){users.push({e:solicitudes[i].e,p:"123",s:0,d:0});}
+solicitudes.splice(i,1);
+guardar();cargarAdmin();
+}
+
+function rechazar(i){
+solicitudes.splice(i,1);
+guardar();cargarAdmin();
+}
+
+setInterval(()=>{cargarAdmin()},1000);
 </script>
+
 </body>
 </html>
+
 
