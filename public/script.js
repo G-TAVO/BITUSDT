@@ -90,8 +90,37 @@ document.getElementById("registerBox").classList.add("hide");
 document.getElementById("loginBox").classList.remove("hide");
 }
 
+// ========= NUEVA FUNCION AGREGAR WALLET =========
+async function agregarWallet(){
+
+let w = prompt("Pega tu billetera TRC20");
+
+if(!w){
+alert("Debe pegar una billetera");
+return;
+}
+
+let usuario = JSON.parse(localStorage.getItem("user"));
+
+await fetch("/api/wallet",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuario.email,
+wallet:w
+})
+});
+
+alert("Billetera guardada");
+usuario.wallet = w;
+localStorage.setItem("user",JSON.stringify(usuario));
+}
+
+// ==============================================
+
 // CERRAR
 function logout(){
 localStorage.clear();
 window.location="login.html";
 }
+
