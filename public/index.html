@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>BITUSDT</title>
 <style>
+  <script src="script.js"></script>
+
 body{margin:0;font-family:Arial;background:#0f172a;color:white}
 .card{background:#111827;margin:15px;padding:15px;border-radius:12px}
 input,button{width:100%;padding:10px;margin:6px;border-radius:8px;border:none}
@@ -15,13 +17,14 @@ button:hover{opacity:.8}
 </head>
 <body>
 
+
 <!-- LOGIN -->
 <div class="card" id="loginBox">
 <h3>LOGIN</h3>
 <input id="l_email" placeholder="Correo">
 <input id="l_pass" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
-<p id="msg"></p>
+<p id="loginMsg"></p>
 <p><small onclick="mostrarRegistro()">Crear cuenta</small></p>
 </div>
 
@@ -32,7 +35,9 @@ button:hover{opacity:.8}
 <input id="r_pass" type="password" placeholder="Contraseña">
 <button onclick="register()">Registrar</button>
 <button onclick="volverLogin()">Volver</button>
+<p id="msg"></p>
 </div>
+
 
 <!-- PANEL USUARIO -->
 <div class="card hide" id="panel">
@@ -244,8 +249,10 @@ function logout(){
   location.reload();
 }
 </script>
+<script src="script.js"></script>
 </body>
 </html>
+
 
 
 
