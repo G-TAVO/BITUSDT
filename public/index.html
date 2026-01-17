@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -73,6 +74,18 @@ button:hover{opacity:.8}
 let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
 let usuarioActual=null;
 
+// MOSTRAR REGISTRO
+function mostrarRegistro(){
+document.getElementById("loginBox").classList.add("hide");
+document.getElementById("registerBox").classList.remove("hide");
+}
+
+// VOLVER LOGIN
+function volverLogin(){
+document.getElementById("registerBox").classList.add("hide");
+document.getElementById("loginBox").classList.remove("hide");
+}
+
 // LOGIN
 async function login(){
 
@@ -111,23 +124,68 @@ document.getElementById("loginMsg").innerText="Error servidor";
 
 }
 
-// MOSTRAR REGISTRO
-function mostrarRegistro(){
-document.getElementById("loginBox").classList.add("hide");
-document.getElementById("registerBox").classList.remove("hide");
+// REGISTRO
+async function register(){
+
+const email = document.getElementById("r_email").value;
+const pass  = document.getElementById("r_pass").value;
+
+if(!email || !pass){
+alert("Complete todos los campos");
+return;
 }
 
-// VOLVER LOGIN
-function volverLogin(){
-document.getElementById("registerBox").classList.add("hide");
-document.getElementById("loginBox").classList.remove("hide");
+try{
+
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email: email,
+password: pass
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+
+if(data.ok){
+volverLogin();
+}
+
+}catch(e){
+alert("Error conectando con servidor");
+}
+
+}
+
+// PANEL
+function cargarPanel(){
+document.getElementById("saldo").innerText = usuarioActual.saldo;
+document.getElementById("dia").innerText = usuarioActual.dias;
+document.getElementById("wallet").innerText = walletAdmin;
+}
+
+// INVITAR
+function invitar(){
+window.open("https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com");
+}
+
+// COPIAR
+function copiarWallet(){
+navigator.clipboard.writeText(walletAdmin);
+alert("Billetera copiada");
+}
+
+// LOGOUT
+function logout(){
+location.reload();
 }
 
 </script>
 
 </body>
 </html>
-
 
 
 
