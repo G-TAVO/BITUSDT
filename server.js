@@ -104,7 +104,19 @@ app.post("/api/aprobar",(req,res)=>{
   guardarUsuarios(users);
 
   res.json({ok:true,msg:"Aprobado"});
+  // ===== RECHAZAR =====
+app.post("/api/rechazar", (req,res)=>{
+  let solicitudes = leerSolicitudes();
+  let s = solicitudes.find(x=>x.id===parseInt(req.body.id));
+  if(!s) return res.json({ok:false,msg:"Solicitud no encontrada"});
+
+  s.estado = "rechazada";
+
+  guardarSolicitudes(solicitudes);
+  res.json({ok:true,msg:"Solicitud rechazada"});
 });
+
+
 
 // ===== RETIRO =====
 app.post("/api/retirar",(req,res)=>{
