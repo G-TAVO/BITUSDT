@@ -1,97 +1,136 @@
-const express=require("express");
-const mongoose=require("mongoose");
-const app=express();
+const express = require("express");
+const fs = require("fs");
+const bcrypt = require("bcrypt");
+const cors = require("cors");
 
+const app = express();
 app.use(express.json());
+app.use(cors());
 app.use(express.static("public"));
 
-mongoose.connect(process.env.MONGO_URI || 
-"mongodb+srv://bitusdt:bitusdt123@cluster0.mongodb.net/bitusdt");
+const PORT = process.env.PORT || 3000;
 
-const User=mongoose.model("User",{
- email:String,
- password:String,
- saldo:{type:Number,default:0},
- dias:{type:Number,default:0},
- activo:{type:Boolean,default:false},
- wallet:String
-});
+// ADMIN
+const ADMIN = {
+email:"Binancecoin958@gmail.com",
+password:"Enriique1998"
+};
 
-const Solicitud=mongoose.model("Solicitud",{
- email:String,
- monto:Number,
- estado:{type:String,default:"pendiente"}
-});
-
-/* LOGIN */
-app.post("/api/login",async(req,res)=>{
-const {email,password}=req.body;
-
-if(email=="Binancecoin958@gmail.com" && password=="Enriique1998"){
- return res.json({admin:true});
+// ARCHIVOS
+if(!fs.existsSync("users.json")){
+fs.writeFileSync("users.json","[]");
 }
 
-const u=await User.findOne({email,password});
-if(!u) return res.json({msg:"Datos incorrectos"});
-res.json(u);
-});
+if(!fs.existsSync("solicitudes.json")){
+fs.writeFileSync("solicitudes.json","[]");
+}
 
-/* REGISTRO */
+// ===== REGISTRO =====
 app.post("/api/register",async(req,res)=>{
-await User.create(req.body);
-res.json({msg:"Cuenta creada"});
+
+let users = JSON.parse(fs.readFileSync("users.json"));
+
+let existe = users.find(u=>u.email==req.body.email);
+if(existe) return res.json({msg:"Correo ya registrado"});
+
+let hash = await bcrypt.hash(req.body.password,10);
+
+users.push({
+email:req.body.email,
+password:hash,
+saldo:0,
+dias:0,
+wallet:""
 });
 
-/* INVERTIR */
-app.post("/api/invert",async(req,res)=>{
-await Solicitud.create({
- email:req.body.email,
- monto:req.body.monto
-});
-res.json({msg:"Solicitud enviada"});
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+res.json({ok:true,msg:"Registro exitoso"});
 });
 
-/* VER SOLICITUDES */
-app.get("/api/solicitudes",async(req,res)=>{
-res.json(await Solicitud.find({estado:"pendiente"}));
+// ===== LOGIN =====
+app.post("/api/login",async(req,res)=>{
+
+// ADMIN
+if(req.body.email==ADMIN.email){
+
+if(req.body.password!=ADMIN.password){
+return res.json({msg:"Clave admin incorrecta"});
+}
+
+return res.json({ok:true,rol:"admin"});
+}
+
+// USUARIOS
+let users = JSON.parse(fs.readFileSync("users.json"));
+let user = users.find(u=>u.email==req.body.email);
+if(!user) return res.json({msg:"Usuario no existe"});
+
+let ok = await bcrypt.compare(req.body.password,user.password);
+if(!ok) return res.json({msg:"Clave incorrecta"});
+
+res.json({ok:true,rol:"user",user});
 });
 
-/* APROBAR */
-app.post("/api/aprobar",async(req,res)=>{
-await Solicitud.findByIdAndUpdate(req.body.id,{estado:"ok"});
-await User.updateOne(
- {email:req.body.email},
- {$set:{activo:true,wallet:"TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo"}}
-);
-res.json({ok:true});
+// ===== CREAR SOLICITUD =====
+app.post("/api/invertir",(req,res)=>{
+
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+
+sol.push({
+id:Date.now(),
+email:req.body.email,
+monto:req.body.monto,
+estado:"pendiente"
 });
 
-/* GANANCIA DIARIA */
-setInterval(async()=>{
-const users=await User.find({activo:true});
-users.forEach(async u=>{
- if(u.dias<20){
-  u.dias++;
-  u.saldo++;
-  await u.save();
- }
+fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
+res.json({msg:"Solicitud enviada al admin"});
 });
-},86400000);
 
-/* RETIRO */
-app.post("/api/retirar",async(req,res)=>{
-const u=await User.findOne({email:req.body.email});
-if(u.saldo<20) return res.json({msg:"Min 20 USDT"});
+// ===== LISTAR SOLICITUDES (ADMIN) =====
+app.get("/api/solicitudes",(req,res)=>{
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+res.json(sol.filter(s=>s.estado=="pendiente"));
+});
+
+// ===== APROBAR =====
+app.post("/api/aprobar",(req,res)=>{
+
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+let users = JSON.parse(fs.readFileSync("users.json"));
+
+let s = sol.find(x=>x.id==req.body.id);
+if(!s) return res.json({msg:"No existe"});
+
+let u = users.find(x=>x.email==s.email);
+
+u.saldo += parseInt(s.monto);
+u.dias = 0;
+
+s.estado="aprobado";
+
+fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+
+res.json({msg:"Aprobado"});
+});
+
+// ===== RETIRO =====
+app.post("/api/retirar",(req,res)=>{
+
+let users = JSON.parse(fs.readFileSync("users.json"));
+let u = users.find(x=>x.email==req.body.email);
+
+if(u.saldo<20){
+return res.json({msg:"Mínimo 20 USDT"});
+}
+
 u.saldo=0;
 u.dias=0;
-u.activo=false;
-await u.save();
-res.json({ok:true});
+
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+res.json({msg:"Retiro simulado exitoso"});
 });
 
-/* USERS ADMIN */
-app.get("/api/users",async(req,res)=>{
-res.json(await User.find());
-});
+app.listen(PORT,()=>console.log("Servidor activo"));
 
-app.listen(3000,()=>console.log("OK 3000"));
