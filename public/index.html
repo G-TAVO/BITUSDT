@@ -132,12 +132,24 @@ function cargarPanel(){
 
 // INVERTIR
 async function invertir(){
-  await fetch("/api/invertir",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email:usuarioActual.email,monto:document.getElementById("monto").value})
-  });
-  alert("Solicitud enviada al admin");
+
+if(usuarioActual.aprobado){
+ alert("Ya tienes inversión activa");
+ return;
+}
+
+await fetch("/api/invertir",{
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+   email:usuarioActual.email,
+   monto:monto.value
+ })
+});
+
+alert("Solicitud enviada al admin");
+}
+
 }
 
 // RETIRAR
