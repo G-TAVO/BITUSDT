@@ -101,6 +101,8 @@ text-align:center;
 TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo
 </p>
 <button onclick="copiarWallet()">Copiar dirección</button>
+    <button onclick="copiarWallet()">Copiar billetera Binance</button>
+
 </div>
 
 
@@ -309,6 +311,13 @@ location.reload();
 
 /* AUTO ADMIN */
 setInterval(cargarAdmin,1000);
+  function copiarWallet(){
+navigator.clipboard.writeText(
+"TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo"
+);
+alert("Dirección Binance copiada");
+}
+
 </script>
 
 </body>
