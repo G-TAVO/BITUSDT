@@ -143,18 +143,23 @@ dia.innerText=usuarioActual.dias;
 // INVERTIR
 async function invertir(){
 
-const res = await fetch("/api/invertir",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email,
-monto:monto.value
-})
+if(actual.aprobado){
+ alert("Ya tienes inversión activa");
+ return;
+}
+
+await fetch("/api/solicitar",{
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+   email:actual.e,
+   monto:monto.value
+ })
 });
 
-const data = await res.json();
-alert(data.msg);
+alert("Solicitud enviada al admin");
 }
+
 
 // RETIRAR
 async function retirar(){
@@ -191,42 +196,48 @@ location.reload();
 // ADMIN
 async function cargarAdmin(){
 
-const res=await fetch("/api/solicitudes");
-const sol=await res.json();
+const res = await fetch("/api/solicitudes");
+const data = await res.json();
 
-lista.innerHTML="";
+sol.innerHTML="";
 
-if(sol.length==0){
-lista.innerHTML="<p>No hay solicitudes</p>";
-return;
+if(data.length==0){
+ sol.innerHTML="<p>No hay solicitudes</p>";
+ return;
 }
 
-sol.forEach(s=>{
-lista.innerHTML+=`
-<div style="background:#0f172a;padding:10px;margin:6px;border-radius:8px">
-<b>${s.email}</b><br>
-Monto: ${s.monto} USDT<br><br>
+data.forEach(x=>{
 
-<button onclick="aprobar(${s.id})">Aprobar</button>
-</div>`;
+sol.innerHTML+=`
+<div style="background:#0f172a;padding:10px;margin:6px;border-radius:8px">
+<b>${x.email}</b><br>
+Monto: ${x.monto} USDT<br><br>
+
+<button onclick="aprobar('${x._id}','${x.email}')">
+Aprobar
+</button>
+</div>
+`;
 });
 }
+
 
 // APROBAR
-async function aprobar(id){
 
-const res = await fetch("/api/aprobar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
+async function aprobar(id,email){
+
+await fetch("/api/aprobar",{
+ method:"POST",
+ headers:{
+   "Content-Type":"application/json"
+ },
+ body: JSON.stringify({id,email})
 });
 
-const data = await res.json();
-alert(data.msg);
+alert("Aprobado");
 cargarAdmin();
 }
 
-setInterval(cargarAdmin,3000);
 
 </script>
 </body>
