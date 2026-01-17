@@ -8,14 +8,14 @@ document.getElementById(id).classList.add("active");
 // REGISTRO
 async function register(){
 
-if(!email.value || !password.value){
-msg.innerText="Complete todos los campos";
+if(!r_email.value || !r_pass.value){
+alert("Complete todos los campos");
 return;
 }
 
 const data={
-email:email.value,
-password:password.value
+email:r_email.value,
+password:r_pass.value
 };
 
 try{
@@ -27,12 +27,18 @@ body:JSON.stringify(data)
 });
 
 const json = await res.json();
-msg.innerText=json.msg;
+alert(json.msg);
+
+if(json.ok){
+volverLogin();
+}
 
 }catch(err){
-msg.innerText="Error de conexión";
+alert("Error de conexión con el servidor");
 }
 }
+
+
 
 // LOGIN
 async function login(){
