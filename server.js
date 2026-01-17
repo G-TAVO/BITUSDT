@@ -142,5 +142,28 @@ u.dias=0;
 fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 res.json({msg:"Retiro simulado"});
 });
+// ===== GUARDAR BILLETERA =====
+app.post("/api/wallet",(req,res)=>{
+
+try{
+
+let users = JSON.parse(fs.readFileSync("users.json"));
+
+let u = users.find(x=>x.email==req.body.email);
+if(!u) return res.json({msg:"Usuario no existe"});
+
+u.wallet = req.body.wallet;
+
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+
+res.json({msg:"Billetera guardada"});
+
+}catch(e){
+console.log(e);
+res.status(500).json({msg:"Error servidor"});
+}
+
+});
+
 
 app.listen(PORT,()=>console.log("Servidor activo "+PORT));
