@@ -68,213 +68,65 @@ button:hover{opacity:.8}
 </div>
 
 <script>
+
 // VARIABLES
 let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
 let usuarioActual=null;
 
-// ELEMENTOS
-const loginBox=document.getElementById("loginBox");
-const registerBox=document.getElementById("registerBox");
-const panel=document.getElementById("panel");
-const admin=document.getElementById("admin");
-const wallet=document.getElementById("wallet");
-
-wallet.innerText=walletAdmin;
-
-// MOSTRAR REGISTRO
-function mostrarRegistro(){
-loginBox.classList.add("hide");
-registerBox.classList.remove("hide");
-}
-
-// VOLVER LOGIN
-function volverLogin(){
-registerBox.classList.add("hide");
-loginBox.classList.remove("hide");
-}
-
 // LOGIN
 async function login(){
+
+try{
 
 const res = await fetch("/api/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email:l_email.value,
-password:l_pass.value
+email: document.getElementById("l_email").value,
+password: document.getElementById("l_pass").value
 })
 });
 
 const data = await res.json();
 
 if(!data.ok){
-loginMsg.innerText=data.msg;
+document.getElementById("loginMsg").innerText=data.msg;
 return;
 }
 
 usuarioActual=data.user;
-loginBox.classList.add("hide");
+document.getElementById("loginBox").classList.add("hide");
 
 if(data.rol==="admin"){
-admin.classList.remove("hide");
+document.getElementById("admin").classList.remove("hide");
 cargarAdmin();
 }else{
-panel.classList.remove("hide");
+document.getElementById("panel").classList.remove("hide");
 cargarPanel();
 }
+
+}catch(e){
+document.getElementById("loginMsg").innerText="Error servidor";
 }
 
-// REGISTRO
-async function register(){
-
-if(!r_email.value||!r_pass.value){
-alert("Complete todos los campos");
-return;
 }
 
-const res = await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:r_email.value,
-password:r_pass.value
-})
-});
-
-const data = await res.json();
-alert(data.msg);
-
-if(data.ok) volverLogin();
+// MOSTRAR REGISTRO
+function mostrarRegistro(){
+document.getElementById("loginBox").classList.add("hide");
+document.getElementById("registerBox").classList.remove("hide");
 }
 
-// PANEL
-function cargarPanel(){
-saldo.innerText=usuarioActual.saldo;
-dia.innerText=usuarioActual.dias;
+// VOLVER LOGIN
+function volverLogin(){
+document.getElementById("registerBox").classList.add("hide");
+document.getElementById("loginBox").classList.remove("hide");
 }
 
-// INVERTIR
-async function invertir(){
+</script>
 
-await fetch("/api/invertir",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email,
-monto:monto.value
-})
-});
-
-alert("Solicitud enviada al admin");
-}
-  <script>
-/* ===== NUEVA FUNCIÓN AGREGAR WALLET ===== */
-async function agregarWallet(){
-
-let w = prompt("Pega tu billetera TRC20");
-
-if(!w){
-alert("Debe pegar una billetera");
-return;
-}
-
-await fetch("/api/wallet",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email,
-wallet:w
-})
-});
-
-alert("Billetera guardada correctamente");
-usuarioActual.wallet = w;
-}
-
-// RETIRAR
-async function retirar(){
-
-const res = await fetch("/api/retirar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email
-})
-});
-
-const data = await res.json();
-alert(data.msg);
-}
-
-// INVITAR WHATSAPP
-function invitar(){
-let link="https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com";
-window.open(link);
-}
-
-// COPIAR
-function copiarWallet(){
-navigator.clipboard.writeText(walletAdmin);
-alert("Billetera copiada");
-}
-
-// LOGOUT
-function logout(){
-location.reload();
-}
-
-// ADMIN
-async function cargarAdmin(){
-
-const res = await fetch("/api/solicitudes");
-const data = await res.json();
-
-lista.innerHTML="";
-
-if(data.length==0){
-lista.innerHTML="<p>No hay solicitudes</p>";
-return;
-}
-
-data.forEach(x=>{
-lista.innerHTML+=`
-<div style="background:#0f172a;padding:10px;margin:6px;border-radius:8px">
-<b>${x.email}</b><br>
-Monto: ${x.monto} USDT<br><br>
-
-<button onclick="aprobar(${x.id})">Aprobar</button>
-<button onclick="rechazar(${x.id})" style="background:#ef4444;color:white;">Rechazar</button>
-</div>
-`;
-});
-}
-
-// APROBAR
-async function aprobar(id){
-await fetch("/api/aprobar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
-});
-alert("Aprobado");
-cargarAdmin();
-}
-
-// RECHAZAR
-async function rechazar(id){
-await fetch("/api/rechazar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
-});
-alert("Rechazado");
-cargarAdmin();
-}
-
-<script src="/script.js"></script>
 </body>
 </html>
-
 
 
 
