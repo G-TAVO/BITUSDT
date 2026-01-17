@@ -1,3 +1,4 @@
+
 const express = require("express");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
@@ -77,7 +78,8 @@ sol.push({
 id:Date.now(),
 email:req.body.email,
 monto:req.body.monto,
-estado:"pendiente"
+estado:"pendiente",
+tipo:"inversion"
 });
 
 fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
@@ -101,8 +103,10 @@ if(!s) return res.json({msg:"No existe"});
 
 let u = users.find(x=>x.email==s.email);
 
+if(s.tipo=="inversion"){
 u.saldo += parseInt(s.monto);
 u.dias = 0;
+}
 
 s.estado="aprobado";
 
@@ -126,7 +130,7 @@ fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
 res.json({msg:"Rechazado"});
 });
 
-// RETIRAR
+// RETIRAR  (AJUSTADO)
 app.post("/api/retirar",(req,res)=>{
 
 let users = JSON.parse(fs.readFileSync("users.json"));
@@ -136,12 +140,26 @@ if(u.saldo<20){
 return res.json({msg:"Mínimo 20 USDT"});
 }
 
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+
+sol.push({
+id:Date.now(),
+email:u.email,
+monto:u.saldo,
+estado:"pendiente",
+tipo:"retiro",
+wallet:u.wallet
+});
+
+fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
+
 u.saldo=0;
 u.dias=0;
 
 fs.writeFileSync("users.json",JSON.stringify(users,null,2));
-res.json({msg:"Retiro simulado"});
+res.json({msg:"Solicitud de retiro enviada"});
 });
+
 // ===== GUARDAR BILLETERA =====
 app.post("/api/wallet",(req,res)=>{
 
@@ -156,7 +174,7 @@ u.wallet = req.body.wallet;
 
 fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 
-res.json({msg:"Billetera guardada"});
+res.json({msg:"Billetera guardada correctamente"});
 
 }catch(e){
 console.log(e);
@@ -165,5 +183,4 @@ res.status(500).json({msg:"Error servidor"});
 
 });
 
-
-app.listen(PORT,()=>console.log("Servidor activo "+PORT));
+app.listen(PORT,()=>console.log("Servidor activo en puerto "+PORT));
