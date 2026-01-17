@@ -1,4 +1,3 @@
-
 const express = require("express");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
@@ -13,125 +12,170 @@ const PORT = process.env.PORT || 3000;
 
 // ADMIN
 const ADMIN = {
-  email: "Binancecoin958@gmail.com",
-  password: "Enriique1998",
-  rol: "admin"
+email:"Binancecoin958@gmail.com",
+password:"Enriique1998"
 };
 
 // ARCHIVOS
-if(!fs.existsSync("users.json")) fs.writeFileSync("users.json","[]");
-if(!fs.existsSync("solicitudes.json")) fs.writeFileSync("solicitudes.json","[]");
+if(!fs.existsSync("users.json")){
+fs.writeFileSync("users.json","[]");
+}
 
-// AUX
-const leerUsuarios = ()=>JSON.parse(fs.readFileSync("users.json","utf8"));
-const guardarUsuarios = (data)=>fs.writeFileSync("users.json",JSON.stringify(data,null,2));
-const leerSolicitudes = ()=>JSON.parse(fs.readFileSync("solicitudes.json","utf8"));
-const guardarSolicitudes = (data)=>fs.writeFileSync("solicitudes.json",JSON.stringify(data,null,2));
+if(!fs.existsSync("solicitudes.json")){
+fs.writeFileSync("solicitudes.json","[]");
+}
 
 // ===== REGISTRO =====
-app.post("/api/register", async(req,res)=>{
-  let users = leerUsuarios();
-  if(users.find(u=>u.email===req.body.email)) return res.json({ok:false,msg:"Correo ya registrado"});
+app.post("/api/register",async(req,res)=>{
 
-  const hash = await bcrypt.hash(req.body.password,10);
-  users.push({
-    email: req.body.email,
-    password: hash,
-    saldo: 0,
-    dias: 0,
-    wallet: "",
-    solicitudes: []
-  });
-  guardarUsuarios(users);
-  res.json({ok:true,msg:"Registro exitoso"});
+try{
+
+let users = JSON.parse(fs.readFileSync("users.json"));
+
+let existe = users.find(u=>u.email==req.body.email);
+if(existe) return res.json({msg:"Correo ya registrado"});
+
+let hash = await bcrypt.hash(req.body.password,10);
+
+users.push({
+email:req.body.email,
+password:hash,
+saldo:0,
+dias:0
+});
+
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+res.json({ok:true,msg:"Registro exitoso"});
+
+}catch(e){
+console.log(e);
+res.status(500).json({msg:"Error servidor"});
+}
+
 });
 
 // ===== LOGIN =====
-app.post("/api/login", async(req,res)=>{
-  // Login admin
-  if(req.body.email===ADMIN.email){
-    if(req.body.password!==ADMIN.password) return res.json({ok:false,msg:"Clave admin incorrecta"});
-    return res.json({ok:true,rol:"admin",user:{email:ADMIN.email}});
-  }
+app.post("/api/login",async(req,res)=>{
 
-  let users = leerUsuarios();
-  let user = users.find(u=>u.email===req.body.email);
-  if(!user) return res.json({ok:false,msg:"Usuario no existe"});
+try{
 
-  const match = await bcrypt.compare(req.body.password,user.password);
-  if(!match) return res.json({ok:false,msg:"Clave incorrecta"});
+// ADMIN
+if(req.body.email==ADMIN.email){
 
-  res.json({ok:true,rol:"user",user});
+if(req.body.password!=ADMIN.password){
+return res.json({msg:"Clave admin incorrecta"});
+}
+
+return res.json({ok:true,rol:"admin"});
+}
+
+// USUARIOS
+let users = JSON.parse(fs.readFileSync("users.json"));
+let user = users.find(u=>u.email==req.body.email);
+if(!user) return res.json({msg:"Usuario no existe"});
+
+let ok = await bcrypt.compare(req.body.password,user.password);
+if(!ok) return res.json({msg:"Clave incorrecta"});
+
+res.json({ok:true,rol:"user",user});
+
+}catch(e){
+console.log(e);
+res.status(500).json({msg:"Error servidor"});
+}
+
 });
 
 // ===== CREAR SOLICITUD =====
 app.post("/api/invertir",(req,res)=>{
-  let solicitudes = leerSolicitudes();
 
-  solicitudes.push({
-    id: Date.now(),
-    email: req.body.email,
-    monto: parseFloat(req.body.monto),
-    estado: "pendiente"
-  });
+try{
 
-  guardarSolicitudes(solicitudes);
-  res.json({ok:true,msg:"Solicitud enviada al admin"});
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+
+sol.push({
+id:Date.now(),
+email:req.body.email,
+monto:req.body.monto,
+estado:"pendiente"
 });
 
-// ===== LISTAR SOLICITUDES (ADMIN) =====
+fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
+res.json({msg:"Solicitud enviada al admin"});
+
+}catch(e){
+console.log(e);
+res.status(500).json({msg:"Error servidor"});
+}
+
+});
+
+// ===== LISTAR SOLICITUDES =====
 app.get("/api/solicitudes",(req,res)=>{
-  let solicitudes = leerSolicitudes();
-  res.json(solicitudes.filter(s=>s.estado==="pendiente"));
+
+try{
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+res.json(sol.filter(s=>s.estado=="pendiente"));
+}catch(e){
+console.log(e);
+res.json([]);
+}
+
 });
 
 // ===== APROBAR =====
 app.post("/api/aprobar",(req,res)=>{
-  let solicitudes = leerSolicitudes();
-  let users = leerUsuarios();
 
-  let s = solicitudes.find(x=>x.id===parseInt(req.body.id));
-  if(!s) return res.json({ok:false,msg:"Solicitud no encontrada"});
+try{
 
-  let u = users.find(x=>x.email===s.email);
-  if(!u) return res.json({ok:false,msg:"Usuario no encontrado"});
+let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
+let users = JSON.parse(fs.readFileSync("users.json"));
 
-  u.saldo += s.monto;
-  u.dias = 0;
-  s.estado = "aprobado";
+let s = sol.find(x=>x.id==req.body.id);
+if(!s) return res.json({msg:"No existe"});
 
-  guardarSolicitudes(solicitudes);
-  guardarUsuarios(users);
+let u = users.find(x=>x.email==s.email);
 
-  res.json({ok:true,msg:"Aprobado"});
-  // ===== RECHAZAR =====
-app.post("/api/rechazar", (req,res)=>{
-  let solicitudes = leerSolicitudes();
-  let s = solicitudes.find(x=>x.id===parseInt(req.body.id));
-  if(!s) return res.json({ok:false,msg:"Solicitud no encontrada"});
+u.saldo += parseInt(s.monto);
+u.dias = 0;
 
-  s.estado = "rechazada";
+s.estado="aprobado";
 
-  guardarSolicitudes(solicitudes);
-  res.json({ok:true,msg:"Solicitud rechazada"});
+fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+
+res.json({msg:"Aprobado"});
+
+}catch(e){
+console.log(e);
+res.status(500).json({msg:"Error servidor"});
+}
+
 });
-
-
 
 // ===== RETIRO =====
 app.post("/api/retirar",(req,res)=>{
-  let users = leerUsuarios();
-  let u = users.find(x=>x.email===req.body.email);
-  if(!u) return res.json({ok:false,msg:"Usuario no encontrado"});
 
-  if(u.saldo<20) return res.json({ok:false,msg:"Mínimo 20 USDT"});
+try{
 
-  u.saldo=0;
-  u.dias=0;
+let users = JSON.parse(fs.readFileSync("users.json"));
+let u = users.find(x=>x.email==req.body.email);
 
-  guardarUsuarios(users);
-  res.json({ok:true,msg:"Retiro simulado exitoso"});
+if(u.saldo<20){
+return res.json({msg:"Mínimo 20 USDT"});
+}
+
+u.saldo=0;
+u.dias=0;
+
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+res.json({msg:"Retiro simulado exitoso"});
+
+}catch(e){
+console.log(e);
+res.status(500).json({msg:"Error servidor"});
+}
+
 });
 
 app.listen(PORT,()=>console.log("Servidor activo en puerto "+PORT));
-
