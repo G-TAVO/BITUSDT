@@ -60,8 +60,14 @@ button:hover{opacity:.8}
 
 <script>
 // VARIABLES
+// VARIABLES
 let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
 let usuarioActual = null;
+
+document.addEventListener("DOMContentLoaded",()=>{
+  wallet.innerText = walletAdmin;
+});
+
 
 // ELEMENTOS
 const loginBox = document.getElementById("loginBox");
