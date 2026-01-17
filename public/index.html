@@ -168,17 +168,15 @@ async function cargarAdmin(){
   const res = await fetch("/api/solicitudes");
   const data = await res.json();
   const sol = document.getElementById("lista");
-  sol.innerHTML = "";
-  if(data.length===0){ sol.innerHTML="<p>No hay solicitudes</p>"; return; }
+  sol.innerHTML += `
+  <div style="background:#0f172a;padding:10px;margin:6px;border-radius:8px">
+    <b>${x.email}</b><br>
+    Monto: ${x.monto} USDT<br><br>
+    <button onclick="aprobar(${x.id})">Aprobar</button>
+    <button onclick="rechazar(${x.id})" style="background:#ef4444;color:white;">Rechazar</button>
+  </div>
+`;
 
-  data.forEach(x=>{
-    sol.innerHTML += `
-      <div style="background:#0f172a;padding:10px;margin:6px;border-radius:8px">
-        <b>${x.email}</b><br>
-        Monto: ${x.monto} USDT<br><br>
-        <button onclick="aprobar(${x.id})">Aprobar</button>
-      </div>
-    `;
   });
 }
 
@@ -187,6 +185,16 @@ async function aprobar(id){
   await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
   alert("Aprobado");
   cargarAdmin();
+  // RECHAZAR
+async function rechazar(id){
+  await fetch("/api/rechazar", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({id})
+  });
+  alert("Solicitud rechazada");
+  cargarAdmin();
+
 }
 
 // LOGOUT
