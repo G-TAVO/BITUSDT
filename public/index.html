@@ -167,6 +167,29 @@ monto:monto.value
 
 alert("Solicitud enviada al admin");
 }
+  <script>
+/* ===== NUEVA FUNCIÓN AGREGAR WALLET ===== */
+async function agregarWallet(){
+
+let w = prompt("Pega tu billetera TRC20");
+
+if(!w){
+alert("Debe pegar una billetera");
+return;
+}
+
+await fetch("/api/wallet",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email,
+wallet:w
+})
+});
+
+alert("Billetera guardada correctamente");
+usuarioActual.wallet = w;
+}
 
 // RETIRAR
 async function retirar(){
