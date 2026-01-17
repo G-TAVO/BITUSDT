@@ -24,7 +24,7 @@ button:hover{opacity:.8}
 <input id="l_pass" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
 <p id="msg"></p>
-<p><small onclick="mostrarRecuperar()">¿Olvidó su contraseña?</small></p>
+<p><small onclick="mostrarRegistro()">Crear cuenta</small></p>
 </div>
 
 <!-- REGISTRO -->
@@ -32,7 +32,7 @@ button:hover{opacity:.8}
 <h3>REGISTRO</h3>
 <input id="r_email" placeholder="Correo">
 <input id="r_pass" type="password" placeholder="Contraseña">
-<button onclick="registrar()">Registrar</button>
+<button onclick="register()">Registrar</button>
 <button onclick="volverLogin()">Volver</button>
 </div>
 
@@ -54,81 +54,76 @@ button:hover{opacity:.8}
 <button onclick="invertir()">Invertir</button>
 
 <button onclick="retirar()">Retirar</button>
-
 <button onclick="referir()">Compartir WhatsApp</button>
-
 <button onclick="logout()">Salir</button>
 </div>
 
 <!-- ADMIN -->
 <div class="card admin hide" id="admin">
 <h3>ADMIN</h3>
-<div id="sol"></div>
+<div id="lista"></div>
 <button onclick="logout()">Salir</button>
 </div>
 
 <script>
-// DATOS
-let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
-wallet.innerHTML=walletAdmin;
 
-let users=JSON.parse(localStorage.getItem("users"))||[];
-let solicitudes=JSON.parse(localStorage.getItem("sol"))||[];
-let actual=null;
+// WALLET ADMIN
+let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
+wallet.innerText=walletAdmin;
+
+let usuarioActual=null;
 
 // LOGIN
-function login(){
+async function login(){
 
-let e=l_email.value;
-let p=l_pass.value;
+const res = await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:l_email.value,
+password:l_pass.value
+})
+});
 
-// ADMIN
-if(e=="Binancecoin958@gmail.com" && p=="Enriique1998"){
+const data = await res.json();
+
+if(!data.ok){
+msg.innerText=data.msg;
+return;
+}
+
+usuarioActual=data.user;
+
+loginBox.classList.add("hide");
+
+if(data.rol=="admin"){
 admin.classList.remove("hide");
-loginBox.classList.add("hide");
 cargarAdmin();
-return;
-}
-
-// USUARIO
-actual=users.find(u=>u.e==e && u.p==p);
-
-if(!actual){
-msg.innerHTML="Datos incorrectos";
-return;
-}
-
-loginBox.classList.add("hide");
+}else{
 panel.classList.remove("hide");
-cargar();
+cargarPanel();
+}
 }
 
 // REGISTRO
-function registrar(){
+async function register(){
 
-let e=r_email.value;
-let p=r_pass.value;
-
-if(users.find(x=>x.e==e)){
-alert("Ya existe");
-return;
-}
-
-users.push({
-e:e,
-p:p,
-s:0,
-d:0,
-aprobado:false
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:r_email.value,
+password:r_pass.value
+})
 });
 
-guardar();
-alert("Registrado correctamente");
-volverLogin();
+const data = await res.json();
+alert(data.msg);
+if(data.ok) volverLogin();
 }
 
 // MOSTRAR REGISTRO
-function mostrarRecuperar(){
+function mostrarRegistro(){
 loginBox.classList.add("hide");
 registerBox.classList.remove("hide");
 }
@@ -139,52 +134,44 @@ registerBox.classList.add("hide");
 loginBox.classList.remove("hide");
 }
 
+// PANEL
+function cargarPanel(){
+saldo.innerText=usuarioActual.saldo;
+dia.innerText=usuarioActual.dias;
+}
+
 // INVERTIR
-function invertir(){
+async function invertir(){
 
-if(!actual.aprobado){
-solicitudes.push({
-email:actual.e,
+const res = await fetch("/api/invertir",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email,
 monto:monto.value
+})
 });
-guardar();
-alert("Solicitud enviada al admin");
-}else{
-alert("Ya tienes inversión activa");
-}
+
+const data = await res.json();
+alert(data.msg);
 }
 
-// CARGAR PANEL
-function cargar(){
-saldo.innerHTML=actual.s;
-dia.innerHTML=actual.d;
+// RETIRAR
+async function retirar(){
+
+const res = await fetch("/api/retirar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email
+})
+});
+
+const data = await res.json();
+alert(data.msg);
 }
 
-// RETIRO
-function retirar(){
-
-if(actual.s<20){
-alert("Mínimo 20 USDT");
-return;
-}
-
-// DESCUENTO 4 USD
-let recibe=actual.s-4;
-alert("Recibes "+recibe+" USDT (simulado)");
-
-actual.s=0;
-actual.d=0;
-actual.aprobado=false;
-guardar();
-cargar();
-}
-
-// SALIR
-function logout(){
-location.reload();
-}
-
-// REFERIDOS
+// REFERIR
 function referir(){
 let link=location.href;
 window.open("https://wa.me/?text=Regístrate aquí "+link);
@@ -196,65 +183,46 @@ navigator.clipboard.writeText(walletAdmin);
 alert("Billetera copiada");
 }
 
-// GUARDAR
-function guardar(){
-localStorage.setItem("users",JSON.stringify(users));
-localStorage.setItem("sol",JSON.stringify(solicitudes));
+// LOGOUT
+function logout(){
+location.reload();
 }
-
-// GANANCIAS DIARIAS
-setInterval(()=>{
-if(actual && actual.aprobado && actual.d<15){
-actual.d++;
-actual.s+=1.3;
-guardar();
-cargar();
-}
-},86400000);
 
 // ADMIN
-function cargarAdmin(){
+async function cargarAdmin(){
 
-sol.innerHTML="";
+const res=await fetch("/api/solicitudes");
+const sol=await res.json();
 
-if(solicitudes.length==0){
-sol.innerHTML="<p>No hay solicitudes</p>";
+lista.innerHTML="";
+
+if(sol.length==0){
+lista.innerHTML="<p>No hay solicitudes</p>";
 return;
 }
 
-solicitudes.forEach((x,i)=>{
-
-sol.innerHTML+=`
+sol.forEach(s=>{
+lista.innerHTML+=`
 <div style="background:#0f172a;padding:10px;margin:6px;border-radius:8px">
-<b>${x.email}</b><br>
-Monto: ${x.monto} USDT<br><br>
+<b>${s.email}</b><br>
+Monto: ${s.monto} USDT<br><br>
 
-<button onclick="aprobar(${i})">Aprobar</button>
-<button onclick="rechazar(${i})"
-style="background:#ef4444;color:white">Rechazar</button>
-</div>
-`;
+<button onclick="aprobar(${s.id})">Aprobar</button>
+</div>`;
 });
 }
 
 // APROBAR
-function aprobar(i){
+async function aprobar(id){
 
-let u=users.find(x=>x.e==solicitudes[i].email);
+const res = await fetch("/api/aprobar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({id})
+});
 
-u.aprobado=true;
-u.s=0;
-u.d=0;
-
-solicitudes.splice(i,1);
-guardar();
-cargarAdmin();
-}
-
-// RECHAZAR
-function rechazar(i){
-solicitudes.splice(i,1);
-guardar();
+const data = await res.json();
+alert(data.msg);
 cargarAdmin();
 }
 
@@ -263,4 +231,5 @@ setInterval(cargarAdmin,3000);
 </script>
 </body>
 </html>
+
 
