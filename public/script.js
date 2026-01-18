@@ -90,7 +90,7 @@ document.getElementById("registerBox").classList.add("hide");
 document.getElementById("loginBox").classList.remove("hide");
 }
 
-// ========= NUEVA FUNCION AGREGAR WALLET =========
+// ========= AGREGAR WALLET =========
 async function agregarWallet(){
 
 let w = prompt("Pega tu billetera TRC20");
@@ -116,11 +116,54 @@ usuario.wallet = w;
 localStorage.setItem("user",JSON.stringify(usuario));
 }
 
-// ==============================================
+// ========= INVERTIR =========
+async function invertir(){
+
+let monto = document.getElementById("monto").value;
+let usuario = JSON.parse(localStorage.getItem("user"));
+
+if(!monto){
+alert("Ingrese monto");
+return;
+}
+
+await fetch("/api/invertir",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuario.email,
+monto:monto
+})
+});
+
+alert("Solicitud enviada, espere aprobación del admin");
+}
+
+// ========= RETIRAR =========
+async function retirar(){
+
+let usuario = JSON.parse(localStorage.getItem("user"));
+
+const res = await fetch("/api/retirar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuario.email
+})
+});
+
+const json = await res.json();
+alert(json.msg);
+}
+
+// ========= INVITAR WHATSAPP =========
+function invitar(){
+let link="https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com";
+window.open(link);
+}
 
 // CERRAR
 function logout(){
 localStorage.clear();
 window.location="login.html";
 }
-
