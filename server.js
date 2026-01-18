@@ -182,5 +182,20 @@ res.status(500).json({msg:"Error servidor"});
 }
 
 });
+// GUARDAR BILLETERA
+app.post("/api/wallet",(req,res)=>{
+
+let users = JSON.parse(fs.readFileSync("users.json"));
+let u = users.find(x=>x.email==req.body.email);
+
+if(!u) return res.json({msg:"Usuario no existe"});
+
+u.wallet = req.body.wallet;
+
+fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+res.json({msg:"Billetera guardada"});
+
+});
+
 
 app.listen(PORT,()=>console.log("Servidor activo en puerto "+PORT));
