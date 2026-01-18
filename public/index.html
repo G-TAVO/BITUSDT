@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -76,50 +75,44 @@ let usuarioActual=null;
 
 // MOSTRAR REGISTRO
 function mostrarRegistro(){
-document.getElementById("loginBox").classList.add("hide");
-document.getElementById("registerBox").classList.remove("hide");
+loginBox.classList.add("hide");
+registerBox.classList.remove("hide");
 }
 
 // VOLVER LOGIN
 function volverLogin(){
-document.getElementById("registerBox").classList.add("hide");
-document.getElementById("loginBox").classList.remove("hide");
+registerBox.classList.add("hide");
+loginBox.classList.remove("hide");
 }
 
 // LOGIN
 async function login(){
 
-try{
-
 const res = await fetch("/api/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email: document.getElementById("l_email").value,
-password: document.getElementById("l_pass").value
+email:l_email.value,
+password:l_pass.value
 })
 });
 
 const data = await res.json();
 
 if(!data.ok){
-document.getElementById("loginMsg").innerText=data.msg;
+loginMsg.innerText=data.msg;
 return;
 }
 
 usuarioActual=data.user;
-document.getElementById("loginBox").classList.add("hide");
+loginBox.classList.add("hide");
 
 if(data.rol==="admin"){
-document.getElementById("admin").classList.remove("hide");
+admin.classList.remove("hide");
 cargarAdmin();
 }else{
-document.getElementById("panel").classList.remove("hide");
+panel.classList.remove("hide");
 cargarPanel();
-}
-
-}catch(e){
-document.getElementById("loginMsg").innerText="Error servidor";
 }
 
 }
@@ -127,48 +120,138 @@ document.getElementById("loginMsg").innerText="Error servidor";
 // REGISTRO
 async function register(){
 
-const email = document.getElementById("r_email").value;
-const pass  = document.getElementById("r_pass").value;
-
-if(!email || !pass){
-alert("Complete todos los campos");
-return;
-}
-
-try{
-
 const res = await fetch("/api/register",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email: email,
-password: pass
+email:r_email.value,
+password:r_pass.value
 })
 });
 
 const data = await res.json();
 alert(data.msg);
 
-if(data.ok){
-volverLogin();
-}
-
-}catch(e){
-alert("Error conectando con servidor");
-}
-
+if(data.ok) volverLogin();
 }
 
 // PANEL
 function cargarPanel(){
-document.getElementById("saldo").innerText = usuarioActual.saldo;
-document.getElementById("dia").innerText = usuarioActual.dias;
-document.getElementById("wallet").innerText = walletAdmin;
+saldo.innerText = usuarioActual.saldo;
+dia.innerText   = usuarioActual.dias;
+wallet.innerText = walletAdmin;
+}
+
+// ================= FUNCIONES QUE FALTABAN =================
+
+// INVERTIR
+async function invertir(){
+
+const monto = document.getElementById("monto").value;
+
+if(!monto){
+alert("Ingrese monto");
+return;
+}
+
+const res = await fetch("/api/invertir",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email,
+monto:monto
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+}
+
+// AGREGAR BILLETERA
+async function agregarWallet(){
+
+const w = prompt("Ingrese su billetera TRC20");
+
+if(!w) return;
+
+const res = await fetch("/api/wallet",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email,
+wallet:w
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+}
+
+// RETIRAR
+async function retirar(){
+
+const res = await fetch("/api/retirar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+}
+
+// ADMIN
+async function cargarAdmin(){
+
+const res = await fetch("/api/solicitudes");
+const data = await res.json();
+
+lista.innerHTML="";
+
+data.forEach(s=>{
+
+lista.innerHTML+=`
+<div class="card">
+<b>${s.email}</b><br>
+Tipo: ${s.tipo}<br>
+Monto: ${s.monto}<br>
+Wallet: ${s.wallet || "N/A"}<br>
+
+<button onclick="aprobar(${s.id})">Aprobar</button>
+<button onclick="rechazar(${s.id})">Rechazar</button>
+</div>
+`;
+
+});
+}
+
+async function aprobar(id){
+
+await fetch("/api/aprobar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({id})
+});
+
+cargarAdmin();
+}
+
+async function rechazar(id){
+
+await fetch("/api/rechazar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({id})
+});
+
+cargarAdmin();
 }
 
 // INVITAR
 function invitar(){
-window.open("https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com");
+window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 
 // COPIAR
@@ -182,10 +265,7 @@ function logout(){
 location.reload();
 }
 
-<script src="script.js"></script>
+</script>
+
 </body>
 </html>
-
-
-
-
