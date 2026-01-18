@@ -1,4 +1,3 @@
-
 const express = require("express");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
@@ -26,7 +25,7 @@ if(!fs.existsSync("solicitudes.json")){
 fs.writeFileSync("solicitudes.json","[]");
 }
 
-// REGISTRO
+// ================= REGISTRO =================
 app.post("/api/register",async(req,res)=>{
 
 let users = JSON.parse(fs.readFileSync("users.json"));
@@ -40,16 +39,18 @@ users.push({
 email:req.body.email,
 password:hash,
 saldo:0,
-dias:0
+dias:0,
+wallet:""
 });
 
 fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 res.json({ok:true,msg:"Registro exitoso"});
 });
 
-// LOGIN
+// ================= LOGIN =================
 app.post("/api/login",async(req,res)=>{
 
+// ADMIN
 if(req.body.email==ADMIN.email){
 
 if(req.body.password!=ADMIN.password){
@@ -59,6 +60,7 @@ return res.json({msg:"Clave admin incorrecta"});
 return res.json({ok:true,rol:"admin"});
 }
 
+// USUARIO
 let users = JSON.parse(fs.readFileSync("users.json"));
 let user = users.find(u=>u.email==req.body.email);
 if(!user) return res.json({msg:"Usuario no existe"});
@@ -69,7 +71,7 @@ if(!ok) return res.json({msg:"Clave incorrecta"});
 res.json({ok:true,rol:"user",user});
 });
 
-// INVERTIR
+// ================= INVERTIR =================
 app.post("/api/invertir",(req,res)=>{
 
 let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
@@ -86,13 +88,13 @@ fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
 res.json({msg:"Solicitud enviada"});
 });
 
-// LISTAR
+// ================= LISTAR =================
 app.get("/api/solicitudes",(req,res)=>{
 let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
 res.json(sol.filter(s=>s.estado=="pendiente"));
 });
 
-// APROBAR
+// ================= APROBAR =================
 app.post("/api/aprobar",(req,res)=>{
 
 let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
@@ -116,7 +118,7 @@ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 res.json({msg:"Aprobado"});
 });
 
-// RECHAZAR
+// ================= RECHAZAR =================
 app.post("/api/rechazar",(req,res)=>{
 
 let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
@@ -130,7 +132,7 @@ fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
 res.json({msg:"Rechazado"});
 });
 
-// RETIRAR  (AJUSTADO)
+// ================= RETIRAR =================
 app.post("/api/retirar",(req,res)=>{
 
 let users = JSON.parse(fs.readFileSync("users.json"));
@@ -160,7 +162,7 @@ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 res.json({msg:"Solicitud de retiro enviada"});
 });
 
-// ===== GUARDAR BILLETERA =====
+// ================= GUARDAR BILLETERA =================
 app.post("/api/wallet",(req,res)=>{
 
 try{
@@ -182,20 +184,7 @@ res.status(500).json({msg:"Error servidor"});
 }
 
 });
-// GUARDAR BILLETERA
-app.post("/api/wallet",(req,res)=>{
 
-let users = JSON.parse(fs.readFileSync("users.json"));
-let u = users.find(x=>x.email==req.body.email);
-
-if(!u) return res.json({msg:"Usuario no existe"});
-
-u.wallet = req.body.wallet;
-
-fs.writeFileSync("users.json",JSON.stringify(users,null,2));
-res.json({msg:"Billetera guardada"});
-
-});
-
-
+// ================= SERVER =================
 app.listen(PORT,()=>console.log("Servidor activo en puerto "+PORT));
+
