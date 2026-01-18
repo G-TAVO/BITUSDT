@@ -165,6 +165,120 @@ document.getElementById("dia").innerText = usuarioActual.dias;
 document.getElementById("wallet").innerText = walletAdmin;
 }
 
+// ================== NUEVO ==================
+
+// INVERTIR
+async function invertir(){
+
+let monto = document.getElementById("monto").value;
+
+if(!monto){
+alert("Ingrese monto");
+return;
+}
+
+const res = await fetch("/api/invertir",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email: usuarioActual.email,
+monto: monto
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+}
+
+// AGREGAR BILLETERA
+async function agregarWallet(){
+
+let w = prompt("Ingrese su billetera TRC20");
+
+if(!w) return;
+
+const res = await fetch("/api/wallet",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email: usuarioActual.email,
+wallet: w
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+}
+
+// RETIRAR
+async function retirar(){
+
+const res = await fetch("/api/retirar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email: usuarioActual.email
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+}
+
+// ADMIN
+async function cargarAdmin(){
+
+const res = await fetch("/api/solicitudes");
+const data = await res.json();
+
+let html="";
+
+data.forEach(s=>{
+
+html+=`
+<div class="card">
+<b>${s.email}</b><br>
+Monto: ${s.monto}<br>
+Tipo: ${s.tipo}<br>
+${s.wallet ? "Wallet: "+s.wallet+"<br>" : ""}
+<button onclick="aprobar(${s.id})">Aprobar</button>
+<button onclick="rechazar(${s.id})">Rechazar</button>
+</div>
+`;
+
+});
+
+document.getElementById("lista").innerHTML=html;
+}
+
+// APROBAR
+async function aprobar(id){
+
+await fetch("/api/aprobar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({id})
+});
+
+alert("Aprobado");
+cargarAdmin();
+}
+
+// RECHAZAR
+async function rechazar(id){
+
+await fetch("/api/rechazar",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({id})
+});
+
+alert("Rechazado");
+cargarAdmin();
+}
+
+// ================== FIN ==================
+
 // INVITAR
 function invitar(){
 window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
