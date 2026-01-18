@@ -1,96 +1,94 @@
-function show(id){
-document.querySelectorAll("section").forEach(s=>{
-s.classList.remove("active");
-});
-document.getElementById(id).classList.add("active");
+let usuarioActual=null;
+
+// MOSTRAR REGISTRO
+function mostrarRegistro(){
+loginBox.classList.add("hide");
+registerBox.classList.remove("hide");
 }
 
-// REGISTRO
-async function register(){
-
-const email = document.getElementById("r_email").value;
-const pass  = document.getElementById("r_pass").value;
-
-if(!email || !pass){
-alert("Complete todos los campos");
-return;
+// VOLVER LOGIN
+function volverLogin(){
+registerBox.classList.add("hide");
+loginBox.classList.remove("hide");
 }
-
-try{
-
-const res = await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:email,
-password:pass
-})
-});
-
-const json = await res.json();
-alert(json.msg);
-
-if(json.ok){
-volverLogin();
-}
-
-}catch(err){
-alert("Error de conexión con el servidor");
-}
-}
-
 
 // LOGIN
 async function login(){
-
-const email = document.getElementById("l_email").value;
-const pass  = document.getElementById("l_pass").value;
-
-try{
 
 const res = await fetch("/api/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email:email,
-password:pass
+email:l_email.value,
+password:l_pass.value
 })
 });
 
-const json = await res.json();
-document.getElementById("loginMsg").innerText=json.msg;
+const data = await res.json();
 
-if(json.ok){
+if(!data.ok){
+loginMsg.innerText=data.msg;
+return;
+}
 
-localStorage.setItem("rol",json.rol);
+usuarioActual=data.user;
+loginBox.classList.add("hide");
 
-if(json.rol==="admin"){
-window.location="admin.html";
+if(data.rol==="admin"){
+admin.classList.remove("hide");
+cargarAdmin();
 }else{
-localStorage.setItem("user",JSON.stringify(json.user));
-window.location="panel.html";
-}
-
-}
-
-}catch(err){
-document.getElementById("loginMsg").innerText="Error de conexión";
+panel.classList.remove("hide");
+cargarPanel();
 }
 }
 
-// MOSTRAR REGISTRO
-function mostrarRegistro(){
-document.getElementById("loginBox").classList.add("hide");
-document.getElementById("registerBox").classList.remove("hide");
+// REGISTRO
+async function register(){
+
+if(!r_email.value||!r_pass.value){
+alert("Complete todos los campos");
+return;
 }
 
-// VOLVER LOGIN
-function volverLogin(){
-document.getElementById("registerBox").classList.add("hide");
-document.getElementById("loginBox").classList.remove("hide");
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:r_email.value,
+password:r_pass.value
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+
+if(data.ok) volverLogin();
 }
 
-// ========= AGREGAR WALLET =========
+// PANEL
+function cargarPanel(){
+saldo.innerText=usuarioActual.saldo;
+dia.innerText=usuarioActual.dias;
+wallet.innerText=walletAdmin;
+}
+
+// INVERTIR
+async function invertir(){
+
+await fetch("/api/invertir",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:usuarioActual.email,
+monto:monto.value
+})
+});
+
+alert("Solicitud enviada al admin");
+}
+
+// AGREGAR WALLET
 async function agregarWallet(){
 
 let w = prompt("Pega tu billetera TRC20");
@@ -100,70 +98,45 @@ alert("Debe pegar una billetera");
 return;
 }
 
-let usuario = JSON.parse(localStorage.getItem("user"));
-
 await fetch("/api/wallet",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email:usuario.email,
+email:usuarioActual.email,
 wallet:w
 })
 });
 
 alert("Billetera guardada");
-usuario.wallet = w;
-localStorage.setItem("user",JSON.stringify(usuario));
 }
 
-// ========= INVERTIR =========
-async function invertir(){
-
-let monto = document.getElementById("monto").value;
-let usuario = JSON.parse(localStorage.getItem("user"));
-
-if(!monto){
-alert("Ingrese monto");
-return;
-}
-
-await fetch("/api/invertir",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuario.email,
-monto:monto
-})
-});
-
-alert("Solicitud enviada, espere aprobación del admin");
-}
-
-// ========= RETIRAR =========
+// RETIRAR
 async function retirar(){
-
-let usuario = JSON.parse(localStorage.getItem("user"));
 
 const res = await fetch("/api/retirar",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email:usuario.email
+email:usuarioActual.email
 })
 });
 
-const json = await res.json();
-alert(json.msg);
+const data = await res.json();
+alert(data.msg);
 }
 
-// ========= INVITAR WHATSAPP =========
+// INVITAR
 function invitar(){
-let link="https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com";
-window.open(link);
+window.open("https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com");
 }
 
-// CERRAR
+// COPIAR
+function copiarWallet(){
+navigator.clipboard.writeText(walletAdmin);
+alert("Billetera copiada");
+}
+
+// LOGOUT
 function logout(){
-localStorage.clear();
-window.location="login.html";
+location.reload();
 }
