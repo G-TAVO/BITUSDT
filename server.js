@@ -10,20 +10,23 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
-// ================== CONEXION MONGODB ==================
+/* ================== CONEXION MONGODB ================== */
+
 mongoose.connect(
+process.env.MONGO_URL || 
 "mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
 )
 .then(()=>console.log("MongoDB conectado"))
-.catch(err=>console.log(err));
+.catch(err=>console.log("Error Mongo:",err));
 
-// ================== MODELOS ==================
+/* ================== MODELOS ================== */
+
 const UserSchema = new mongoose.Schema({
-email:String,
+email:{type:String,unique:true},
 password:String,
-saldo:Number,
-dias:Number,
-wallet:String
+saldo:{type:Number,default:0},
+dias:{type:Number,default:0},
+wallet:{type:String,default:""}
 });
 
 const SolicitudSchema = new mongoose.Schema({
@@ -38,14 +41,18 @@ fecha:{type:Date,default:Date.now}
 const User = mongoose.model("User",UserSchema);
 const Solicitud = mongoose.model("Solicitud",SolicitudSchema);
 
-// ================= ADMIN =================
+/* ================= ADMIN ================= */
+
 const ADMIN = {
 email:"Binancecoin958@gmail.com",
 password:"Enriique1998"
 };
 
-// ================= REGISTRO =================
+/* ================= REGISTRO ================= */
+
 app.post("/api/register",async(req,res)=>{
+
+try{
 
 let existe = await User.findOne({email:req.body.email});
 if(existe) return res.json({ok:false,msg:"Correo ya registrado"});
@@ -54,17 +61,23 @@ let hash = await bcrypt.hash(req.body.password,10);
 
 await User.create({
 email:req.body.email,
-password:hash,
-saldo:0,
-dias:0,
-wallet:""
+password:hash
 });
 
 res.json({ok:true,msg:"Registro exitoso"});
+
+}catch(err){
+console.log(err);
+res.json({ok:false,msg:"Error servidor"});
+}
+
 });
 
-// ================= LOGIN =================
+/* ================= LOGIN ================= */
+
 app.post("/api/login",async(req,res)=>{
+
+try{
 
 // ADMIN
 if(req.body.email==ADMIN.email){
@@ -82,9 +95,16 @@ let ok = await bcrypt.compare(req.body.password,user.password);
 if(!ok) return res.json({ok:false,msg:"Clave incorrecta"});
 
 res.json({ok:true,rol:"user",user});
+
+}catch(err){
+console.log(err);
+res.json({ok:false,msg:"Error servidor"});
+}
+
 });
 
-// ================= INVERTIR =================
+/* ================= INVERTIR ================= */
+
 app.post("/api/invertir",async(req,res)=>{
 
 await Solicitud.create({
@@ -95,15 +115,18 @@ tipo:"inversion"
 });
 
 res.json({ok:true,msg:"Solicitud enviada al admin"});
+
 });
 
-// ================= LISTAR ADMIN =================
+/* ================= LISTAR ADMIN ================= */
+
 app.get("/api/solicitudes",async(req,res)=>{
 let sol = await Solicitud.find({estado:"pendiente"});
 res.json(sol);
 });
 
-// ================= APROBAR =================
+/* ================= APROBAR ================= */
+
 app.post("/api/aprobar",async(req,res)=>{
 
 let s = await Solicitud.findById(req.body.id);
@@ -121,9 +144,11 @@ s.estado="aprobado";
 await s.save();
 
 res.json({ok:true,msg:"Aprobado"});
+
 });
 
-// ================= RECHAZAR =================
+/* ================= RECHAZAR ================= */
+
 app.post("/api/rechazar",async(req,res)=>{
 
 let s = await Solicitud.findById(req.body.id);
@@ -133,9 +158,11 @@ s.estado="rechazado";
 await s.save();
 
 res.json({ok:true,msg:"Rechazado"});
+
 });
 
-// ================= RETIRAR =================
+/* ================= RETIRAR ================= */
+
 app.post("/api/retirar",async(req,res)=>{
 
 let u = await User.findOne({email:req.body.email});
@@ -157,9 +184,11 @@ u.dias=0;
 await u.save();
 
 res.json({ok:true,msg:"Solicitud de retiro enviada"});
+
 });
 
-// ================= WALLET =================
+/* ================= WALLET ================= */
+
 app.post("/api/wallet",async(req,res)=>{
 
 let u = await User.findOne({email:req.body.email});
@@ -169,7 +198,9 @@ u.wallet=req.body.wallet;
 await u.save();
 
 res.json({ok:true,msg:"Billetera guardada"});
+
 });
 
-// ================= SERVER =================
-app.listen(PORT,()=>console.log("Servidor activo en puerto "+PORT));
+/* ================= SERVER ================= */
+
+app.listen(PORT,()=>console.log("Servidor activo puerto "+PORT));
