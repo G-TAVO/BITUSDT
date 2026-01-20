@@ -1,15 +1,7 @@
-const mongoose = require("mongoose");
-
-mongoose.connect(
-"mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
-)
-.then(()=>console.log("MongoDB conectado"))
-.catch(err=>console.log(err));
-
 const express = require("express");
-const fs = require("fs");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
 app.use(express.json());
@@ -18,32 +10,49 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
-// ADMIN
+// ================== CONEXION MONGODB ==================
+mongoose.connect(
+"mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
+)
+.then(()=>console.log("MongoDB conectado"))
+.catch(err=>console.log(err));
+
+// ================== MODELOS ==================
+const UserSchema = new mongoose.Schema({
+email:String,
+password:String,
+saldo:Number,
+dias:Number,
+wallet:String
+});
+
+const SolicitudSchema = new mongoose.Schema({
+email:String,
+monto:Number,
+estado:String,
+tipo:String,
+wallet:String,
+fecha:{type:Date,default:Date.now}
+});
+
+const User = mongoose.model("User",UserSchema);
+const Solicitud = mongoose.model("Solicitud",SolicitudSchema);
+
+// ================= ADMIN =================
 const ADMIN = {
 email:"Binancecoin958@gmail.com",
 password:"Enriique1998"
 };
 
-// ARCHIVOS
-if(!fs.existsSync("users.json")){
-fs.writeFileSync("users.json","[]");
-}
-
-if(!fs.existsSync("solicitudes.json")){
-fs.writeFileSync("solicitudes.json","[]");
-}
-
 // ================= REGISTRO =================
 app.post("/api/register",async(req,res)=>{
 
-let users = JSON.parse(fs.readFileSync("users.json"));
-
-let existe = users.find(u=>u.email==req.body.email);
+let existe = await User.findOne({email:req.body.email});
 if(existe) return res.json({ok:false,msg:"Correo ya registrado"});
 
 let hash = await bcrypt.hash(req.body.password,10);
 
-users.push({
+await User.create({
 email:req.body.email,
 password:hash,
 saldo:0,
@@ -51,7 +60,6 @@ dias:0,
 wallet:""
 });
 
-fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 res.json({ok:true,msg:"Registro exitoso"});
 });
 
@@ -60,17 +68,14 @@ app.post("/api/login",async(req,res)=>{
 
 // ADMIN
 if(req.body.email==ADMIN.email){
-
 if(req.body.password!=ADMIN.password){
 return res.json({ok:false,msg:"Clave admin incorrecta"});
 }
-
 return res.json({ok:true,rol:"admin"});
 }
 
 // USUARIO
-let users = JSON.parse(fs.readFileSync("users.json"));
-let user = users.find(u=>u.email==req.body.email);
+let user = await User.findOne({email:req.body.email});
 if(!user) return res.json({ok:false,msg:"Usuario no existe"});
 
 let ok = await bcrypt.compare(req.body.password,user.password);
@@ -80,80 +85,66 @@ res.json({ok:true,rol:"user",user});
 });
 
 // ================= INVERTIR =================
-app.post("/api/invertir",(req,res)=>{
+app.post("/api/invertir",async(req,res)=>{
 
-let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
-
-sol.push({
-id:Date.now(),
+await Solicitud.create({
 email:req.body.email,
 monto:req.body.monto,
 estado:"pendiente",
 tipo:"inversion"
 });
 
-fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
-res.json({ok:true,msg:"Solicitud enviada"});
+res.json({ok:true,msg:"Solicitud enviada al admin"});
 });
 
-// ================= LISTAR =================
-app.get("/api/solicitudes",(req,res)=>{
-let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
-res.json(sol.filter(s=>s.estado=="pendiente"));
+// ================= LISTAR ADMIN =================
+app.get("/api/solicitudes",async(req,res)=>{
+let sol = await Solicitud.find({estado:"pendiente"});
+res.json(sol);
 });
 
 // ================= APROBAR =================
-app.post("/api/aprobar",(req,res)=>{
+app.post("/api/aprobar",async(req,res)=>{
 
-let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
-let users = JSON.parse(fs.readFileSync("users.json"));
-
-let s = sol.find(x=>x.id==req.body.id);
+let s = await Solicitud.findById(req.body.id);
 if(!s) return res.json({ok:false,msg:"No existe"});
 
-let u = users.find(x=>x.email==s.email);
+let u = await User.findOne({email:s.email});
 
 if(s.tipo=="inversion"){
-u.saldo += parseInt(s.monto);
+u.saldo += Number(s.monto);
 u.dias = 0;
+await u.save();
 }
 
 s.estado="aprobado";
-
-fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
-fs.writeFileSync("users.json",JSON.stringify(users,null,2));
+await s.save();
 
 res.json({ok:true,msg:"Aprobado"});
 });
 
 // ================= RECHAZAR =================
-app.post("/api/rechazar",(req,res)=>{
+app.post("/api/rechazar",async(req,res)=>{
 
-let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
-
-let s = sol.find(x=>x.id==req.body.id);
+let s = await Solicitud.findById(req.body.id);
 if(!s) return res.json({ok:false,msg:"No existe"});
 
 s.estado="rechazado";
+await s.save();
 
-fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
 res.json({ok:true,msg:"Rechazado"});
 });
 
 // ================= RETIRAR =================
-app.post("/api/retirar",(req,res)=>{
+app.post("/api/retirar",async(req,res)=>{
 
-let users = JSON.parse(fs.readFileSync("users.json"));
-let u = users.find(x=>x.email==req.body.email);
+let u = await User.findOne({email:req.body.email});
 
 if(u.saldo<20){
 return res.json({ok:false,msg:"Mínimo 20 USDT"});
 }
 
-let sol = JSON.parse(fs.readFileSync("solicitudes.json"));
-
-sol.push({
-id:Date.now(),
+await Solicitud.create({
 email:u.email,
 monto:u.saldo,
 estado:"pendiente",
@@ -161,36 +152,23 @@ tipo:"retiro",
 wallet:u.wallet
 });
 
-fs.writeFileSync("solicitudes.json",JSON.stringify(sol,null,2));
-
 u.saldo=0;
 u.dias=0;
+await u.save();
 
-fs.writeFileSync("users.json",JSON.stringify(users,null,2));
 res.json({ok:true,msg:"Solicitud de retiro enviada"});
 });
 
-// ================= GUARDAR BILLETERA =================
-app.post("/api/wallet",(req,res)=>{
+// ================= WALLET =================
+app.post("/api/wallet",async(req,res)=>{
 
-try{
-
-let users = JSON.parse(fs.readFileSync("users.json"));
-
-let u = users.find(x=>x.email==req.body.email);
+let u = await User.findOne({email:req.body.email});
 if(!u) return res.json({ok:false,msg:"Usuario no existe"});
 
-u.wallet = req.body.wallet;
+u.wallet=req.body.wallet;
+await u.save();
 
-fs.writeFileSync("users.json",JSON.stringify(users,null,2));
-
-res.json({ok:true,msg:"Billetera guardada correctamente"});
-
-}catch(e){
-console.log(e);
-res.status(500).json({ok:false,msg:"Error servidor"});
-}
-
+res.json({ok:true,msg:"Billetera guardada"});
 });
 
 // ================= SERVER =================
