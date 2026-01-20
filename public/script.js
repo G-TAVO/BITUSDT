@@ -76,7 +76,12 @@ wallet.innerText=walletAdmin;
 // INVERTIR
 async function invertir(){
 
-await fetch("/api/invertir",{
+if(!monto.value){
+alert("Ingrese un monto");
+return;
+}
+
+const res = await fetch("/api/invertir",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
@@ -85,7 +90,8 @@ monto:monto.value
 })
 });
 
-alert("Solicitud enviada al admin");
+const data = await res.json();
+alert(data.msg);
 }
 
 // AGREGAR WALLET
@@ -98,7 +104,7 @@ alert("Debe pegar una billetera");
 return;
 }
 
-await fetch("/api/wallet",{
+const res = await fetch("/api/wallet",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
@@ -107,7 +113,8 @@ wallet:w
 })
 });
 
-alert("Billetera guardada");
+const data = await res.json();
+alert(data.msg);
 }
 
 // RETIRAR
@@ -127,7 +134,7 @@ alert(data.msg);
 
 // INVITAR
 function invitar(){
-window.open("https://wa.me/?text=Regístrate aquí https://bitusdt.onrender.com");
+window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 
 // COPIAR
