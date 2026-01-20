@@ -1,3 +1,11 @@
+const mongoose = require("mongoose");
+
+mongoose.connect(
+"mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
+)
+.then(()=>console.log("MongoDB conectado"))
+.catch(err=>console.log(err));
+
 const express = require("express");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
