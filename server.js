@@ -10,199 +10,189 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
-/* ================== CONEXION MONGODB ================== */
+/* ================== MONGODB ================== */
 
 mongoose.connect(
   process.env.MONGO_URL ||
   "mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
 )
-.then(()=>console.log("MongoDB conectado"))
-.catch(err=>console.log("Error Mongo:",err));
+.then(() => console.log("✅ MongoDB conectado"))
+.catch(err => console.log("❌ Error Mongo:", err));
 
 /* ================== MODELOS ================== */
 
 const UserSchema = new mongoose.Schema({
-  email:{type:String,unique:true},
-  password:String,
-  saldo:{type:Number,default:0},
-  dias:{type:Number,default:0},
-  wallet:{type:String,default:""},
-  lastUpdate:{type:Date,default:Date.now}   // 🔥 IMPORTANTE
+  email: { type: String, unique: true },
+  password: String,
+  saldo: { type: Number, default: 0 },
+  dias: { type: Number, default: 0 },
+  wallet: { type: String, default: "" },
+  ultimaActualizacion: { type: Date, default: Date.now }
 });
 
 const SolicitudSchema = new mongoose.Schema({
-  email:String,
-  monto:Number,
-  estado:String,
-  tipo:String,
-  wallet:String,
-  fecha:{type:Date,default:Date.now}
+  email: String,
+  monto: Number,
+  estado: String,
+  tipo: String,
+  wallet: String,
+  fecha: { type: Date, default: Date.now }
 });
 
-const User = mongoose.model("User",UserSchema);
-const Solicitud = mongoose.model("Solicitud",SolicitudSchema);
+const User = mongoose.model("User", UserSchema);
+const Solicitud = mongoose.model("Solicitud", SolicitudSchema);
 
 /* ================= ADMIN ================= */
 
 const ADMIN = {
-  email:"Binancecoin958@gmail.com",
-  password:"Enriique1998"
+  email: "Binancecoin958@gmail.com",
+  password: "Enriique1998"
 };
+
+/* ================= GANANCIA DIARIA ================= */
+// 0.5 USDT diarios
+async function actualizarGanancias(user) {
+  const hoy = new Date();
+  const ultimo = new Date(user.ultimaActualizacion);
+
+  const diasPasados = Math.floor(
+    (hoy - ultimo) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diasPasados > 0) {
+    user.saldo += diasPasados * 0.5;
+    user.dias += diasPasados;
+    user.ultimaActualizacion = hoy;
+    await user.save();
+  }
+}
 
 /* ================= REGISTRO ================= */
 
-app.post("/api/register",async(req,res)=>{
-  try{
-    let existe = await User.findOne({email:req.body.email});
-    if(existe) return res.json({ok:false,msg:"Correo ya registrado"});
+app.post("/api/register", async (req, res) => {
+  try {
+    const existe = await User.findOne({ email: req.body.email });
+    if (existe) return res.json({ ok: false, msg: "Correo ya registrado" });
 
-    let hash = await bcrypt.hash(req.body.password,10);
+    const hash = await bcrypt.hash(req.body.password, 10);
 
     await User.create({
-      email:req.body.email,
-      password:hash
+      email: req.body.email,
+      password: hash
     });
 
-    res.json({ok:true,msg:"Registro exitoso"});
-  }catch(err){
-    console.log(err);
-    res.json({ok:false,msg:"Error servidor"});
+    res.json({ ok: true, msg: "Registro exitoso" });
+  } catch (err) {
+    res.json({ ok: false, msg: "Error servidor" });
   }
 });
 
 /* ================= LOGIN ================= */
 
-app.post("/api/login",async(req,res)=>{
-  try{
+app.post("/api/login", async (req, res) => {
+  try {
 
     // ADMIN
-    if(req.body.email === ADMIN.email){
-      if(req.body.password !== ADMIN.password){
-        return res.json({ok:false,msg:"Clave admin incorrecta"});
+    if (req.body.email === ADMIN.email) {
+      if (req.body.password !== ADMIN.password) {
+        return res.json({ ok: false, msg: "Clave admin incorrecta" });
       }
-      return res.json({ok:true,rol:"admin"});
+      return res.json({ ok: true, rol: "admin" });
     }
 
     // USUARIO
-    let user = await User.findOne({email:req.body.email});
-    if(!user) return res.json({ok:false,msg:"Usuario no existe"});
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.json({ ok: false, msg: "Usuario no existe" });
 
-    let ok = await bcrypt.compare(req.body.password,user.password);
-    if(!ok) return res.json({ok:false,msg:"Clave incorrecta"});
+    const ok = await bcrypt.compare(req.body.password, user.password);
+    if (!ok) return res.json({ ok: false, msg: "Clave incorrecta" });
 
-    /* ===== GANANCIA DIARIA AUTOMATICA ===== */
-    const hoy = new Date();
-    const ultimo = new Date(user.lastUpdate);
+    await actualizarGanancias(user);
 
-    const diff = hoy - ultimo;
-    const diasPasados = Math.floor(diff / (1000 * 60 * 60 * 24));
+    res.json({ ok: true, rol: "user", user });
 
-    if(diasPasados > 0){
-      const ganancia = diasPasados * 0.5; // 🔥 0.5 USDT por día
-      user.saldo += ganancia;
-      user.dias += diasPasados;
-      user.lastUpdate = hoy;
-      await user.save();
-    }
-
-    res.json({ok:true,rol:"user",user});
-
-  }catch(err){
-    console.log(err);
-    res.json({ok:false,msg:"Error servidor"});
+  } catch (err) {
+    res.json({ ok: false, msg: "Error servidor" });
   }
 });
 
 /* ================= INVERTIR ================= */
 
-app.post("/api/invertir",async(req,res)=>{
+app.post("/api/invertir", async (req, res) => {
   await Solicitud.create({
-    email:req.body.email,
-    monto:req.body.monto,
-    estado:"pendiente",
-    tipo:"inversion"
+    email: req.body.email,
+    monto: Number(req.body.monto),
+    estado: "pendiente",
+    tipo: "inversion"
   });
 
-  res.json({ok:true,msg:"Solicitud enviada al admin"});
+  res.json({ ok: true, msg: "Solicitud enviada al admin" });
 });
 
-/* ================= LISTAR ADMIN ================= */
+/* ================= SOLICITUDES ADMIN ================= */
 
-app.get("/api/solicitudes",async(req,res)=>{
-  let sol = await Solicitud.find({estado:"pendiente"});
+app.get("/api/solicitudes", async (req, res) => {
+  const sol = await Solicitud.find({ estado: "pendiente" });
   res.json(sol);
 });
 
 /* ================= APROBAR ================= */
 
-app.post("/api/aprobar",async(req,res)=>{
-  let s = await Solicitud.findById(req.body.id);
-  if(!s) return res.json({ok:false,msg:"No existe"});
+app.post("/api/aprobar", async (req, res) => {
+  const s = await Solicitud.findById(req.body.id);
+  if (!s) return res.json({ ok: false });
 
-  let u = await User.findOne({email:s.email});
+  const u = await User.findOne({ email: s.email });
 
-  if(s.tipo === "inversion"){
-    u.saldo += Number(s.monto);
+  if (s.tipo === "inversion") {
+    u.saldo += s.monto;
     u.dias = 0;
-    u.lastUpdate = new Date();   // 🔥 reinicia conteo
+    u.ultimaActualizacion = new Date();
     await u.save();
   }
 
-  s.estado="aprobado";
+  s.estado = "aprobado";
   await s.save();
 
-  res.json({ok:true,msg:"Aprobado"});
-});
-
-/* ================= RECHAZAR ================= */
-
-app.post("/api/rechazar",async(req,res)=>{
-  let s = await Solicitud.findById(req.body.id);
-  if(!s) return res.json({ok:false,msg:"No existe"});
-
-  s.estado="rechazado";
-  await s.save();
-
-  res.json({ok:true,msg:"Rechazado"});
+  res.json({ ok: true });
 });
 
 /* ================= RETIRAR ================= */
 
-app.post("/api/retirar",async(req,res)=>{
-  let u = await User.findOne({email:req.body.email});
+app.post("/api/retirar", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
 
-  if(u.saldo < 20){
-    return res.json({ok:false,msg:"Mínimo 20 USDT"});
+  if (u.saldo < 20) {
+    return res.json({ ok: false, msg: "Mínimo 20 USDT" });
   }
 
   await Solicitud.create({
-    email:u.email,
-    monto:u.saldo,
-    estado:"pendiente",
-    tipo:"retiro",
-    wallet:u.wallet
+    email: u.email,
+    monto: u.saldo,
+    estado: "pendiente",
+    tipo: "retiro",
+    wallet: u.wallet
   });
 
   u.saldo = 0;
   u.dias = 0;
-  u.lastUpdate = new Date();
   await u.save();
 
-  res.json({ok:true,msg:"Solicitud de retiro enviada"});
+  res.json({ ok: true, msg: "Retiro enviado al admin" });
 });
 
 /* ================= WALLET ================= */
 
-app.post("/api/wallet",async(req,res)=>{
-  let u = await User.findOne({email:req.body.email});
-  if(!u) return res.json({ok:false,msg:"Usuario no existe"});
-
+app.post("/api/wallet", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
   u.wallet = req.body.wallet;
   await u.save();
 
-  res.json({ok:true,msg:"Billetera guardada"});
+  res.json({ ok: true });
 });
 
 /* ================= SERVER ================= */
 
-app.listen(PORT,()=>console.log("Servidor activo puerto "+PORT));
+app.listen(PORT, () =>
+  console.log("🚀 Servidor activo en puerto " + PORT)
+);
