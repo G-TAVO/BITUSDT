@@ -5,13 +5,48 @@
 <title>BITUSDT</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:white}
-.card{background:#111827;margin:15px;padding:15px;border-radius:12px}
-input,button{width:100%;padding:10px;margin:6px;border-radius:8px;border:none}
-button{background:#22c55e;color:black;font-weight:bold}
-button:hover{opacity:.8}
+body{
+margin:0;
+font-family:'Segoe UI',Arial;
+background:linear-gradient(135deg,#020617,#0f172a);
+color:white
+}
+.card{
+background:#020617cc;
+margin:15px;
+padding:18px;
+border-radius:16px;
+box-shadow:0 0 15px #000
+}
+h3{margin-top:0;color:#22c55e}
+input,button{
+width:100%;
+padding:12px;
+margin:6px 0;
+border-radius:10px;
+border:none;
+font-size:15px
+}
+input{background:#020617;color:white;border:1px solid #1e293b}
+button{
+background:linear-gradient(135deg,#22c55e,#16a34a);
+color:black;
+font-weight:bold;
+cursor:pointer
+}
+button:hover{opacity:.85}
 .hide{display:none}
-.admin{background:#1f2933}
+.admin{border:2px solid #22c55e}
+small{cursor:pointer;color:#22c55e}
+hr{border:1px solid #1e293b}
+.contact{
+margin-top:15px;
+padding:10px;
+background:#020617;
+border-radius:12px;
+text-align:center;
+font-size:14px
+}
 </style>
 </head>
 
@@ -24,7 +59,7 @@ button:hover{opacity:.8}
 <input id="l_pass" type="password" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
 <p id="loginMsg"></p>
-<p><small onclick="mostrarRegistro()">Crear cuenta</small></p>
+<small onclick="mostrarRegistro()">Crear cuenta</small>
 </div>
 
 <!-- REGISTRO -->
@@ -42,22 +77,26 @@ button:hover{opacity:.8}
 <h3>Panel Usuario</h3>
 
 <p>Tu billetera para depositar:</p>
-<p><b id="wallet"></b></p>
+<b id="wallet"></b>
 <button onclick="copiarWallet()">Copiar billetera</button>
 
 <hr>
 
 <p>Saldo: <b id="saldo">0</b> USDT</p>
 <p>Día: <b id="dia">0</b>/15</p>
-<p>Ganancia diaria: 1.3 USDT</p>
+<p>Ganancia diaria: <b>0.5 USDT</b></p>
 
 <input id="monto" placeholder="Monto a invertir">
 <button onclick="invertir()">Invertir</button>
 <button onclick="agregarWallet()">Agregar billetera</button>
-
 <button onclick="retirar()">Retirar</button>
 <button onclick="invitar()">Invitar por WhatsApp</button>
 <button onclick="logout()">Salir</button>
+
+<div class="contact">
+📧 <b>Binancecoin958@gmail.com</b><br>
+Contáctame al correo que aparece en pantalla
+</div>
 </div>
 
 <!-- ADMIN -->
@@ -68,210 +107,104 @@ button:hover{opacity:.8}
 </div>
 
 <script>
-
 let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
 let usuarioActual=null;
 
-// MOSTRAR REGISTRO
 function mostrarRegistro(){
 loginBox.classList.add("hide");
 registerBox.classList.remove("hide");
 }
-
-// VOLVER LOGIN
 function volverLogin(){
 registerBox.classList.add("hide");
 loginBox.classList.remove("hide");
 }
 
-// LOGIN
 async function login(){
-
-const res = await fetch("/api/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:l_email.value,
-password:l_pass.value
-})
-});
-
-const data = await res.json();
-
-if(!data.ok){
-loginMsg.innerText=data.msg;
-return;
-}
-
+const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:l_email.value,password:l_pass.value})});
+const data=await res.json();
+if(!data.ok){loginMsg.innerText=data.msg;return;}
 usuarioActual=data.user;
 loginBox.classList.add("hide");
-
-if(data.rol==="admin"){
-admin.classList.remove("hide");
-cargarAdmin();
-}else{
-panel.classList.remove("hide");
-cargarPanel();
-}
+if(data.rol==="admin"){admin.classList.remove("hide");cargarAdmin();}
+else{panel.classList.remove("hide");cargarPanel();}
 }
 
-// REGISTRO
 async function register(){
-
-if(!r_email.value||!r_pass.value){
-alert("Complete todos los campos");
-return;
-}
-
-const res = await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:r_email.value,
-password:r_pass.value
-})
-});
-
-const data = await res.json();
+if(!r_email.value||!r_pass.value)return alert("Complete todo");
+const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:r_email.value,password:r_pass.value})});
+const data=await res.json();
 alert(data.msg);
-
-if(data.ok) volverLogin();
+if(data.ok)volverLogin();
 }
 
-// PANEL
 function cargarPanel(){
 saldo.innerText=usuarioActual.saldo;
 dia.innerText=usuarioActual.dias;
 wallet.innerText=walletAdmin;
 }
 
-// INVERTIR
 async function invertir(){
-
-if(!monto.value){
-alert("Ingrese monto");
-return;
-}
-
-const res = await fetch("/api/invertir",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email,
-monto:monto.value
-})
-});
-
-const data = await res.json();
+if(!monto.value)return alert("Ingrese monto");
+const res=await fetch("/api/invertir",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:usuarioActual.email,monto:monto.value})});
+const data=await res.json();
 alert(data.msg);
 }
 
-// AGREGAR WALLET
 async function agregarWallet(){
-
-let w = prompt("Ingrese su billetera TRC20");
-
-if(!w){
-alert("Debe pegar billetera");
-return;
-}
-
-const res = await fetch("/api/wallet",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email,
-wallet:w
-})
-});
-
-const data = await res.json();
+let w=prompt("Ingrese su billetera TRC20");
+if(!w)return;
+const res=await fetch("/api/wallet",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:usuarioActual.email,wallet:w})});
+const data=await res.json();
 alert(data.msg);
 }
 
-// RETIRAR
 async function retirar(){
-
-const res = await fetch("/api/retirar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:usuarioActual.email
-})
-});
-
-const data = await res.json();
+const res=await fetch("/api/retirar",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:usuarioActual.email})});
+const data=await res.json();
 alert(data.msg);
 }
 
-// ================= ADMIN =================
 async function cargarAdmin(){
-
-const res = await fetch("/api/solicitudes");
-const data = await res.json();
-
+const res=await fetch("/api/solicitudes");
+const data=await res.json();
 let html="";
-
 data.forEach(s=>{
-
 html+=`
 <div class="card">
-<b>${s.email}</b><br>
-Monto: ${s.monto}<br>
-Tipo: ${s.tipo}<br>
-${s.wallet ? "Wallet: "+s.wallet+"<br>" : ""}
+📧 <b>${s.email}</b><br>
+💰 Monto: ${s.monto}<br>
+📌 Tipo: ${s.tipo}<br>
+👛 Wallet: ${s.wallet||"No registrada"}<br>
 <button onclick="aprobar('${s._id}')">Aprobar</button>
 <button onclick="rechazar('${s._id}')">Rechazar</button>
-</div>
-`;
-
+</div>`;
 });
-
 lista.innerHTML=html;
 }
 
-// APROBAR
 async function aprobar(id){
-
-await fetch("/api/aprobar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
-});
-
-alert("Aprobado");
+await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
 cargarAdmin();
 }
 
-// RECHAZAR
 async function rechazar(id){
-
-await fetch("/api/rechazar",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
-});
-
-alert("Rechazado");
+await fetch("/api/rechazar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
 cargarAdmin();
 }
 
-// INVITAR
 function invitar(){
 window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
-
-// COPIAR
 function copiarWallet(){
 navigator.clipboard.writeText(walletAdmin);
 alert("Billetera copiada");
 }
-
-// LOGOUT
-function logout(){
-location.reload();
-}
-
+function logout(){location.reload();}
 </script>
 </body>
 </html>
