@@ -156,6 +156,21 @@ app.post("/api/aprobar", async (req, res) => {
 
   res.json({ ok: true });
 });
+/* ================= RECHAZAR ================= */
+
+app.post("/api/rechazar", async (req, res) => {
+  try {
+    const s = await Solicitud.findById(req.body.id);
+    if (!s) return res.json({ ok: false });
+
+    s.estado = "rechazado";
+    await s.save();
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.json({ ok: false });
+  }
+});
 
 /* ================= RETIRAR ================= */
 
