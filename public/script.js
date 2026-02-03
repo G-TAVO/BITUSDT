@@ -4,16 +4,22 @@ let usuarioActual = null;
 function mostrarRegistro(){
   loginBox.classList.add("hide");
   registerBox.classList.remove("hide");
+  panel.classList.add("hide");
+  admin.classList.add("hide");
 }
 
 // VOLVER LOGIN
 function volverLogin(){
   registerBox.classList.add("hide");
   loginBox.classList.remove("hide");
+  panel.classList.add("hide");
+  admin.classList.add("hide");
 }
 
 // LOGIN
 async function login(){
+
+  loginMsg.innerText = "";
 
   const res = await fetch("/api/login",{
     method:"POST",
@@ -33,9 +39,11 @@ async function login(){
 
   usuarioActual = data.user;
 
-  // OCULTAR LOGIN Y CONTENEDOR (CAMBIO CLAVE)
+  // OCULTAR TODO
   loginBox.classList.add("hide");
-  document.querySelector(".auth-wrapper").classList.add("hide");
+  registerBox.classList.add("hide");
+  panel.classList.add("hide");
+  admin.classList.add("hide");
 
   if(data.rol === "admin"){
     admin.classList.remove("hide");
@@ -101,11 +109,7 @@ async function invertir(){
 async function agregarWallet(){
 
   let w = prompt("Pega tu billetera TRC20");
-
-  if(!w){
-    alert("Debe pegar una billetera");
-    return;
-  }
+  if(!w) return alert("Debe pegar una billetera");
 
   const res = await fetch("/api/wallet",{
     method:"POST",
