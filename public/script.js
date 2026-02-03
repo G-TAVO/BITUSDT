@@ -81,7 +81,9 @@ async function register(){
 function cargarPanel(){
   saldo.innerText = usuarioActual.saldo;
   dia.innerText = usuarioActual.dias;
-  wallet.innerText = walletAdmin;
+  wallet.innerText = usuarioActual.wallet
+    ? usuarioActual.wallet
+    : "No registrada";
 }
 
 // INVERTIR
@@ -109,7 +111,10 @@ async function invertir(){
 async function agregarWallet(){
 
   let w = prompt("Pega tu billetera TRC20");
-  if(!w) return alert("Debe pegar una billetera");
+  if(!w || w.trim() === ""){
+    alert("Debe pegar una billetera válida");
+    return;
+  }
 
   const res = await fetch("/api/wallet",{
     method:"POST",
@@ -122,6 +127,12 @@ async function agregarWallet(){
 
   const data = await res.json();
   alert(data.msg);
+
+  // ACTUALIZAR WALLET EN EL PANEL
+  if(data.ok){
+    usuarioActual.wallet = w;
+    cargarPanel();
+  }
 }
 
 // RETIRAR
@@ -144,9 +155,13 @@ function invitar(){
   window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 
-// COPIAR
+// COPIAR WALLET
 function copiarWallet(){
-  navigator.clipboard.writeText(walletAdmin);
+  if(!usuarioActual.wallet){
+    alert("No hay billetera registrada");
+    return;
+  }
+  navigator.clipboard.writeText(usuarioActual.wallet);
   alert("Billetera copiada");
 }
 
