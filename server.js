@@ -109,7 +109,6 @@ app.post("/api/login", async (req, res) => {
 
     await actualizarGanancias(user);
 
-    // RESPUESTA LIMPIA (CLAVE PARA WALLET)
     res.json({
       ok: true,
       rol: "user",
@@ -126,14 +125,18 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-/* ================= INVERTIR ================= */
+/* ================= INVERTIR (CORREGIDO) ================= */
 
 app.post("/api/invertir", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
+  if (!u) return res.json({ ok:false, msg:"Usuario no existe" });
+
   await Solicitud.create({
-    email: req.body.email,
+    email: u.email,
     monto: Number(req.body.monto),
     estado: "pendiente",
-    tipo: "inversion"
+    tipo: "inversion",
+    wallet: u.wallet // 👈 AHORA EL ADMIN VE LA WALLET
   });
 
   res.json({ ok: true, msg: "Solicitud enviada al admin" });
@@ -197,7 +200,7 @@ app.post("/api/retirar", async (req, res) => {
     monto: u.saldo,
     estado: "pendiente",
     tipo: "retiro",
-    wallet: u.wallet
+    wallet: u.wallet // 👈 YA FUNCIONABA
   });
 
   u.saldo = 0;
@@ -216,17 +219,10 @@ app.post("/api/wallet", async (req, res) => {
       return res.json({ ok: false, msg: "Usuario no encontrado" });
     }
 
-    if (!req.body.wallet) {
-      return res.json({ ok: false, msg: "Wallet requerida" });
-    }
-
     u.wallet = req.body.wallet;
     await u.save();
 
-    res.json({
-      ok: true,
-      msg: "Billetera guardada correctamente"
-    });
+    res.json({ ok: true, msg: "Billetera guardada correctamente" });
 
   } catch (err) {
     res.json({ ok: false, msg: "Error servidor" });
