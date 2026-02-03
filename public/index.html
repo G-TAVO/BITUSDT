@@ -6,141 +6,156 @@
 
 <style>
 body{
-margin:0;
-font-family:'Segoe UI',Arial;
-background:linear-gradient(135deg,#020617,#0f172a);
-color:white
-}
-.card{
-background:#020617cc;
-margin:10px;
-padding:16px;
-border-radius:16px;
-box-shadow:0 0 15px #000
+  margin:0;
+  font-family:'Segoe UI',Arial;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  color:white;
 }
 
-h3{margin-top:0;color:#22c55e}
-input{
-width:100%;
-padding:12px;
-margin:6px 0;
-border-radius:10px;
-border:1px solid #1e293b;
-font-size:15px;
-background:#020617;
-color:white;
-}
-
-button{
-width:100%;
-padding:10px;        /* más compacto */
-margin:5px 0;        /* menos espacio */
-border-radius:10px;
-border:none;
-font-size:14px;
-background:linear-gradient(135deg,#22c55e,#16a34a);
-color:black;
-font-weight:bold;
-cursor:pointer;
-}
-
-input{background:#020617;color:white;border:1px solid #1e293b}
-button{
-background:linear-gradient(135deg,#22c55e,#16a34a);
-color:black;
-font-weight:bold;
-cursor:pointer
-}
-button:hover{opacity:.85}
-.hide{display:none}
-.admin{border:2px solid #22c55e}
-small{cursor:pointer;color:#22c55e}
-hr{border:1px solid #1e293b}
-.contact{
-margin-top:15px;
-padding:10px;
-background:#020617;
-border-radius:12px;
-text-align:center;
-font-size:14px
-}
-  /* === CENTRAR LOGIN / REGISTRO === */
-body{
+/* CONTENEDOR SOLO LOGIN / REGISTRO */
+.auth-wrapper{
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
 }
 
-/* para que admin y panel no queden centrados */
-#panel, #admin{
-  align-self:flex-start;
-  margin-top:20px;
-}
-  @media (max-width:600px){
-  button{
-    padding:9px;
-    font-size:13px;
-  }
+.card{
+  background:#020617cc;
+  margin:10px;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 0 15px #000;
+  width:100%;
+  max-width:420px;
 }
 
+h3{
+  margin-top:0;
+  color:#22c55e;
+  text-align:center;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #1e293b;
+  font-size:15px;
+  background:#020617;
+  color:white;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:10px;
+  border:none;
+  font-size:14px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{opacity:.85}
+
+.hide{display:none}
+.admin{border:2px solid #22c55e}
+small{cursor:pointer;color:#22c55e;display:block;text-align:center}
+
+hr{border:1px solid #1e293b;margin:15px 0}
+
+/* BOTONES DEL PANEL */
+.menu-botones{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.btn-whatsapp{background:#25D366}
+.btn-salir{background:#ef4444}
+
+.contact{
+  margin-top:15px;
+  padding:10px;
+  background:#020617;
+  border-radius:12px;
+  text-align:center;
+  font-size:14px
+}
+
+@media(max-width:600px){
+  .card{margin:15px}
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-<h3>LOGIN</h3>
-<input id="l_email" placeholder="Correo">
-<input id="l_pass" type="password" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
-<p id="loginMsg"></p>
-<small onclick="mostrarRegistro()">Crear cuenta</small>
-</div>
+<!-- LOGIN / REGISTRO -->
+<div class="auth-wrapper">
 
-<!-- REGISTRO -->
-<div class="card hide" id="registerBox">
-<h3>REGISTRO</h3>
-<input id="r_email" placeholder="Correo">
-<input id="r_pass" type="password" placeholder="Contraseña">
-<button onclick="register()">Registrar</button>
-<button onclick="volverLogin()">Volver</button>
-<p id="msg"></p>
+  <!-- LOGIN -->
+  <div class="card" id="loginBox">
+    <h3>LOGIN</h3>
+    <input id="l_email" placeholder="Correo">
+    <input id="l_pass" type="password" placeholder="Contraseña">
+    <button onclick="login()">Entrar</button>
+    <p id="loginMsg"></p>
+    <small onclick="mostrarRegistro()">Crear cuenta</small>
+  </div>
+
+  <!-- REGISTRO -->
+  <div class="card hide" id="registerBox">
+    <h3>REGISTRO</h3>
+    <input id="r_email" placeholder="Correo">
+    <input id="r_pass" type="password" placeholder="Contraseña">
+    <button onclick="register()">Registrar</button>
+    <button onclick="volverLogin()">Volver</button>
+    <p id="msg"></p>
+  </div>
+
 </div>
 
 <!-- PANEL USUARIO -->
 <div class="card hide" id="panel">
-<h3>Panel Usuario</h3>
+  <h3>Panel Usuario</h3>
 
-<p>BILLETERA DE DEPOSITAR:</p>
-<b id="wallet"></b>
-<button onclick="copiarWallet()">COPIAR BILLETERA</button>
+  <p>BILLETERA DE DEPOSITAR:</p>
+  <b id="wallet"></b>
+  <button onclick="copiarWallet()">COPIAR BILLETERA</button>
 
-<hr>
+  <hr>
 
-<p>SALDO: <b id="saldo">0</b> USDT</p>
-<p>DIA: <b id="dia">0</b>/15</p>
-<p>GANANCIA DIARIA: <b>0.5 USDT</b></p>
+  <p>SALDO: <b id="saldo">0</b> USDT</p>
+  <p>DÍA: <b id="dia">0</b>/15</p>
+  <p>GANANCIA DIARIA: <b>0.5 USDT</b></p>
 
-<input id="monto" placeholder="Monto a invertir">
-<button onclick="invertir()">INVERTIR</button>
-<button onclick="agregarWallet()">AGREGAR billetera</button>
-<button onclick="retirar()">RETIRAR</button>
-<button onclick="invitar()">INVITAR POR WHATSAPP</button>
-<button onclick="logout()">SALIR</button>
+  <input id="monto" placeholder="Monto a invertir">
 
-<div class="contact">
-📧 <b>Binancecoin958@gmail.com</b><br>
-CONTÁCTAME AL CORREO QUE APARECE EN PANTALLA 
-</div>
+  <div class="menu-botones">
+    <button onclick="invertir()">INVERTIR</button>
+    <button onclick="agregarWallet()">AGREGAR BILLETERA</button>
+    <button onclick="retirar()">RETIRAR</button>
+    <button class="btn-whatsapp" onclick="invitar()">WHATSAPP</button>
+  </div>
+
+  <button class="btn-salir" onclick="logout()">SALIR</button>
+
+  <div class="contact">
+    📧 <b>Binancecoin958@gmail.com</b><br>
+    CONTÁCTAME AL CORREO QUE APARECE EN PANTALLA
+  </div>
 </div>
 
 <!-- ADMIN -->
 <div class="card admin hide" id="admin">
-<h3>ADMIN</h3>
-<div id="lista"></div>
-<button onclick="logout()">Salir</button>
+  <h3>ADMIN</h3>
+  <div id="lista"></div>
+  <button class="btn-salir" onclick="logout()">Salir</button>
 </div>
 
 <script>
@@ -148,100 +163,101 @@ let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
 let usuarioActual=null;
 
 function mostrarRegistro(){
-loginBox.classList.add("hide");
-registerBox.classList.remove("hide");
+  loginBox.classList.add("hide");
+  registerBox.classList.remove("hide");
 }
 function volverLogin(){
-registerBox.classList.add("hide");
-loginBox.classList.remove("hide");
+  registerBox.classList.add("hide");
+  loginBox.classList.remove("hide");
 }
 
 async function login(){
-const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email:l_email.value,password:l_pass.value})});
-const data=await res.json();
-if(!data.ok){loginMsg.innerText=data.msg;return;}
-usuarioActual=data.user;
-loginBox.classList.add("hide");
-if(data.rol==="admin"){admin.classList.remove("hide");cargarAdmin();}
-else{panel.classList.remove("hide");cargarPanel();}
+  const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({email:l_email.value,password:l_pass.value})});
+  const data=await res.json();
+  if(!data.ok){loginMsg.innerText=data.msg;return;}
+  usuarioActual=data.user;
+  document.querySelector(".auth-wrapper").classList.add("hide");
+  if(data.rol==="admin"){admin.classList.remove("hide");cargarAdmin();}
+  else{panel.classList.remove("hide");cargarPanel();}
 }
 
 async function register(){
-if(!r_email.value||!r_pass.value)return alert("Complete todo");
-const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email:r_email.value,password:r_pass.value})});
-const data=await res.json();
-alert(data.msg);
-if(data.ok)volverLogin();
+  if(!r_email.value||!r_pass.value)return alert("Complete todo");
+  const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({email:r_email.value,password:r_pass.value})});
+  const data=await res.json();
+  alert(data.msg);
+  if(data.ok)volverLogin();
 }
 
 function cargarPanel(){
-saldo.innerText=usuarioActual.saldo;
-dia.innerText=usuarioActual.dias;
-wallet.innerText=walletAdmin;
+  saldo.innerText=usuarioActual.saldo;
+  dia.innerText=usuarioActual.dias;
+  wallet.innerText=walletAdmin;
 }
 
 async function invertir(){
-if(!monto.value)return alert("Ingrese monto");
-const res=await fetch("/api/invertir",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email:usuarioActual.email,monto:monto.value})});
-const data=await res.json();
-alert(data.msg);
+  if(!monto.value)return alert("Ingrese monto");
+  const res=await fetch("/api/invertir",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({email:usuarioActual.email,monto:monto.value})});
+  const data=await res.json();
+  alert(data.msg);
 }
 
 async function agregarWallet(){
-let w=prompt("Ingrese su billetera TRC20");
-if(!w)return;
-const res=await fetch("/api/wallet",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email:usuarioActual.email,wallet:w})});
-const data=await res.json();
-alert(data.msg);
+  let w=prompt("Ingrese su billetera TRC20");
+  if(!w)return;
+  const res=await fetch("/api/wallet",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({email:usuarioActual.email,wallet:w})});
+  const data=await res.json();
+  alert(data.msg);
 }
 
 async function retirar(){
-const res=await fetch("/api/retirar",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email:usuarioActual.email})});
-const data=await res.json();
-alert(data.msg);
+  const res=await fetch("/api/retirar",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({email:usuarioActual.email})});
+  const data=await res.json();
+  alert(data.msg);
 }
 
 async function cargarAdmin(){
-const res=await fetch("/api/solicitudes");
-const data=await res.json();
-let html="";
-data.forEach(s=>{
-html+=`
-<div class="card">
-📧 <b>${s.email}</b><br>
-💰 Monto: ${s.monto}<br>
-📌 Tipo: ${s.tipo}<br>
-👛 Wallet: ${s.wallet||"No registrada"}<br>
-<button onclick="aprobar('${s._id}')">Aprobar</button>
-<button onclick="rechazar('${s._id}')">Rechazar</button>
-</div>`;
-});
-lista.innerHTML=html;
+  const res=await fetch("/api/solicitudes");
+  const data=await res.json();
+  let html="";
+  data.forEach(s=>{
+    html+=`
+    <div class="card">
+      📧 <b>${s.email}</b><br>
+      💰 Monto: ${s.monto}<br>
+      📌 Tipo: ${s.tipo}<br>
+      👛 Wallet: ${s.wallet||"No registrada"}<br>
+      <button onclick="aprobar('${s._id}')">Aprobar</button>
+      <button onclick="rechazar('${s._id}')">Rechazar</button>
+    </div>`;
+  });
+  lista.innerHTML=html;
 }
 
 async function aprobar(id){
-await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-cargarAdmin();
+  await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+  cargarAdmin();
 }
 
 async function rechazar(id){
-await fetch("/api/rechazar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-cargarAdmin();
+  await fetch("/api/rechazar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+  cargarAdmin();
 }
 
 function invitar(){
-window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
+  window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 function copiarWallet(){
-navigator.clipboard.writeText(walletAdmin);
-alert("Billetera copiada");
+  navigator.clipboard.writeText(walletAdmin);
+  alert("Billetera copiada");
 }
 function logout(){location.reload();}
 </script>
+
 </body>
 </html>
