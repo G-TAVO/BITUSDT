@@ -50,7 +50,7 @@ const ADMIN = {
 };
 
 /* ================= GANANCIA DIARIA ================= */
-// 0.5 USDT diarios
+
 async function actualizarGanancias(user) {
   const hoy = new Date();
   const ultimo = new Date(user.ultimaActualizacion);
@@ -109,7 +109,17 @@ app.post("/api/login", async (req, res) => {
 
     await actualizarGanancias(user);
 
-    res.json({ ok: true, rol: "user", user });
+    // RESPUESTA LIMPIA (CLAVE PARA WALLET)
+    res.json({
+      ok: true,
+      rol: "user",
+      user: {
+        email: user.email,
+        saldo: user.saldo,
+        dias: user.dias,
+        wallet: user.wallet
+      }
+    });
 
   } catch (err) {
     res.json({ ok: false, msg: "Error servidor" });
@@ -156,6 +166,7 @@ app.post("/api/aprobar", async (req, res) => {
 
   res.json({ ok: true });
 });
+
 /* ================= RECHAZAR ================= */
 
 app.post("/api/rechazar", async (req, res) => {
@@ -199,11 +210,27 @@ app.post("/api/retirar", async (req, res) => {
 /* ================= WALLET ================= */
 
 app.post("/api/wallet", async (req, res) => {
-  const u = await User.findOne({ email: req.body.email });
-  u.wallet = req.body.wallet;
-  await u.save();
+  try {
+    const u = await User.findOne({ email: req.body.email });
+    if (!u) {
+      return res.json({ ok: false, msg: "Usuario no encontrado" });
+    }
 
-  res.json({ ok: true });
+    if (!req.body.wallet) {
+      return res.json({ ok: false, msg: "Wallet requerida" });
+    }
+
+    u.wallet = req.body.wallet;
+    await u.save();
+
+    res.json({
+      ok: true,
+      msg: "Billetera guardada correctamente"
+    });
+
+  } catch (err) {
+    res.json({ ok: false, msg: "Error servidor" });
+  }
 });
 
 /* ================= SERVER ================= */
