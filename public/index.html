@@ -21,101 +21,98 @@ body{
   align-items:center;
 }
 
-/* TARJETA GENERAL */
 .card{
   background:#020617cc;
   margin:10px;
-  padding:22px;
-  border-radius:18px;
-  box-shadow:0 10px 30px #000;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 0 20px #000;
   width:100%;
   max-width:420px;
-  border:1px solid #1e293b;
 }
 
-/* TITULOS */
 h3{
   margin-top:0;
   color:#22c55e;
   text-align:center;
-  font-size:22px;
 }
 
-/* INPUTS */
 input{
   width:100%;
-  height:50px;
   padding:12px;
-  margin:8px 0;
-  border-radius:14px;
+  margin:6px 0;
+  border-radius:10px;
   border:1px solid #1e293b;
-  font-size:16px;
+  font-size:15px;
   background:#020617;
   color:white;
 }
 
-/* BOTONES */
 button{
   width:100%;
-  height:50px;
-  margin:8px 0;
-  border-radius:14px;
+  padding:12px;
+  margin:6px 0;
+  border-radius:12px;
   border:none;
-  font-size:16px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:black;
+  font-size:15px;
   font-weight:bold;
   cursor:pointer;
 }
 
-button:hover{opacity:.85}
+button:hover{opacity:.9}
 
-/* TEXTO PEQUEÑO */
+.hide{display:none}
+.admin{border:2px solid #22c55e}
 small{
   cursor:pointer;
   color:#22c55e;
   display:block;
   text-align:center;
-  margin-top:10px;
+  margin-top:8px;
 }
 
-/* REGISTRO PRO */
-.register-sub{
-  text-align:center;
-  font-size:14px;
-  opacity:.7;
-  margin-bottom:16px;
-}
-
-.btn-volver{
-  background:transparent;
-  color:#22c55e;
-  border:1px solid #22c55e;
-}
-
-/* UTILIDADES */
-.hide{display:none}
-.admin{border:2px solid #22c55e}
 hr{border:1px solid #1e293b;margin:18px 0}
 
-/* PANEL BOTONES */
+/* BOTONES DEL PANEL */
 .menu-botones{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
 }
 
-.btn-whatsapp{background:#25D366}
-.btn-salir{background:#ef4444;color:white}
+/* === COLORES PRO === */
+.btn-invertir{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#052e16;
+}
 
-/* CONTACTO */
+.btn-wallet{
+  background:linear-gradient(135deg,#38bdf8,#2563eb);
+  color:white;
+}
+
+.btn-retirar{
+  background:linear-gradient(135deg,#fb923c,#f97316);
+  color:#431407;
+}
+
+.btn-whatsapp{
+  background:linear-gradient(135deg,#a855f7,#7c3aed);
+  color:white;
+}
+
+.btn-salir{
+  background:#ef4444;
+  color:white;
+}
+
 .contact{
   margin-top:15px;
   padding:12px;
   background:#020617;
-  border-radius:14px;
+  border-radius:12px;
   text-align:center;
-  font-size:14px
+  font-size:14px;
 }
 
 @media(max-width:600px){
@@ -131,29 +128,21 @@ hr{border:1px solid #1e293b;margin:18px 0}
 
   <!-- LOGIN -->
   <div class="card" id="loginBox">
-    <h3>Iniciar sesión</h3>
-    <div class="register-sub">Accede a tu cuenta</div>
-
-    <input id="l_email" placeholder="Correo electrónico">
+    <h3>LOGIN</h3>
+    <input id="l_email" placeholder="Correo">
     <input id="l_pass" type="password" placeholder="Contraseña">
-
-    <button onclick="login()">Entrar</button>
+    <button class="btn-invertir" onclick="login()">Entrar</button>
     <p id="loginMsg"></p>
-
     <small onclick="mostrarRegistro()">Crear cuenta</small>
   </div>
 
   <!-- REGISTRO -->
   <div class="card hide" id="registerBox">
-    <h3>Crear cuenta</h3>
-    <div class="register-sub">Regístrate y empieza a ganar</div>
-
-    <input id="r_email" placeholder="Correo electrónico">
-    <input id="r_pass" type="password" placeholder="Contraseña segura">
-
-    <button onclick="register()">Crear cuenta</button>
-    <button class="btn-volver" onclick="volverLogin()">Ya tengo cuenta</button>
-
+    <h3>REGISTRO</h3>
+    <input id="r_email" placeholder="Correo">
+    <input id="r_pass" type="password" placeholder="Contraseña">
+    <button class="btn-wallet" onclick="register()">Registrar</button>
+    <button class="btn-retirar" onclick="volverLogin()">Volver</button>
     <p id="msg"></p>
   </div>
 
@@ -165,7 +154,7 @@ hr{border:1px solid #1e293b;margin:18px 0}
 
   <p>BILLETERA DE DEPÓSITO:</p>
   <b id="wallet"></b>
-  <button onclick="copiarWallet()">Copiar billetera</button>
+  <button class="btn-wallet" onclick="copiarWallet()">Copiar billetera</button>
 
   <hr>
 
@@ -176,9 +165,9 @@ hr{border:1px solid #1e293b;margin:18px 0}
   <input id="monto" placeholder="Monto a invertir">
 
   <div class="menu-botones">
-    <button onclick="invertir()">Invertir</button>
-    <button onclick="agregarWallet()">Agregar billetera</button>
-    <button onclick="retirar()">Retirar</button>
+    <button class="btn-invertir" onclick="invertir()">Invertir</button>
+    <button class="btn-wallet" onclick="agregarWallet()">Agregar billetera</button>
+    <button class="btn-retirar" onclick="retirar()">Retirar</button>
     <button class="btn-whatsapp" onclick="invitar()">WhatsApp</button>
   </div>
 
@@ -192,7 +181,7 @@ hr{border:1px solid #1e293b;margin:18px 0}
 
 <!-- ADMIN -->
 <div class="card admin hide" id="admin">
-  <h3>Admin</h3>
+  <h3>ADMIN</h3>
   <div id="lista"></div>
   <button class="btn-salir" onclick="logout()">Salir</button>
 </div>
@@ -271,8 +260,8 @@ async function cargarAdmin(){
       💰 Monto: ${s.monto}<br>
       📌 Tipo: ${s.tipo}<br>
       👛 Wallet: ${s.wallet||"No registrada"}<br>
-      <button onclick="aprobar('${s._id}')">Aprobar</button>
-      <button onclick="rechazar('${s._id}')">Rechazar</button>
+      <button class="btn-invertir" onclick="aprobar('${s._id}')">Aprobar</button>
+      <button class="btn-retirar" onclick="rechazar('${s._id}')">Rechazar</button>
     </div>`;
   });
   lista.innerHTML=html;
@@ -282,6 +271,7 @@ async function aprobar(id){
   await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
   cargarAdmin();
 }
+
 async function rechazar(id){
   await fetch("/api/rechazar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
   cargarAdmin();
