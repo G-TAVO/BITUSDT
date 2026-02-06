@@ -1,6 +1,7 @@
 let usuarioActual = null;
 
-// MOSTRAR REGISTRO
+/* ================= MOSTRAR / OCULTAR ================= */
+
 function mostrarRegistro(){
   loginBox.classList.add("hide");
   registerBox.classList.remove("hide");
@@ -8,7 +9,6 @@ function mostrarRegistro(){
   admin.classList.add("hide");
 }
 
-// VOLVER LOGIN
 function volverLogin(){
   registerBox.classList.add("hide");
   loginBox.classList.remove("hide");
@@ -16,17 +16,18 @@ function volverLogin(){
   admin.classList.add("hide");
 }
 
-// LOGIN
+/* ================= LOGIN ================= */
+
 async function login(){
 
   loginMsg.innerText = "";
 
   const res = await fetch("/api/login",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
-      email:l_email.value,
-      password:l_pass.value
+      email: l_email.value,
+      password: l_pass.value
     })
   });
 
@@ -39,7 +40,6 @@ async function login(){
 
   usuarioActual = data.user;
 
-  // OCULTAR TODO
   loginBox.classList.add("hide");
   registerBox.classList.add("hide");
   panel.classList.add("hide");
@@ -54,7 +54,8 @@ async function login(){
   }
 }
 
-// REGISTRO
+/* ================= REGISTRO ================= */
+
 async function register(){
 
   if(!r_email.value || !r_pass.value){
@@ -64,10 +65,10 @@ async function register(){
 
   const res = await fetch("/api/register",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
-      email:r_email.value,
-      password:r_pass.value
+      email: r_email.value,
+      password: r_pass.value
     })
   });
 
@@ -77,19 +78,17 @@ async function register(){
   if(data.ok) volverLogin();
 }
 
-// PANEL
+/* ================= PANEL USUARIO ================= */
+
 function cargarPanel(){
-  document.getElementById("tituloPanel").innerText = usuarioActual.email;
+  tituloPanel.innerText = usuarioActual.email;
   saldo.innerText = usuarioActual.saldo;
   dia.innerText = usuarioActual.dias;
-  wallet.innerText = usuarioActual.wallet
-    ? usuarioActual.wallet
-    : "No registrada";
+  wallet.innerText = usuarioActual.wallet || "No registrada";
 }
 
-}
+/* ================= INVERTIR ================= */
 
-// INVERTIR
 async function invertir(){
 
   if(!monto.value){
@@ -99,10 +98,10 @@ async function invertir(){
 
   const res = await fetch("/api/invertir",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
-      email:usuarioActual.email,
-      monto:monto.value
+      email: usuarioActual.email,
+      monto: monto.value
     })
   });
 
@@ -110,42 +109,40 @@ async function invertir(){
   alert(data.msg);
 }
 
-// AGREGAR WALLET
+/* ================= WALLET ================= */
+
 async function agregarWallet(){
 
-  let w = prompt("Pega tu billetera TRC20");
-  if(!w || w.trim() === ""){
-    alert("Debe pegar una billetera válida");
-    return;
-  }
+  const w = prompt("Pega tu billetera TRC20");
+  if(!w) return;
 
   const res = await fetch("/api/wallet",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
-      email:usuarioActual.email,
-      wallet:w
+      email: usuarioActual.email,
+      wallet: w
     })
   });
 
   const data = await res.json();
   alert(data.msg);
 
-  // ACTUALIZAR WALLET EN EL PANEL
   if(data.ok){
     usuarioActual.wallet = w;
     cargarPanel();
   }
 }
 
-// RETIRAR
+/* ================= RETIRAR ================= */
+
 async function retirar(){
 
   const res = await fetch("/api/retirar",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({
-      email:usuarioActual.email
+      email: usuarioActual.email
     })
   });
 
@@ -153,12 +150,12 @@ async function retirar(){
   alert(data.msg);
 }
 
-// INVITAR
+/* ================= OTROS ================= */
+
 function invitar(){
   window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 
-// COPIAR WALLET
 function copiarWallet(){
   if(!usuarioActual.wallet){
     alert("No hay billetera registrada");
@@ -168,7 +165,6 @@ function copiarWallet(){
   alert("Billetera copiada");
 }
 
-// LOGOUT
 function logout(){
   location.reload();
 }
