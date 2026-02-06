@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
@@ -13,7 +12,10 @@ const PORT = process.env.PORT || 3000;
 
 /* ================== MONGODB ================== */
 
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(
+  process.env.MONGO_URL ||
+  "mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
+)
 .then(() => console.log("✅ MongoDB conectado"))
 .catch(err => console.log("❌ Error Mongo:", err));
 
@@ -43,8 +45,8 @@ const Solicitud = mongoose.model("Solicitud", SolicitudSchema);
 /* ================= ADMIN ================= */
 
 const ADMIN = {
-  email: process.env.ADMIN_EMAIL,
-  password: process.env.ADMIN_PASSWORD
+  email: "Binancecoin958@gmail.com",
+  password: "Enriique1998"
 };
 
 /* ================= GANANCIA DIARIA ================= */
@@ -80,7 +82,7 @@ app.post("/api/register", async (req, res) => {
     });
 
     res.json({ ok: true, msg: "Registro exitoso" });
-  } catch {
+  } catch (err) {
     res.json({ ok: false, msg: "Error servidor" });
   }
 });
@@ -90,6 +92,7 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
 
+    // ADMIN
     if (req.body.email === ADMIN.email) {
       if (req.body.password !== ADMIN.password) {
         return res.json({ ok: false, msg: "Clave admin incorrecta" });
@@ -97,6 +100,7 @@ app.post("/api/login", async (req, res) => {
       return res.json({ ok: true, rol: "admin" });
     }
 
+    // USUARIO
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.json({ ok: false, msg: "Usuario no existe" });
 
@@ -116,7 +120,111 @@ app.post("/api/login", async (req, res) => {
       }
     });
 
-  } catch {
+  } catch (err) {
+    res.json({ ok: false, msg: "Error servidor" });
+  }
+});
+
+/* ================= INVERTIR (CORREGIDO) ================= */
+
+app.post("/api/invertir", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
+  if (!u) return res.json({ ok:false, msg:"Usuario no existe" });
+
+  await Solicitud.create({
+    email: u.email,
+    monto: Number(req.body.monto),
+    estado: "pendiente",
+    tipo: "inversion",
+    wallet: u.wallet // 👈 AHORA EL ADMIN VE LA WALLET
+  });
+
+  res.json({ ok: true, msg: "Solicitud enviada al admin" });
+});
+
+/* ================= SOLICITUDES ADMIN ================= */
+
+app.get("/api/solicitudes", async (req, res) => {
+  const sol = await Solicitud.find({ estado: "pendiente" });
+  res.json(sol);
+});
+
+/* ================= APROBAR ================= */
+
+app.post("/api/aprobar", async (req, res) => {
+  const s = await Solicitud.findById(req.body.id);
+  if (!s) return res.json({ ok: false });
+
+  const u = await User.findOne({ email: s.email });
+
+  if (s.tipo === "inversion") {
+    u.saldo += s.monto;
+    u.dias = 0;
+    u.ultimaActualizacion = new Date();
+    await u.save();
+  }
+
+  s.estado = "aprobado";
+  await s.save();
+
+  res.json({ ok: true });
+});
+
+/* ================= RECHAZAR ================= */
+
+app.post("/api/rechazar", async (req, res) => {
+  try {
+    const s = await Solicitud.findById(req.body.id);
+    if (!s) return res.json({ ok: false });
+
+    s.estado = "rechazado";
+    await s.save();
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.json({ ok: false });
+  }
+});
+
+/* ================= RETIRAR ================= */
+
+app.post("/api/retirar", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
+
+  if (u.saldo < 20) {
+    return res.json({ ok: false, msg: "Mínimo 20 USDT" });
+  }
+
+  await Solicitud.create({
+    email: u.email,
+    monto: u.saldo,
+    estado: "pendiente",
+    tipo: "retiro",
+    wallet: u.wallet // 👈 YA FUNCIONABA
+  });
+
+  u.saldo = 0;
+  u.dias = 0;
+  await u.save();
+
+  res.json({ ok: true, msg: "Retiro enviado al admin" });
+});
+
+/* ================= WALLET ================= */
+
+app.post("/api/wallet", async (req, res) => {
+  try {
+    const u = await User.findOne({ email: req.body.email });
+    if (!u) {
+      return res.json({ ok: false, msg: "Usuario no encontrado" });
+    }
+
+    u.wallet = req.body.wallet;
+    await u.save();
+
+    res.json({ ok: true, msg: "Billetera guardada correctamente" });
+
+  } catch (err) {
     res.json({ ok: false, msg: "Error servidor" });
   }
 });
