@@ -79,11 +79,14 @@ async function register(){
 
 // PANEL
 function cargarPanel(){
+  document.getElementById("tituloPanel").innerText = usuarioActual.email;
   saldo.innerText = usuarioActual.saldo;
   dia.innerText = usuarioActual.dias;
   wallet.innerText = usuarioActual.wallet
     ? usuarioActual.wallet
     : "No registrada";
+}
+
 }
 
 // INVERTIR
