@@ -64,7 +64,7 @@ async function actualizarGanancias(user) {
     user.dias += diasPasados;
     user.ultimaActualizacion = hoy;
     await user.save();
-  }
+  
 }
 
 /* ================= REGISTRO ================= */
