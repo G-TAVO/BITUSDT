@@ -1,16 +1,26 @@
 let usuarioActual = null;
 
+// MOSTRAR REGISTRO
 function mostrarRegistro(){
   loginBox.classList.add("hide");
   registerBox.classList.remove("hide");
+  panel.classList.add("hide");
+  admin.classList.add("hide");
 }
 
+// VOLVER LOGIN
 function volverLogin(){
   registerBox.classList.add("hide");
   loginBox.classList.remove("hide");
+  panel.classList.add("hide");
+  admin.classList.add("hide");
 }
 
+// LOGIN
 async function login(){
+
+  loginMsg.innerText = "";
+
   const res = await fetch("/api/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -19,6 +29,7 @@ async function login(){
       password:l_pass.value
     })
   });
+
   const data = await res.json();
 
   if(!data.ok){
@@ -28,8 +39,11 @@ async function login(){
 
   usuarioActual = data.user;
 
+  // OCULTAR TODO
   loginBox.classList.add("hide");
   registerBox.classList.add("hide");
+  panel.classList.add("hide");
+  admin.classList.add("hide");
 
   if(data.rol === "admin"){
     admin.classList.remove("hide");
@@ -40,90 +54,121 @@ async function login(){
   }
 }
 
-function cargarPanel(){
-  tituloPanel.innerText = usuarioActual.nombre || "Usuario";
-  correoUsuario.innerText = usuarioActual.email;
-  saldo.innerText = usuarioActual.saldo;
-  dia.innerText = usuarioActual.dias;
-}
+// REGISTRO
+async function register(){
 
-async function agregarNombre(){
-  const n = prompt("Ingrese su nombre");
-  if(!n) return;
+  if(!r_email.value || !r_pass.value){
+    alert("Complete todos los campos");
+    return;
+  }
 
-  const res = await fetch("/api/nombre",{
+  const res = await fetch("/api/register",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      email:usuarioActual.email,
-      nombre:n
+      email:r_email.value,
+      password:r_pass.value
     })
   });
+
   const data = await res.json();
   alert(data.msg);
-  if(data.ok){
-    usuarioActual.nombre = n;
-    cargarPanel();
-  }
+
+  if(data.ok) volverLogin();
 }
 
+// PANEL
+function cargarPanel(){
+  document.getElementById("tituloPanel").innerText = usuarioActual.email;
+  saldo.innerText = usuarioActual.saldo;
+  dia.innerText = usuarioActual.dias;
+  wallet.innerText = usuarioActual.wallet
+    ? usuarioActual.wallet
+    : "No registrada";
+}
+
+}
+
+// INVERTIR
 async function invertir(){
-  const monto = prompt("Monto a invertir");
-  if(!monto) return;
+
+  if(!monto.value){
+    alert("Ingrese un monto");
+    return;
+  }
 
   const res = await fetch("/api/invertir",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       email:usuarioActual.email,
-      monto
+      monto:monto.value
     })
   });
+
   const data = await res.json();
   alert(data.msg);
 }
 
-async function cargarAdmin(){
-  const res = await fetch("/api/solicitudes");
+// AGREGAR WALLET
+async function agregarWallet(){
+
+  let w = prompt("Pega tu billetera TRC20");
+  if(!w || w.trim() === ""){
+    alert("Debe pegar una billetera válida");
+    return;
+  }
+
+  const res = await fetch("/api/wallet",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:usuarioActual.email,
+      wallet:w
+    })
+  });
+
   const data = await res.json();
+  alert(data.msg);
 
-  let html = "";
-
-  data.forEach(s=>{
-    html += `
-    <div class="card">
-      👤 Nombre: <b>${s.nombre || "No registrado"}</b><br>
-      📧 Correo: <b>${s.email}</b><br>
-      💰 Saldo actual: <b>${s.saldoActual ?? 0}</b><br>
-      💸 Monto: <b>${s.monto}</b><br>
-      📌 Tipo: <b>${s.tipo}</b><br>
-      👛 Wallet: <b>${s.wallet || "No registrada"}</b><br>
-      <button class="btn-invertir" onclick="aprobar('${s._id}')">Aprobar</button>
-      <button class="btn-retirar" onclick="rechazar('${s._id}')">Rechazar</button>
-    </div>`;
-  });
-
-  lista.innerHTML = html;
+  // ACTUALIZAR WALLET EN EL PANEL
+  if(data.ok){
+    usuarioActual.wallet = w;
+    cargarPanel();
+  }
 }
 
-async function aprobar(id){
-  await fetch("/api/aprobar",{
+// RETIRAR
+async function retirar(){
+
+  const res = await fetch("/api/retirar",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({id})
+    body:JSON.stringify({
+      email:usuarioActual.email
+    })
   });
-  cargarAdmin();
+
+  const data = await res.json();
+  alert(data.msg);
 }
 
-async function rechazar(id){
-  await fetch("/api/rechazar",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({id})
-  });
-  cargarAdmin();
+// INVITAR
+function invitar(){
+  window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 
+// COPIAR WALLET
+function copiarWallet(){
+  if(!usuarioActual.wallet){
+    alert("No hay billetera registrada");
+    return;
+  }
+  navigator.clipboard.writeText(usuarioActual.wallet);
+  alert("Billetera copiada");
+}
+
+// LOGOUT
 function logout(){
   location.reload();
 }
