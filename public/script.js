@@ -20,7 +20,11 @@ async function login(){
     })
   });
   const data = await res.json();
-  if(!data.ok) return alert(data.msg);
+
+  if(!data.ok){
+    loginMsg.innerText = data.msg;
+    return;
+  }
 
   usuarioActual = data.user;
 
@@ -37,17 +41,14 @@ async function login(){
 }
 
 function cargarPanel(){
-  tituloPanel.innerText =
-    usuarioActual.nombre && usuarioActual.nombre !== ""
-      ? usuarioActual.nombre
-      : "Usuario";
-
+  tituloPanel.innerText = usuarioActual.nombre || "Usuario";
+  correoUsuario.innerText = usuarioActual.email;
   saldo.innerText = usuarioActual.saldo;
   dia.innerText = usuarioActual.dias;
 }
 
 async function agregarNombre(){
-  let n = prompt("Ingrese su nombre");
+  const n = prompt("Ingrese su nombre");
   if(!n) return;
 
   const res = await fetch("/api/nombre",{
@@ -80,6 +81,47 @@ async function invertir(){
   });
   const data = await res.json();
   alert(data.msg);
+}
+
+async function cargarAdmin(){
+  const res = await fetch("/api/solicitudes");
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(s=>{
+    html += `
+    <div class="card">
+      👤 Nombre: <b>${s.nombre || "No registrado"}</b><br>
+      📧 Correo: <b>${s.email}</b><br>
+      💰 Saldo actual: <b>${s.saldoActual ?? 0}</b><br>
+      💸 Monto: <b>${s.monto}</b><br>
+      📌 Tipo: <b>${s.tipo}</b><br>
+      👛 Wallet: <b>${s.wallet || "No registrada"}</b><br>
+      <button class="btn-invertir" onclick="aprobar('${s._id}')">Aprobar</button>
+      <button class="btn-retirar" onclick="rechazar('${s._id}')">Rechazar</button>
+    </div>`;
+  });
+
+  lista.innerHTML = html;
+}
+
+async function aprobar(id){
+  await fetch("/api/aprobar",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id})
+  });
+  cargarAdmin();
+}
+
+async function rechazar(id){
+  await fetch("/api/rechazar",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id})
+  });
+  cargarAdmin();
 }
 
 function logout(){
