@@ -12,15 +12,12 @@ body{
   background:linear-gradient(135deg,#020617,#0f172a);
   color:white;
 }
-
-/* CONTENEDOR LOGIN / REGISTRO */
 .auth-wrapper{
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
 }
-
 .card{
   background:#020617cc;
   margin:10px;
@@ -30,103 +27,44 @@ body{
   width:100%;
   max-width:420px;
 }
-
-h3{
-  margin-top:0;
-  color:#22c55e;
-  text-align:center;
-}
-
+h3{margin-top:0;color:#22c55e;text-align:center}
 input{
   width:100%;
   padding:12px;
   margin:6px 0;
   border-radius:10px;
   border:1px solid #1e293b;
-  font-size:15px;
   background:#020617;
   color:white;
 }
-
 button{
   width:100%;
   padding:12px;
   margin:6px 0;
   border-radius:12px;
   border:none;
-  font-size:15px;
   font-weight:bold;
   cursor:pointer;
 }
-
-button:hover{opacity:.9}
-
 .hide{display:none}
 .admin{border:2px solid #22c55e}
-small{
-  cursor:pointer;
-  color:#22c55e;
-  display:block;
-  text-align:center;
-  margin-top:8px;
-}
-
-hr{border:1px solid #1e293b;margin:18px 0}
-
-/* BOTONES DEL PANEL */
 .menu-botones{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
 }
-
-/* === COLORES PRO === */
-.btn-invertir{
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:#052e16;
-}
-
-.btn-wallet{
-  background:linear-gradient(135deg,#38bdf8,#2563eb);
-  color:white;
-}
-
-.btn-retirar{
-  background:linear-gradient(135deg,#fb923c,#f97316);
-  color:#431407;
-}
-
-.btn-whatsapp{
-  background:linear-gradient(135deg,#a855f7,#7c3aed);
-  color:white;
-}
-
-.btn-salir{
-  background:#ef4444;
-  color:white;
-}
-
-.contact{
-  margin-top:15px;
-  padding:12px;
-  background:#020617;
-  border-radius:12px;
-  text-align:center;
-  font-size:14px;
-}
-
-@media(max-width:600px){
-  .card{margin:15px}
-}
+.btn-invertir{background:#22c55e}
+.btn-wallet{background:#3b82f6;color:white}
+.btn-retirar{background:#f97316}
+.btn-whatsapp{background:#7c3aed;color:white}
+.btn-salir{background:#ef4444;color:white}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN / REGISTRO -->
 <div class="auth-wrapper">
 
-  <!-- LOGIN -->
   <div class="card" id="loginBox">
     <h3>LOGIN</h3>
     <input id="l_email" placeholder="Correo">
@@ -136,159 +74,38 @@ hr{border:1px solid #1e293b;margin:18px 0}
     <small onclick="mostrarRegistro()">Crear cuenta</small>
   </div>
 
-  <!-- REGISTRO -->
   <div class="card hide" id="registerBox">
     <h3>REGISTRO</h3>
     <input id="r_email" placeholder="Correo">
     <input id="r_pass" type="password" placeholder="Contraseña">
     <button class="btn-wallet" onclick="register()">Registrar</button>
     <button class="btn-retirar" onclick="volverLogin()">Volver</button>
-    <p id="msg"></p>
   </div>
 
 </div>
 
-<!-- PANEL USUARIO -->
 <div class="card hide" id="panel">
-  <!--h3>Panel Usuario</h3-->
-  <!--h3 id="tituloPanel">Panel Usuario</h3-->
-<h3 id="tituloPanel">Panel Usuario</h3>
-
-
-  <p>BILLETERA DE DEPÓSITO:</p>
-  <b id="wallet"></b>
-  <button class="btn-wallet" onclick="copiarWallet()">Copiar billetera</button>
-
-  <hr>
+  <h3 id="tituloPanel">Usuario</h3>
 
   <p>SALDO: <b id="saldo">0</b> USDT</p>
   <p>DÍA: <b id="dia">0</b>/15</p>
-  <p>GANANCIA DIARIA: <b>0.5 USDT</b></p>
-
-  <input id="monto" placeholder="Monto a invertir">
 
   <div class="menu-botones">
     <button class="btn-invertir" onclick="invertir()">Invertir</button>
     <button class="btn-wallet" onclick="agregarWallet()">Agregar billetera</button>
+    <button class="btn-wallet" onclick="agregarNombre()">Agregar nombre</button>
     <button class="btn-retirar" onclick="retirar()">Retirar</button>
-    <button class="btn-whatsapp" onclick="invitar()">WhatsApp</button>
   </div>
 
   <button class="btn-salir" onclick="logout()">Salir</button>
-
-  <div class="contact">
-    📧 <b>Binancecoin958@gmail.com</b><br>
-    Contáctame al correo que aparece en pantalla
-  </div>
 </div>
 
-<!-- ADMIN -->
 <div class="card admin hide" id="admin">
   <h3>ADMIN</h3>
   <div id="lista"></div>
   <button class="btn-salir" onclick="logout()">Salir</button>
 </div>
 
-<script>
-let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
-let usuarioActual=null;
-
-function mostrarRegistro(){
-  loginBox.classList.add("hide");
-  registerBox.classList.remove("hide");
-}
-function volverLogin(){
-  registerBox.classList.add("hide");
-  loginBox.classList.remove("hide");
-}
-
-async function login(){
-  const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:l_email.value,password:l_pass.value})});
-  const data=await res.json();
-  if(!data.ok){loginMsg.innerText=data.msg;return;}
-  usuarioActual=data.user;
-  document.querySelector(".auth-wrapper").classList.add("hide");
-  if(data.rol==="admin"){admin.classList.remove("hide");cargarAdmin();}
-  else{panel.classList.remove("hide");cargarPanel();}
-}
-
-async function register(){
-  if(!r_email.value||!r_pass.value)return alert("Complete todo");
-  const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:r_email.value,password:r_pass.value})});
-  const data=await res.json();
-  alert(data.msg);
-  if(data.ok)volverLogin();
-}
-
-function cargarPanel(){
-  saldo.innerText=usuarioActual.saldo;
-  dia.innerText=usuarioActual.dias;
-  wallet.innerText=walletAdmin;
-}
-
-async function invertir(){
-  if(!monto.value)return alert("Ingrese monto");
-  const res=await fetch("/api/invertir",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:usuarioActual.email,monto:monto.value})});
-  const data=await res.json();
-  alert(data.msg);
-}
-
-async function agregarWallet(){
-  let w=prompt("Ingrese su billetera TRC20");
-  if(!w)return;
-  const res=await fetch("/api/wallet",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:usuarioActual.email,wallet:w})});
-  const data=await res.json();
-  alert(data.msg);
-}
-
-async function retirar(){
-  const res=await fetch("/api/retirar",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:usuarioActual.email})});
-  const data=await res.json();
-  alert(data.msg);
-}
-
-async function cargarAdmin(){
-  const res=await fetch("/api/solicitudes");
-  const data=await res.json();
-  let html="";
-  data.forEach(s=>{
-    html+=`
-    <div class="card">
-      📧 <b>${s.email}</b><br>
-      💰 Monto: ${s.monto}<br>
-      📌 Tipo: ${s.tipo}<br>
-      👛 Wallet: ${s.wallet||"No registrada"}<br>
-      <button class="btn-invertir" onclick="aprobar('${s._id}')">Aprobar</button>
-      <button class="btn-retirar" onclick="rechazar('${s._id}')">Rechazar</button>
-    </div>`;
-  });
-  lista.innerHTML=html;
-}
-
-async function aprobar(id){
-  await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-  cargarAdmin();
-}
-
-async function rechazar(id){
-  await fetch("/api/rechazar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-  cargarAdmin();
-}
-
-function invitar(){
-  window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
-}
-function copiarWallet(){
-  navigator.clipboard.writeText(walletAdmin);
-  alert("Billetera copiada");
-}
-function logout(){location.reload();}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
