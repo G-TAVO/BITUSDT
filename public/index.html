@@ -118,14 +118,6 @@ hr{border:1px solid #1e293b;margin:18px 0}
 @media(max-width:600px){
   .card{margin:15px}
 }
-  function mostrarTerminos(){
-  document.getElementById("modalTerminos").style.display="flex";
-}
-
-function cerrarTerminos(){
-  document.getElementById("modalTerminos").style.display="none";
-}
-
 </style>
 </head>
 
@@ -297,47 +289,6 @@ function copiarWallet(){
 }
 function logout(){location.reload();}
 </script>
-<!-- MODAL TERMINOS -->
-<div id="modalTerminos" style="
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.75);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:9999;"
-onclick="cerrarTerminos()">
-
-  <div style="
-  background:#020617;
-  max-width:420px;
-  width:90%;
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 0 25px #000;"
-  onclick="event.stopPropagation()">
-
-    <h3 style="color:#22c55e;text-align:center">
-      Términos y Condiciones - BITUSDT
-    </h3>
-
-    <p>1. Cada usuario debe realizar la tarea diaria para ganar 0.5 USD.</p>
-    <p>2. Por cada invitado activo ganas 2 USD.</p>
-    <p>3. Si hay grupo de WhatsApp, debes subir la captura.</p>
-    <p>4. Invertir 10 USD → ganas 16 USD.</p>
-    <p>5. Invertir 20 USD → ganas 26 USD.</p>
-    <p>6. Nequi solo con amigos de confianza que tengan Binance.</p>
-    <p>7. Correo oficial: <b>Binancecoin958@gmail.com</b></p>
-    <p>8. BITUSDT funciona como modelo educativo tipo CDT.</p>
-
-    <button type="button"
-      class="btn-retirar"
-      onclick="cerrarTerminos()">
-      Cerrar
-    </button>
-
-  </div>
-</div>
 
 </body>
 </html>
