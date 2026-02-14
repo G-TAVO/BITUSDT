@@ -135,6 +135,32 @@ hr{border:1px solid #1e293b;margin:18px 0}
     <p id="loginMsg"></p>
     <small onclick="mostrarRegistro()">Crear cuenta</small>
   </div>
+  <div class="terminos">
+  <p>
+    Al usar esta aplicación aceptas los 
+    <span onclick="mostrarTerminos()">Términos y Condiciones</span>
+  </p>
+</div>
+<div id="modalTerminos" class="modal hide">
+  <div class="modal-contenido">
+    <h3>Términos y Condiciones - BITUSDT</h3>
+
+    <p>1. Cada usuario debe realizar la tarea diaria para obtener $0.5 USD.</p>
+    <p>2. Por cada invitado activo ganas $2 USD.</p>
+    <p>3. Si hay grupo de WhatsApp, debes subir la captura correspondiente.</p>
+    <p>4. Al invertir $10 USD ganas $16 USD.</p>
+    <p>5. Al invertir $20 USD ganas $26 USD.</p>
+    <p>6. Inversión por Nequi solo con amigos de confianza que ya estén invertidos. 
+       El dinero llega a Binance y desde allí el amigo lo envía a Nequi.</p>
+    <p>7. Correo oficial: <b>Binancecoin958@gmail.com</b></p>
+    <p>8. BITUSDT funciona como modelo educativo tipo CDT. 
+       Se invierte y se retira inversión + ganancias. 
+       Para volver a invertir se debe iniciar nuevamente el proceso.</p>
+
+    <button onclick="cerrarTerminos()">Cerrar</button>
+  </div>
+</div>
+
 
   <!-- REGISTRO -->
   <div class="card hide" id="registerBox">
