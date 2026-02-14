@@ -172,3 +172,11 @@ function copiarWallet(){
 function logout(){
   location.reload();
 }
+function mostrarTerminos(){
+  document.getElementById("modalTerminos").classList.remove("hide");
+}
+
+function cerrarTerminos(){
+  document.getElementById("modalTerminos").classList.add("hide");
+}
+
