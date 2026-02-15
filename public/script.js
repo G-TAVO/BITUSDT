@@ -1,174 +1,254 @@
 let usuarioActual = null;
 
-// MOSTRAR REGISTRO
+/* ================= MOSTRAR REGISTRO ================= */
+
 function mostrarRegistro(){
-  loginBox.classList.add("hide");
-  registerBox.classList.remove("hide");
-  panel.classList.add("hide");
-  admin.classList.add("hide");
+  document.getElementById("loginBox").classList.add("hide");
+  document.getElementById("registerBox").classList.remove("hide");
 }
 
-// VOLVER LOGIN
+/* ================= VOLVER LOGIN ================= */
+
 function volverLogin(){
-  registerBox.classList.add("hide");
-  loginBox.classList.remove("hide");
-  panel.classList.add("hide");
-  admin.classList.add("hide");
+  document.getElementById("registerBox").classList.add("hide");
+  document.getElementById("loginBox").classList.remove("hide");
 }
 
-// LOGIN
+/* ================= LOGIN ================= */
+
 async function login(){
 
-  loginMsg.innerText = "";
+  const email = document.getElementById("l_email").value.trim();
+  const password = document.getElementById("l_pass").value;
+  const terminos = document.getElementById("terminos").checked;
 
-  const res = await fetch("/api/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:l_email.value,
-      password:l_pass.value
-    })
-  });
+  document.getElementById("loginMsg").innerText = "";
 
-  const data = await res.json();
-
-  if(!data.ok){
-    loginMsg.innerText = data.msg;
+  if(!terminos){
+    alert("Debe aceptar los términos y condiciones");
     return;
   }
 
-  usuarioActual = data.user;
-
-  // OCULTAR TODO
-  loginBox.classList.add("hide");
-  registerBox.classList.add("hide");
-  panel.classList.add("hide");
-  admin.classList.add("hide");
-
-  if(data.rol === "admin"){
-    admin.classList.remove("hide");
-    cargarAdmin();
-  }else{
-    panel.classList.remove("hide");
-    cargarPanel();
-  }
-}
-
-// REGISTRO
-async function register(){
-
-  if(!r_email.value || !r_pass.value){
+  if(email === "" || password === ""){
     alert("Complete todos los campos");
     return;
   }
 
-  const res = await fetch("/api/register",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:r_email.value,
-      password:r_pass.value
-    })
-  });
+  try{
 
-  const data = await res.json();
-  alert(data.msg);
+    const res = await fetch("/api/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ email, password })
+    });
 
-  if(data.ok) volverLogin();
+    const data = await res.json();
+
+    if(!data.ok){
+      document.getElementById("loginMsg").innerText = data.msg;
+      return;
+    }
+
+    // ADMIN
+    if(data.rol === "admin"){
+      window.location.reload(); // mantiene tu lógica original
+      return;
+    }
+
+    usuarioActual = data.user;
+
+    document.getElementById("loginBox").classList.add("hide");
+    document.getElementById("registerBox").classList.add("hide");
+    document.getElementById("panel").classList.remove("hide");
+
+    cargarPanel();
+
+  }catch(error){
+    alert("Error de conexión");
+  }
 }
 
-// PANEL
+/* ================= REGISTRO ================= */
+
+async function register(){
+
+  const nombre = document.getElementById("r_nombre").value.trim();
+  const email = document.getElementById("r_email").value.trim();
+  const password = document.getElementById("r_pass").value;
+
+  if(nombre === "" || email === "" || password === ""){
+    alert("Complete todos los campos");
+    return;
+  }
+
+  if(password.length < 6){
+    alert("La contraseña debe tener mínimo 6 caracteres");
+    return;
+  }
+
+  try{
+
+    const res = await fetch("/api/register",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ nombre, email, password })
+    });
+
+    const data = await res.json();
+    alert(data.msg);
+
+    if(data.ok){
+      volverLogin();
+    }
+
+  }catch(error){
+    alert("Error de conexión");
+  }
+}
+
+/* ================= CARGAR PANEL ================= */
+
 function cargarPanel(){
-  document.getElementById("tituloPanel").innerText = usuarioActual.email;
-  saldo.innerText = usuarioActual.saldo;
-  dia.innerText = usuarioActual.dias;
-  wallet.innerText = usuarioActual.wallet
-    ? usuarioActual.wallet
-    : "No registrada";
+
+  document.getElementById("nombreUser").innerText =
+    usuarioActual.nombre || "Sin nombre";
+
+  document.getElementById("saldo").innerText =
+    usuarioActual.saldo;
+
+  document.getElementById("dia").innerText =
+    usuarioActual.dias;
 }
 
+/* ================= EDITAR NOMBRE ================= */
+
+async function editarNombre(){
+
+  let nuevo = prompt("Escribe tu nombre completo");
+
+  if(!nuevo || nuevo.trim() === ""){
+    alert("Nombre inválido");
+    return;
+  }
+
+  try{
+
+    const res = await fetch("/api/nombre",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:usuarioActual.email,
+        nombre:nuevo.trim()
+      })
+    });
+
+    const data = await res.json();
+    alert(data.msg);
+
+    if(data.ok){
+      usuarioActual.nombre = nuevo.trim();
+      cargarPanel();
+    }
+
+  }catch(error){
+    alert("Error de conexión");
+  }
 }
 
-// INVERTIR
+/* ================= INVERTIR ================= */
+
 async function invertir(){
 
-  if(!monto.value){
-    alert("Ingrese un monto");
+  const monto = Number(document.getElementById("monto").value);
+
+  if(isNaN(monto) || monto <= 0){
+    alert("Ingrese un monto válido");
     return;
   }
 
-  const res = await fetch("/api/invertir",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:usuarioActual.email,
-      monto:monto.value
-    })
-  });
+  try{
 
-  const data = await res.json();
-  alert(data.msg);
+    const res = await fetch("/api/invertir",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:usuarioActual.email,
+        monto
+      })
+    });
+
+    const data = await res.json();
+    alert(data.msg);
+
+  }catch(error){
+    alert("Error de conexión");
+  }
 }
 
-// AGREGAR WALLET
+/* ================= AGREGAR WALLET ================= */
+
 async function agregarWallet(){
 
-  let w = prompt("Pega tu billetera TRC20");
-  if(!w || w.trim() === ""){
-    alert("Debe pegar una billetera válida");
+  let wallet = prompt("Pega tu billetera TRC20");
+
+  if(!wallet || wallet.trim() === ""){
+    alert("Debe ingresar una billetera válida");
     return;
   }
 
-  const res = await fetch("/api/wallet",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:usuarioActual.email,
-      wallet:w
-    })
-  });
+  try{
 
-  const data = await res.json();
-  alert(data.msg);
+    const res = await fetch("/api/wallet",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:usuarioActual.email,
+        wallet:wallet.trim()
+      })
+    });
 
-  // ACTUALIZAR WALLET EN EL PANEL
-  if(data.ok){
-    usuarioActual.wallet = w;
-    cargarPanel();
+    const data = await res.json();
+    alert(data.msg);
+
+    if(data.ok){
+      usuarioActual.wallet = wallet.trim();
+    }
+
+  }catch(error){
+    alert("Error de conexión");
   }
 }
 
-// RETIRAR
+/* ================= RETIRAR ================= */
+
 async function retirar(){
 
-  const res = await fetch("/api/retirar",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:usuarioActual.email
-    })
-  });
+  try{
 
-  const data = await res.json();
-  alert(data.msg);
+    const res = await fetch("/api/retirar",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:usuarioActual.email
+      })
+    });
+
+    const data = await res.json();
+    alert(data.msg);
+
+  }catch(error){
+    alert("Error de conexión");
+  }
 }
 
-// INVITAR
+/* ================= INVITAR ================= */
+
 function invitar(){
   window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
 }
 
-// COPIAR WALLET
-function copiarWallet(){
-  if(!usuarioActual.wallet){
-    alert("No hay billetera registrada");
-    return;
-  }
-  navigator.clipboard.writeText(usuarioActual.wallet);
-  alert("Billetera copiada");
-}
+/* ================= LOGOUT ================= */
 
-// LOGOUT
 function logout(){
   location.reload();
 }
