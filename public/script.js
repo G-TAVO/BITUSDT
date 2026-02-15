@@ -29,7 +29,7 @@ async function login(){
     return;
   }
 
-  if(email === "" || password === ""){
+  if(!email || !password){
     alert("Complete todos los campos");
     return;
   }
@@ -42,16 +42,25 @@ async function login(){
       body:JSON.stringify({ email, password })
     });
 
+    // 🔐 Si el servidor devuelve error 500 o 404
+    if(!res.ok){
+      document.getElementById("loginMsg").innerText =
+        "Error servidor: " + res.status;
+      return;
+    }
+
     const data = await res.json();
 
     if(!data.ok){
-      document.getElementById("loginMsg").innerText = data.msg;
+      document.getElementById("loginMsg").innerText =
+        data.msg || "Credenciales incorrectas";
       return;
     }
 
     // ADMIN
     if(data.rol === "admin"){
-      window.location.reload(); // mantiene tu lógica original
+      alert("Bienvenido Admin");
+      window.location.reload();
       return;
     }
 
@@ -64,7 +73,9 @@ async function login(){
     cargarPanel();
 
   }catch(error){
-    alert("Error de conexión");
+    console.error(error);
+    document.getElementById("loginMsg").innerText =
+      "No conecta con el servidor";
   }
 }
 
@@ -76,7 +87,7 @@ async function register(){
   const email = document.getElementById("r_email").value.trim();
   const password = document.getElementById("r_pass").value;
 
-  if(nombre === "" || email === "" || password === ""){
+  if(!nombre || !email || !password){
     alert("Complete todos los campos");
     return;
   }
@@ -94,6 +105,11 @@ async function register(){
       body:JSON.stringify({ nombre, email, password })
     });
 
+    if(!res.ok){
+      alert("Error servidor: " + res.status);
+      return;
+    }
+
     const data = await res.json();
     alert(data.msg);
 
@@ -102,7 +118,8 @@ async function register(){
     }
 
   }catch(error){
-    alert("Error de conexión");
+    console.error(error);
+    alert("No conecta con el servidor");
   }
 }
 
@@ -110,19 +127,23 @@ async function register(){
 
 function cargarPanel(){
 
+  if(!usuarioActual) return;
+
   document.getElementById("nombreUser").innerText =
     usuarioActual.nombre || "Sin nombre";
 
   document.getElementById("saldo").innerText =
-    usuarioActual.saldo;
+    usuarioActual.saldo || 0;
 
   document.getElementById("dia").innerText =
-    usuarioActual.dias;
+    usuarioActual.dias || 0;
 }
 
 /* ================= EDITAR NOMBRE ================= */
 
 async function editarNombre(){
+
+  if(!usuarioActual) return;
 
   let nuevo = prompt("Escribe tu nombre completo");
 
@@ -142,6 +163,11 @@ async function editarNombre(){
       })
     });
 
+    if(!res.ok){
+      alert("Error servidor");
+      return;
+    }
+
     const data = await res.json();
     alert(data.msg);
 
@@ -151,13 +177,16 @@ async function editarNombre(){
     }
 
   }catch(error){
-    alert("Error de conexión");
+    console.error(error);
+    alert("No conecta con el servidor");
   }
 }
 
 /* ================= INVERTIR ================= */
 
 async function invertir(){
+
+  if(!usuarioActual) return;
 
   const monto = Number(document.getElementById("monto").value);
 
@@ -177,17 +206,25 @@ async function invertir(){
       })
     });
 
+    if(!res.ok){
+      alert("Error servidor");
+      return;
+    }
+
     const data = await res.json();
     alert(data.msg);
 
   }catch(error){
-    alert("Error de conexión");
+    console.error(error);
+    alert("No conecta con el servidor");
   }
 }
 
 /* ================= AGREGAR WALLET ================= */
 
 async function agregarWallet(){
+
+  if(!usuarioActual) return;
 
   let wallet = prompt("Pega tu billetera TRC20");
 
@@ -207,6 +244,11 @@ async function agregarWallet(){
       })
     });
 
+    if(!res.ok){
+      alert("Error servidor");
+      return;
+    }
+
     const data = await res.json();
     alert(data.msg);
 
@@ -215,13 +257,16 @@ async function agregarWallet(){
     }
 
   }catch(error){
-    alert("Error de conexión");
+    console.error(error);
+    alert("No conecta con el servidor");
   }
 }
 
 /* ================= RETIRAR ================= */
 
 async function retirar(){
+
+  if(!usuarioActual) return;
 
   try{
 
@@ -233,11 +278,17 @@ async function retirar(){
       })
     });
 
+    if(!res.ok){
+      alert("Error servidor");
+      return;
+    }
+
     const data = await res.json();
     alert(data.msg);
 
   }catch(error){
-    alert("Error de conexión");
+    console.error(error);
+    alert("No conecta con el servidor");
   }
 }
 
@@ -251,4 +302,4 @@ function invitar(){
 
 function logout(){
   location.reload();
-}
+      }
