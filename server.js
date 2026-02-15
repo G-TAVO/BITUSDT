@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 /* ================== VALIDAR VARIABLES ================== */
 
-if (!process.env.MONGO_URL) {
+/*if (!process.env.MONGO_URL) {
   console.error("❌ ERROR: MONGO_URL no está definido en Render");
   process.exit(1);
 }
@@ -24,7 +24,7 @@ if (!process.env.MONGO_URL) {
 if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASS) {
   console.error("❌ ERROR: ADMIN_EMAIL o ADMIN_PASS no están definidos");
   process.exit(1);
-}
+}*/
 
 /* ================== MONGODB ================== */
 
