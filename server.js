@@ -5,19 +5,38 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const app = express();
-app.use(express.json());
+
+/* ================== SEGURIDAD BASICA ================== */
+
+app.use(express.json({ limit: "10kb" }));
 app.use(cors());
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
+/* ================== VALIDAR VARIABLES ================== */
+
+if (!process.env.MONGO_URL) {
+  console.error("❌ ERROR: MONGO_URL no está definido en Render");
+  process.exit(1);
+}
+
+if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASS) {
+  console.error("❌ ERROR: ADMIN_EMAIL o ADMIN_PASS no están definidos");
+  process.exit(1);
+}
+
 /* ================== MONGODB ================== */
 
-mongoose.connect(
-  process.env.MONGO_URL
-)
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
 .then(() => console.log("✅ MongoDB conectado"))
-.catch(err => console.log("❌ Error Mongo:", err));
+.catch(err => {
+  console.error("❌ Error Mongo:", err.message);
+  process.exit(1);
+});
 
 /* ================== MODELOS ================== */
 
@@ -43,10 +62,10 @@ const SolicitudSchema = new mongoose.Schema({
 const User = mongoose.model("User", UserSchema);
 const Solicitud = mongoose.model("Solicitud", SolicitudSchema);
 
-/* ================= ADMIN SEGURO ================= */
+/* ================= ADMIN ================= */
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASS = process.env.ADMIN_PASS;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL.trim();
+const ADMIN_PASS = process.env.ADMIN_PASS.trim();
 
 /* ================= VALIDACIONES ================= */
 
@@ -55,6 +74,7 @@ function validarEmail(email){
 }
 
 function sanitizarTexto(texto){
+  if (!texto) return "";
   return texto.trim();
 }
 
@@ -83,14 +103,14 @@ app.post("/api/register", async (req, res) => {
 
   try {
 
-    const email = sanitizarTexto(req.body.email);
+    const email = sanitizarTexto(req.body.email).toLowerCase();
     const nombre = sanitizarTexto(req.body.nombre);
     const password = req.body.password;
 
     if(!validarEmail(email))
       return res.json({ ok:false, msg:"Email inválido" });
 
-    if(password.length < 6)
+    if(!password || password.length < 6)
       return res.json({ ok:false, msg:"Mínimo 6 caracteres" });
 
     const existe = await User.findOne({ email });
@@ -108,6 +128,7 @@ app.post("/api/register", async (req, res) => {
     res.json({ ok:true, msg:"Registro exitoso" });
 
   } catch (err) {
+    console.error(err);
     res.json({ ok:false, msg:"Error servidor" });
   }
 });
@@ -118,11 +139,11 @@ app.post("/api/login", async (req, res) => {
 
   try {
 
-    const email = sanitizarTexto(req.body.email);
+    const email = sanitizarTexto(req.body.email).toLowerCase();
     const password = req.body.password;
 
     // ADMIN
-    if(email === ADMIN_EMAIL){
+    if(email === ADMIN_EMAIL.toLowerCase()){
       if(password !== ADMIN_PASS)
         return res.json({ ok:false, msg:"Clave admin incorrecta" });
 
@@ -152,6 +173,7 @@ app.post("/api/login", async (req, res) => {
     });
 
   } catch (err) {
+    console.error(err);
     res.json({ ok:false, msg:"Error servidor" });
   }
 });
@@ -160,53 +182,70 @@ app.post("/api/login", async (req, res) => {
 
 app.post("/api/invertir", async (req, res) => {
 
-  const monto = Number(req.body.monto);
+  try {
 
-  if(isNaN(monto) || monto <= 0)
-    return res.json({ ok:false, msg:"Monto inválido" });
+    const monto = Number(req.body.monto);
+    const email = sanitizarTexto(req.body.email).toLowerCase();
 
-  const u = await User.findOne({ email:req.body.email });
-  if (!u)
-    return res.json({ ok:false, msg:"Usuario no existe" });
+    if(isNaN(monto) || monto <= 0)
+      return res.json({ ok:false, msg:"Monto inválido" });
 
-  await Solicitud.create({
-    email:u.email,
-    monto,
-    estado:"pendiente",
-    tipo:"inversion",
-    wallet:u.wallet
-  });
+    const u = await User.findOne({ email });
+    if (!u)
+      return res.json({ ok:false, msg:"Usuario no existe" });
 
-  res.json({ ok:true, msg:"Solicitud enviada al admin" });
+    await Solicitud.create({
+      email:u.email,
+      monto,
+      estado:"pendiente",
+      tipo:"inversion",
+      wallet:u.wallet
+    });
+
+    res.json({ ok:true, msg:"Solicitud enviada al admin" });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ ok:false, msg:"Error servidor" });
+  }
 });
 
 /* ================= RETIRAR ================= */
 
 app.post("/api/retirar", async (req, res) => {
 
-  const u = await User.findOne({ email:req.body.email });
-  if (!u)
-    return res.json({ ok:false, msg:"Usuario no existe" });
+  try {
 
-  if(!u.wallet)
-    return res.json({ ok:false, msg:"Debe registrar billetera" });
+    const email = sanitizarTexto(req.body.email).toLowerCase();
 
-  if (u.saldo < 20)
-    return res.json({ ok:false, msg:"Mínimo 20 USDT" });
+    const u = await User.findOne({ email });
+    if (!u)
+      return res.json({ ok:false, msg:"Usuario no existe" });
 
-  await Solicitud.create({
-    email:u.email,
-    monto:u.saldo,
-    estado:"pendiente",
-    tipo:"retiro",
-    wallet:u.wallet
-  });
+    if(!u.wallet)
+      return res.json({ ok:false, msg:"Debe registrar billetera" });
 
-  u.saldo = 0;
-  u.dias = 0;
-  await u.save();
+    if (u.saldo < 20)
+      return res.json({ ok:false, msg:"Mínimo 20 USDT" });
 
-  res.json({ ok:true, msg:"Retiro enviado al admin" });
+    await Solicitud.create({
+      email:u.email,
+      monto:u.saldo,
+      estado:"pendiente",
+      tipo:"retiro",
+      wallet:u.wallet
+    });
+
+    u.saldo = 0;
+    u.dias = 0;
+    await u.save();
+
+    res.json({ ok:true, msg:"Retiro enviado al admin" });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ ok:false, msg:"Error servidor" });
+  }
 });
 
 /* ================= SERVER ================= */
