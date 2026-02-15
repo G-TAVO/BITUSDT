@@ -79,14 +79,9 @@ app.post("/api/register", async (req, res) => {
     const hash = await bcrypt.hash(req.body.password, 10);
 
     await User.create({
-      email: req.body.email,
-      password: hash
-    });
-
-    res.json({ ok: true, msg: "Registro exitoso" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error servidor" });
-  }
+  nombre: req.body.nombre,
+  email: req.body.email,
+  password: hash
 });
 
 /* ================= LOGIN ================= */
