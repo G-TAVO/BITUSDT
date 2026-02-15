@@ -1,0 +1,122 @@
+/* ================= RESET SUAVE ================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ================= BODY ================= */
+body{
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
+}
+
+/* ================= CAJAS ================= */
+.box{
+  background:#1e293b;
+  padding:30px;
+  border-radius:12px;
+  width:350px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  transition:0.3s;
+}
+
+.box h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+/* ================= INPUTS ================= */
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+  outline:none;
+  font-size:14px;
+}
+
+/* ================= BOTONES ================= */
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+  background:#00c896;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#00a67d;
+}
+
+/* ================= LINKS ================= */
+.link{
+  text-align:center;
+  margin-top:10px;
+  font-size:14px;
+  cursor:pointer;
+  color:#00c896;
+}
+
+.link:hover{
+  text-decoration:underline;
+}
+
+/* ================= PANEL ================= */
+#panel{
+  text-align:center;
+}
+
+#panel h3{
+  margin-bottom:10px;
+}
+
+/* ================= DATOS USUARIO ================= */
+.usuario-info{
+  background:#334155;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:15px;
+}
+
+.usuario-info p{
+  margin:5px 0;
+}
+
+/* ================= BOTON EDITAR NOMBRE ================= */
+.btn-nombre{
+  background:#2563eb;
+}
+
+.btn-nombre:hover{
+  background:#1d4ed8;
+}
+
+/* ================= CHECKBOX TERMINOS ================= */
+.terminos-box{
+  display:flex;
+  align-items:center;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.terminos-box input{
+  width:auto;
+  margin-right:8px;
+}
+
+/* ================= OCULTAR ================= */
+.hide{
+  display:none;
+}
