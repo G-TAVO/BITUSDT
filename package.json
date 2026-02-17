@@ -1,7 +1,7 @@
 {
   "name": "bitusdt",
   "version": "1.0.0",
-  "description": "Simulador educativo USDT BITUSDT",
+  "description": "USDT BITUSDT",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
