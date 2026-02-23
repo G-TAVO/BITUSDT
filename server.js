@@ -100,17 +100,28 @@ app.post("/api/login", async (req,res)=>{
 
   await actualizarGanancias(user);
 
+//  res.json({
+  //  ok:true,
+  //  rol:"user",
+  //  user:{
+    //  email:user.email,
+    //  saldo:user.saldo,
+    //  wallet:user.wallet,
+   //   ultimaActualizacion:user.ultimaActualizacion,
+    //  inversionActiva:user.inversionActiva
+   // }
+ // });
+//});
   res.json({
-    ok:true,
-    rol:"user",
-    user:{
-      email:user.email,
-      saldo:user.saldo,
-      wallet:user.wallet,
-      ultimaActualizacion:user.ultimaActualizacion,
-      inversionActiva:user.inversionActiva
-    }
-  });
+  ok: true,
+  rol: "user",
+  user: {
+    email: user.email,
+    saldo: user.saldo,
+    wallet: user.wallet,
+    ultimaActualizacion: user.ultimaActualizacion,
+    inversionActiva: user.saldo > 0
+  }
 });
 
 /* ================= INVERTIR ================= */
