@@ -87,7 +87,7 @@ function cargarPanel(){
     : "No registrada";
 }
 
-}
+
 
 // INVERTIR
 async function invertir(){
