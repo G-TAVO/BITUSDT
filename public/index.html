@@ -2,256 +2,191 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<title>BITUSDT Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BITUSDT</title>
 
 <style>
-body{
+*{
   margin:0;
-  font-family:'Segoe UI',Arial;
-  background:linear-gradient(135deg,#020617,#0f172a);
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
   color:white;
 }
 
-/* CONTENEDOR LOGIN / REGISTRO */
-.auth-wrapper{
-  min-height:100vh;
+.box{
+  background:#1e293b;
+  padding:25px;
+  border-radius:12px;
+  width:360px;
+  box-shadow:0 10px 25px rgba(0,0,0,.5);
+}
+
+h2,h3{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+/* INFO USUARIO */
+.usuario-info{
+  background:#334155;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:15px;
+}
+
+.usuario-info p{
+  margin:6px 0;
+}
+
+/* RELOJ */
+#reloj{
+  font-size:24px;
+  font-weight:bold;
+  text-align:center;
+  margin-top:10px;
+  color:#00ffcc;
+}
+
+/* BOTONES */
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#00c896;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:disabled{
+  background:#64748b;
+  cursor:not-allowed;
+}
+
+/* TERMINOS */
+.terminos-box{
   display:flex;
+  align-items:flex-start;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.terminos-box input{
+  margin-right:8px;
+  margin-top:3px;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,.7);
+  display:none;
   justify-content:center;
   align-items:center;
 }
 
-.card{
-  background:#020617cc;
-  margin:10px;
-  padding:18px;
-  border-radius:16px;
-  box-shadow:0 0 20px #000;
-  width:100%;
-  max-width:420px;
-}
-
-h3{
-  margin-top:0;
-  color:#22c55e;
-  text-align:center;
-}
-
-input{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
+.modal-content{
+  background:#1e293b;
+  padding:20px;
+  width:90%;
+  max-width:400px;
   border-radius:10px;
-  border:1px solid #1e293b;
-  font-size:15px;
-  background:#020617;
-  color:white;
 }
 
-button{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:12px;
-  border:none;
-  font-size:15px;
-  font-weight:bold;
-  cursor:pointer;
+.modal-content h3{
+  margin-bottom:10px;
 }
 
-button:hover{opacity:.9}
-
-.hide{display:none}
-.admin{border:2px solid #22c55e}
-small{
-  cursor:pointer;
-  color:#22c55e;
-  display:block;
-  text-align:center;
-  margin-top:8px;
-}
-
-hr{border:1px solid #1e293b;margin:18px 0}
-
-/* BOTONES DEL PANEL */
-.menu-botones{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-/* === COLORES PRO === */
-.btn-invertir{
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:#052e16;
-}
-
-.btn-wallet{
-  background:linear-gradient(135deg,#38bdf8,#2563eb);
-  color:white;
-}
-
-.btn-retirar{
-  background:linear-gradient(135deg,#fb923c,#f97316);
-  color:#431407;
-}
-
-.btn-whatsapp{
-  background:linear-gradient(135deg,#a855f7,#7c3aed);
-  color:white;
-}
-
-.btn-salir{
-  background:#ef4444;
-  color:white;
-}
-
-.contact{
-  margin-top:15px;
-  padding:12px;
-  background:#020617;
-  border-radius:12px;
-  text-align:center;
+.modal-content p{
   font-size:14px;
-}
-
-@media(max-width:600px){
-  .card{margin:15px}
+  margin-bottom:15px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN / REGISTRO -->
-<div class="auth-wrapper">
-<label style="font-size:13px">
-      <input type="checkbox" id="terminos">
-      Acepto términos y condiciones
-  <p>1. Cada usuario debe realizar la tarea diaria para ganar 0.5 USD.</p>
-    <p>2. Por cada invitado activo ganas 2 USD.</p>
-    <p>3. Si hay grupo de WhatsApp, debes subir la captura.</p>
-    <p>4. Invertir 10 USD → ganas 16 USD.</p>
-    <p>5. Invertir 20 USD → ganas 26 USD.</p>
-    <p>6. Nequi solo con amigos de confianza que tengan Binance.</p>
-    <p>7. Correo oficial: <b>Binancecoin958@gmail.com</b></p>
-    <p>8. BITUSDT funciona como modelo CDT.</p>
-    <p>9. Al Retirar el saldo, Retiraras inversion mas ganancias </p>
-     <p>LOS RETIROS LLEGA DENTRODE 72 HORAS</p>
-</label>
-  <!-- LOGIN -->
-  <div class="card" id="loginBox">
-    <h3>LOGIN</h3>
-    <input id="l_email" placeholder="Correo">
-    <input id="l_pass" type="password" placeholder="Contraseña">
-    <button class="btn-invertir" onclick="login()">Entrar</button>
-    <p id="loginMsg"></p>
-    <small onclick="mostrarRegistro()">Crear cuenta</small>
+<div class="box">
+  <h2>Panel Usuario</h2>
+
+  <div class="usuario-info">
+    <p><b>Saldo:</b> $<span id="saldo">0</span></p>
+    <p><b>Inversión:</b> $<span id="inversion">0</span></p>
+    <p><b>Ganancias:</b> $<span id="ganancias">0</span></p>
   </div>
 
-  <!-- REGISTRO -->
-  <div class="card hide" id="registerBox">
-    <h3>REGISTRO</h3>
-    <input id="r_email" placeholder="Correo">
-    <input id="r_pass" type="password" placeholder="Contraseña">
-    <button class="btn-wallet" onclick="register()">Registrar</button>
-    <button class="btn-retirar" onclick="volverLogin()">Volver</button>
-    <p id="msg"></p>
+  <h3>Próxima ganancia en:</h3>
+  <div id="reloj">--:--:--</div>
+
+  <div class="terminos-box">
+    <input type="checkbox" id="aceptaTerminos">
+    <label>
+      Acepto los <span style="color:#00c896;cursor:pointer" onclick="abrirTerminos()">términos y condiciones</span>
+    </label>
   </div>
 
+  <button id="btnInvertir" disabled>Confirmar Inversión</button>
 </div>
 
-<!-- PANEL USUARIO -->
-<div class="card hide" id="panel">
-  <!--h3>Panel Usuario</h3-->
-  <!--h3 id="tituloPanel">Panel Usuario</h3-->
-<h3 id="tituloPanel">Panel Usuario</h3>
-
-
-  <p>BILLETERA DE DEPÓSITO:</p>
-  <b id="wallet"></b>
-  <button class="btn-wallet" onclick="copiarWallet()">Copiar billetera</button>
-
-  <hr>
-
-  <p>SALDO: <b id="saldo">0</b> USDT</p>
-  <p style="color:#00ffcc;font-weight:bold">
-  Próxima ganancia en: <span id="contador">--:--:--</span>
-  </p>
-  <p>GANANCIA DIARIA: <b>0.5 USDT</b></p>
-
-  <input id="monto" placeholder="Monto a invertir">
-
-  <div class="menu-botones">
-    <button class="btn-invertir" onclick="invertir()">Invertir</button>
-    <button class="btn-wallet" onclick="agregarWallet()">Agregar billetera</button>
-    <button class="btn-retirar" onclick="retirar()">Retirar</button>
-    <button class="btn-whatsapp" onclick="invitar()">WhatsApp</button>
+<!-- MODAL TERMINOS -->
+<div class="modal" id="modalTerminos">
+  <div class="modal-content">
+    <h3>Términos y Condiciones</h3>
+    <p>
+      1. Las inversiones generan ganancias cada 24 horas.<br>
+      2. El saldo debe mantenerse activo.<br>
+      3. Las ganancias se calculan automáticamente.<br>
+      4. No se permite manipulación del sistema.<br>
+      5. Al aceptar, confirmas estar de acuerdo.
+    </p>
+    <button onclick="cerrarTerminos()">Cerrar</button>
   </div>
-
-  <button class="btn-salir" onclick="logout()">Salir</button>
-
-  <div class="contact">
-    📧 <b>Binancecoin958@gmail.com</b><br>
-    Contáctame al correo que aparece en pantalla
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div class="card admin hide" id="admin">
-  <h3>ADMIN</h3>
-  <div id="lista"></div>
-  <button class="btn-salir" onclick="logout()">Salir</button>
 </div>
 
 <script>
-let walletAdmin="TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
-let usuarioActual=null;
+// ====== SIMULACIÓN DE DATOS (VIENEN DEL BACKEND) ======
+const usuarioActual = {
+  saldo: 100,
+  inversion: 50,
+  ganancias: 10,
+  inversionActiva: true,
+  ultimaActualizacion: "2026-02-22T18:00:00Z" // FECHA DESDE SERVER
+};
 
-function mostrarRegistro(){
-  loginBox.classList.add("hide");
-  registerBox.classList.remove("hide");
-}
-function volverLogin(){
-  registerBox.classList.add("hide");
-  loginBox.classList.remove("hide");
-}
+// ====== ELEMENTOS ======
+const saldo = document.getElementById("saldo");
+const inversion = document.getElementById("inversion");
+const ganancias = document.getElementById("ganancias");
+const reloj = document.getElementById("reloj");
+const check = document.getElementById("aceptaTerminos");
+const btn = document.getElementById("btnInvertir");
 
-async function login(){
-  const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:l_email.value,password:l_pass.value})});
-  const data=await res.json();
-  if(!data.ok){loginMsg.innerText=data.msg;return;}
-  usuarioActual=data.user;
-  document.querySelector(".auth-wrapper").classList.add("hide");
-  if(data.rol==="admin"){admin.classList.remove("hide");cargarAdmin();}
-  else{panel.classList.remove("hide");cargarPanel();}
-}
-
-async function register(){
-  if(!r_email.value||!r_pass.value)return alert("Complete todo");
-  const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:r_email.value,password:r_pass.value})});
-  const data=await res.json();
-  alert(data.msg);
-  if(data.ok)volverLogin();
-}
-
+// ====== PANEL ======
 function cargarPanel(){
-  saldo.innerText=usuarioActual.saldo;
-  dia.innerText=usuarioActual.dias;
-  wallet.innerText=walletAdmin;
+  saldo.innerText = usuarioActual.saldo;
+  inversion.innerText = usuarioActual.inversion;
+  ganancias.innerText = usuarioActual.ganancias;
+  iniciarReloj();
 }
 
-async function invertir(){
-  if(!monto.value)return alert("Ingrese monto");
-  const res=await fetch("/api/invertir",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:usuarioActual.email,monto:monto.value})});
-  const data=await res.json();
-  alert(data.msg);
-}
+// ====== RELOJ 24H ======
 function iniciarReloj(){
-  if (!usuarioActual.inversionActiva || !usuarioActual.ultimaActualizacion) {
+  if(!usuarioActual.inversionActiva || !usuarioActual.ultimaActualizacion){
     reloj.innerText = "--:--:--";
     return;
   }
@@ -261,8 +196,8 @@ function iniciarReloj(){
     const ultimo = new Date(usuarioActual.ultimaActualizacion);
     const diff = 24*60*60*1000 - (ahora - ultimo);
 
-    if (diff <= 0){
-      location.reload();
+    if(diff <= 0){
+      reloj.innerText = "00:00:00";
       return;
     }
 
@@ -275,62 +210,21 @@ function iniciarReloj(){
   },1000);
 }
 
-function cargarPanel(){
-  saldo.innerText = usuarioActual.saldo;
-  iniciarReloj();
-}
-async function agregarWallet(){
-  let w=prompt("Ingrese su billetera TRC20");
-  if(!w)return;
-  const res=await fetch("/api/wallet",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:usuarioActual.email,wallet:w})});
-  const data=await res.json();
-  alert(data.msg);
+// ====== TERMINOS ======
+check.addEventListener("change",()=>{
+  btn.disabled = !check.checked;
+});
+
+function abrirTerminos(){
+  document.getElementById("modalTerminos").style.display="flex";
 }
 
-async function retirar(){
-  const res=await fetch("/api/retirar",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({email:usuarioActual.email})});
-  const data=await res.json();
-  alert(data.msg);
+function cerrarTerminos(){
+  document.getElementById("modalTerminos").style.display="none";
 }
 
-async function cargarAdmin(){
-  const res=await fetch("/api/solicitudes");
-  const data=await res.json();
-  let html="";
-  data.forEach(s=>{
-    html+=`
-    <div class="card">
-      📧 <b>${s.email}</b><br>
-      💰 Monto: ${s.monto}<br>
-      📌 Tipo: ${s.tipo}<br>
-      👛 Wallet: ${s.wallet||"No registrada"}<br>
-      <button class="btn-invertir" onclick="aprobar('${s._id}')">Aprobar</button>
-      <button class="btn-retirar" onclick="rechazar('${s._id}')">Rechazar</button>
-    </div>`;
-  });
-  lista.innerHTML=html;
-}
-
-async function aprobar(id){
-  await fetch("/api/aprobar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-  cargarAdmin();
-}
-
-async function rechazar(id){
-  await fetch("/api/rechazar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
-  cargarAdmin();
-}
-
-function invitar(){
-  window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
-}
-function copiarWallet(){
-  navigator.clipboard.writeText(walletAdmin);
-  alert("Billetera copiada");
-}
-function logout(){location.reload();}
+// ====== INICIO ======
+cargarPanel();
 </script>
 
 </body>
