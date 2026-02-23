@@ -83,7 +83,31 @@ async function actualizarGanancias(user) {
   user.ultimaActualizacion = ahora;
   await user.save();
 }
+function iniciarContador(ultimaActualizacion) {
+  const INTERVALO = 24 * 60 * 60 * 1000; // 24 horas
 
+  function actualizar() {
+    const ahora = new Date().getTime();
+    const ultima = new Date(ultimaActualizacion).getTime();
+    const proxima = ultima + INTERVALO;
+    const restante = proxima - ahora;
+
+    if (restante <= 0) {
+      document.getElementById("contador").innerText = "Calculando...";
+      return;
+    }
+
+    const horas = Math.floor(restante / (1000 * 60 * 60));
+    const minutos = Math.floor((restante % (1000 * 60 * 60)) / (1000 * 60));
+    const segundos = Math.floor((restante % (1000 * 60)) / 1000);
+
+    document.getElementById("contador").innerText =
+      `${horas}h ${minutos}m ${segundos}s`;
+  }
+
+  actualizar();
+  setInterval(actualizar, 1000);
+}
 /* ================= REGISTRO ================= */
 
 app.post("/api/register", async (req, res) => {
