@@ -31,8 +31,8 @@ const UserSchema = new mongoose.Schema({
 const SolicitudSchema = new mongoose.Schema({
   email: String,
   monto: Number,
-  tipo: String,
-  estado: String,
+  tipo: String, // inversion o retiro
+  estado: String, // pendiente, aprobado
   wallet: String,
   fecha: { type: Date, default: Date.now }
 });
@@ -56,7 +56,6 @@ async function actualizarGanancias(user){
   if (horas >= 24) {
     const ciclos = Math.floor(horas / 24);
 
-    // 🔥 SUMA 0.5 POR CADA 24H SIN REEMPLAZAR
     user.saldo += ciclos * 0.5;
 
     user.ultimaActualizacion = new Date(
@@ -102,7 +101,6 @@ app.post("/api/login", async (req,res)=>{
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) return res.json({ ok:false, msg:"Clave incorrecta" });
 
-  // 🔥 ACTUALIZA GANANCIAS AUTOMÁTICAS AL LOGIN
   await actualizarGanancias(user);
 
   res.json({
@@ -146,20 +144,21 @@ app.post("/api/aprobar", async (req,res)=>{
   if (!s) return res.json({ ok:false });
 
   const u = await User.findOne({ email:s.email });
+  if (!u) return res.json({ ok:false });
 
   if (s.tipo === "inversion") {
 
-    // 🔥 SI YA TENÍA INVERSIÓN, SUMA
-    u.saldo += s.monto;
-
     u.inversionActiva = true;
 
-    // SI ES PRIMERA INVERSIÓN, INICIA RELOJ
     if (!u.ultimaActualizacion) {
       u.ultimaActualizacion = new Date();
     }
 
     await u.save();
+  }
+
+  if (s.tipo === "retiro") {
+    // aquí puedes luego marcar como pagado si quieres
   }
 
   s.estado = "aprobado";
@@ -171,6 +170,7 @@ app.post("/api/aprobar", async (req,res)=>{
 /* ================= RETIRAR ================= */
 app.post("/api/retirar", async (req,res)=>{
   const u = await User.findOne({ email:req.body.email });
+  if (!u) return res.json({ ok:false });
 
   if (u.saldo < 20)
     return res.json({ ok:false, msg:"Mínimo 20 USDT" });
@@ -202,11 +202,7 @@ app.post("/api/wallet", async (req,res)=>{
 
   res.json({ ok:true, msg:"Billetera guardada" });
 });
-/* ================= ADMIN VER USUARIOS ================= */
-app.get("/api/usuarios", async (req,res)=>{
-  const usuarios = await User.find().select("-password");
-  res.json(usuarios);
-});
+
 /* ================= ADMIN VER USUARIOS ================= */
 app.get("/api/usuarios", async (req,res)=>{
   try{
@@ -216,5 +212,6 @@ app.get("/api/usuarios", async (req,res)=>{
     res.status(500).json({ error:"Error obteniendo usuarios" });
   }
 });
+
 /* ================= SERVER ================= */
 app.listen(PORT, ()=>console.log("🚀 Servidor activo"));
