@@ -31,8 +31,8 @@ const UserSchema = new mongoose.Schema({
 const SolicitudSchema = new mongoose.Schema({
   email: String,
   monto: Number,
-  tipo: String, // inversion | retiro
-  estado: String, // pendiente | aprobado | rechazado
+  tipo: String,
+  estado: String,
   wallet: String,
   fecha: { type: Date, default: Date.now }
 });
@@ -55,10 +55,14 @@ async function actualizarGanancias(user){
 
   if (horas >= 24) {
     const ciclos = Math.floor(horas / 24);
+
+    // 🔥 SUMA 0.5 POR CADA 24H SIN REEMPLAZAR
     user.saldo += ciclos * 0.5;
+
     user.ultimaActualizacion = new Date(
       user.ultimaActualizacion.getTime() + ciclos * 24 * 60 * 60 * 1000
     );
+
     await user.save();
   }
 }
@@ -66,6 +70,7 @@ async function actualizarGanancias(user){
 /* ================= REGISTRO ================= */
 app.post("/api/register", async (req,res)=>{
   const { email, password } = req.body;
+
   const existe = await User.findOne({ email });
   if (existe) return res.json({ ok:false, msg:"Correo ya registrado" });
 
@@ -91,37 +96,26 @@ app.post("/api/login", async (req,res)=>{
     });
   }
 
-  // USUARIO
   const user = await User.findOne({ email });
   if (!user) return res.json({ ok:false, msg:"Usuario no existe" });
 
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) return res.json({ ok:false, msg:"Clave incorrecta" });
 
+  // 🔥 ACTUALIZA GANANCIAS AUTOMÁTICAS AL LOGIN
   await actualizarGanancias(user);
 
-//  res.json({
-  //  ok:true,
-  //  rol:"user",
-  //  user:{
-    //  email:user.email,
-    //  saldo:user.saldo,
-    //  wallet:user.wallet,
-   //   ultimaActualizacion:user.ultimaActualizacion,
-    //  inversionActiva:user.inversionActiva
-   // }
- // });
-//});
   res.json({
-  ok: true,
-  rol: "user",
-  user: {
-    email: user.email,
-    saldo: user.saldo,
-    wallet: user.wallet,
-    ultimaActualizacion: user.ultimaActualizacion,
-    inversionActiva: user.saldo > 0
-  }
+    ok: true,
+    rol: "user",
+    user: {
+      email: user.email,
+      saldo: user.saldo,
+      wallet: user.wallet,
+      ultimaActualizacion: user.ultimaActualizacion,
+      inversionActiva: user.inversionActiva
+    }
+  });
 });
 
 /* ================= INVERTIR ================= */
@@ -154,9 +148,17 @@ app.post("/api/aprobar", async (req,res)=>{
   const u = await User.findOne({ email:s.email });
 
   if (s.tipo === "inversion") {
-    u.saldo = s.monto;
+
+    // 🔥 SI YA TENÍA INVERSIÓN, SUMA
+    u.saldo += s.monto;
+
     u.inversionActiva = true;
-    u.ultimaActualizacion = new Date();
+
+    // SI ES PRIMERA INVERSIÓN, INICIA RELOJ
+    if (!u.ultimaActualizacion) {
+      u.ultimaActualizacion = new Date();
+    }
+
     await u.save();
   }
 
@@ -184,6 +186,7 @@ app.post("/api/retirar", async (req,res)=>{
   u.saldo = 0;
   u.inversionActiva = false;
   u.ultimaActualizacion = null;
+
   await u.save();
 
   res.json({ ok:true, msg:"Retiro enviado" });
