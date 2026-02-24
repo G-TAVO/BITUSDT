@@ -24,7 +24,7 @@ const UserSchema = new mongoose.Schema({
   password: String,
 
   role: { type: String, default: "user" },
-  approved: { type: Boolean, default: true }, // entra directo
+  approved: { type: Boolean, default: true },
   blocked: { type: Boolean, default: false },
 
   saldo: { type: Number, default: 0 },
@@ -71,12 +71,13 @@ app.post("/api/register", async (req,res)=>{
   const { email, password } = req.body;
 
   const existe = await User.findOne({ email });
-  if (existe) return res.json({ ok:false, msg:"Correo ya registrado" });
+  if (existe)
+    return res.json({ ok:false, msg:"Correo ya registrado" });
 
   const hash = await bcrypt.hash(password,10);
   await User.create({ email, password: hash });
 
-  res.json({ ok:true });
+  res.json({ ok:true, msg:"Registro exitoso" });
 });
 
 /* ================= LOGIN ================= */
@@ -84,18 +85,21 @@ app.post("/api/login", async (req,res)=>{
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) return res.json({ ok:false });
+  if (!user)
+    return res.json({ ok:false, msg:"Usuario no existe" });
 
   if (user.blocked)
     return res.json({ ok:false, msg:"Cuenta bloqueada" });
 
   const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.json({ ok:false });
+  if (!ok)
+    return res.json({ ok:false, msg:"Contraseña incorrecta" });
 
   await actualizarGanancias(user);
 
   res.json({
     ok:true,
+    msg:"Login correcto",
     rol:user.role,
     user:{
       email:user.email,
@@ -112,7 +116,8 @@ app.post("/api/invertir", async (req,res)=>{
   const { email, monto } = req.body;
 
   const u = await User.findOne({ email });
-  if (!u) return res.json({ ok:false });
+  if (!u)
+    return res.json({ ok:false, msg:"Usuario no encontrado" });
 
   await Solicitud.create({
     email,
@@ -127,7 +132,8 @@ app.post("/api/invertir", async (req,res)=>{
 /* ================= RETIRAR ================= */
 app.post("/api/retirar", async (req,res)=>{
   const u = await User.findOne({ email:req.body.email });
-  if (!u) return res.json({ ok:false });
+  if (!u)
+    return res.json({ ok:false, msg:"Usuario no encontrado" });
 
   if (u.saldo < 20)
     return res.json({ ok:false, msg:"Mínimo 20 USDT" });
@@ -168,14 +174,18 @@ app.get("/api/solicitudes", async (req,res)=>{
   res.json(lista);
 });
 
-/* ================= APROBAR ================= */
+/* ================= APROBAR (ADMIN) ================= */
 app.post("/api/aprobar", async (req,res)=>{
+  if (req.body.adminKey !== "ADMIN123")
+    return res.json({ ok:false, msg:"No autorizado" });
+
   const s = await Solicitud.findById(req.body.id);
   if (!s || s.estado !== "pendiente")
-    return res.json({ ok:false });
+    return res.json({ ok:false, msg:"Solicitud inválida" });
 
   const u = await User.findOne({ email:s.email });
-  if (!u) return res.json({ ok:false });
+  if (!u)
+    return res.json({ ok:false, msg:"Usuario no existe" });
 
   if (s.tipo === "inversion") {
     u.montoInvertido += s.monto;
@@ -194,30 +204,34 @@ app.post("/api/aprobar", async (req,res)=>{
   s.estado = "aprobado";
   await s.save();
 
-  res.json({ ok:true });
+  res.json({ ok:true, msg:"Solicitud aprobada" });
 });
 
-/* ================= RECHAZAR ================= */
+/* ================= RECHAZAR (ADMIN) ================= */
 app.post("/api/rechazar", async (req,res)=>{
+  if (req.body.adminKey !== "ADMIN123")
+    return res.json({ ok:false, msg:"No autorizado" });
+
   const s = await Solicitud.findById(req.body.id);
   if (!s || s.estado !== "pendiente")
-    return res.json({ ok:false });
+    return res.json({ ok:false, msg:"Solicitud inválida" });
 
   s.estado = "rechazado";
   await s.save();
 
-  res.json({ ok:true });
+  res.json({ ok:true, msg:"Solicitud rechazada" });
 });
 
 /* ================= WALLET ================= */
 app.post("/api/wallet", async (req,res)=>{
   const u = await User.findOne({ email:req.body.email });
-  if (!u) return res.json({ ok:false });
+  if (!u)
+    return res.json({ ok:false, msg:"Usuario no encontrado" });
 
   u.wallet = req.body.wallet;
   await u.save();
 
-  res.json({ ok:true });
+  res.json({ ok:true, msg:"Wallet actualizada" });
 });
 
 /* ================= VER USUARIOS ================= */
@@ -227,4 +241,6 @@ app.get("/api/usuarios", async (req,res)=>{
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT, ()=>console.log("🚀 Servidor activo en puerto", PORT));
+app.listen(PORT, ()=>{
+  console.log("🚀 Servidor activo en puerto", PORT);
+});
