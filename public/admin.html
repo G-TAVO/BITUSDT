@@ -1,9 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel Admin</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#000428,#004e92);
+  color:white;
+  padding:20px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+}
+
+h2{
+  text-align:center;
+  color:#00ffcc;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  background:#111827;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th, td{
+  padding:10px;
+  text-align:center;
+  border-bottom:1px solid #333;
+}
+
+th{
+  background:#1f2937;
+}
+
+button{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#22c55e;
+  color:white;
+}
+
+.btn-red{
+  background:#ef4444;
+  margin-top:20px;
+  width:100%;
+  padding:10px;
+}
+</style>
 </head>
-<body style="background:#111;color:#00ffcc;text-align:center;">
-<h1>Bienvenido Administrador</h1>
+<body>
+
+<div class="container">
+<h2>Panel Administrador</h2>
+
+<table>
+<thead>
+<tr>
+<th>Email</th>
+<th>Saldo</th>
+<th>Inversión Activa</th>
+<th>Billetera</th>
+</tr>
+</thead>
+<tbody id="tablaUsuarios">
+</tbody>
+</table>
+
+<button class="btn-red" onclick="salir()">Cerrar sesión</button>
+
+</div>
+
+<script>
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+if(!usuario) window.location.href="/";
+
+async function cargarUsuarios(){
+  const res = await fetch("/api/usuarios");
+  const data = await res.json();
+
+  const tabla = document.getElementById("tablaUsuarios");
+  tabla.innerHTML = "";
+
+  data.forEach(u=>{
+    tabla.innerHTML += `
+      <tr>
+        <td>${u.email}</td>
+        <td>${u.saldo} USDT</td>
+        <td>${u.inversionActiva ? "Sí" : "No"}</td>
+        <td>${u.wallet || "No registrada"}</td>
+      </tr>
+    `;
+  });
+}
+
+function salir(){
+  localStorage.removeItem("usuario");
+  window.location.href="/";
+}
+
+cargarUsuarios();
+</script>
+
 </body>
 </html>
