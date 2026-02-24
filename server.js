@@ -23,6 +23,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   saldo: { type: Number, default: 0 },
+  montoInvertido: { type: Number, default: 0 },
   wallet: { type: String, default: "" },
   ultimaActualizacion: { type: Date, default: null },
   inversionActiva: { type: Boolean, default: false }
@@ -32,7 +33,7 @@ const SolicitudSchema = new mongoose.Schema({
   email: String,
   monto: Number,
   tipo: String, // inversion o retiro
-  estado: String, // pendiente, aprobado
+  estado: { type: String, default: "pendiente" }, // pendiente, aprobado, rechazado
   wallet: String,
   fecha: { type: Date, default: Date.now }
 });
@@ -46,7 +47,7 @@ const ADMIN = {
   password: "Enriique1998"
 };
 
-/* ================= GANANCIA AUTOMÁTICA ================= */
+/* ================= GANANCIA AUTOMÁTICA 5% ================= */
 async function actualizarGanancias(user){
   if (!user.inversionActiva || !user.ultimaActualizacion) return;
 
@@ -56,7 +57,9 @@ async function actualizarGanancias(user){
   if (horas >= 24) {
     const ciclos = Math.floor(horas / 24);
 
-    user.saldo += ciclos * 0.5;
+    const gananciaDiaria = user.montoInvertido * 0.05; // 5% diario
+
+    user.saldo += ciclos * gananciaDiaria;
 
     user.ultimaActualizacion = new Date(
       user.ultimaActualizacion.getTime() + ciclos * 24 * 60 * 60 * 1000
@@ -76,78 +79,76 @@ app.post("/api/register", async (req,res)=>{
   const hash = await bcrypt.hash(password,10);
   await User.create({ email, password: hash });
 
-  res.json({ ok:true, msg:"Registro exitoso" });
+  res.json({ ok:true });
 });
 
 /* ================= LOGIN ================= */
 app.post("/api/login", async (req,res)=>{
   const { email, password } = req.body;
 
-  // ADMIN
   if (email === ADMIN.email) {
     if (password !== ADMIN.password)
-      return res.json({ ok:false, msg:"Clave admin incorrecta" });
+      return res.json({ ok:false });
 
-    return res.json({
-      ok:true,
-      rol:"admin",
-      user:{ email: ADMIN.email }
-    });
+    return res.json({ ok:true, rol:"admin" });
   }
 
   const user = await User.findOne({ email });
-  if (!user) return res.json({ ok:false, msg:"Usuario no existe" });
+  if (!user) return res.json({ ok:false });
 
   const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.json({ ok:false, msg:"Clave incorrecta" });
+  if (!ok) return res.json({ ok:false });
 
   await actualizarGanancias(user);
 
   res.json({
-    ok: true,
-    rol: "user",
-    user: {
-      email: user.email,
-      saldo: user.saldo,
-      wallet: user.wallet,
-      ultimaActualizacion: user.ultimaActualizacion,
-      inversionActiva: user.inversionActiva
+    ok:true,
+    rol:"user",
+    user:{
+      email:user.email,
+      saldo:user.saldo,
+      montoInvertido:user.montoInvertido,
+      inversionActiva:user.inversionActiva,
+      wallet:user.wallet
     }
   });
 });
 
 /* ================= INVERTIR ================= */
 app.post("/api/invertir", async (req,res)=>{
-  const u = await User.findOne({ email:req.body.email });
+  const { email, monto } = req.body;
+
+  const u = await User.findOne({ email });
   if (!u) return res.json({ ok:false });
 
   await Solicitud.create({
-    email:u.email,
-    monto:Number(req.body.monto),
+    email,
+    monto:Number(monto),
     tipo:"inversion",
-    estado:"pendiente",
     wallet:u.wallet
   });
 
-  res.json({ ok:true, msg:"Solicitud enviada al admin" });
+  res.json({ ok:true, msg:"Enviado a revisión" });
 });
 
-/* ================= ADMIN VER SOLICITUDES ================= */
+/* ================= VER SOLICITUDES PENDIENTES ================= */
 app.get("/api/solicitudes", async (req,res)=>{
-  const s = await Solicitud.find({ estado:"pendiente" });
-  res.json(s);
+  const lista = await Solicitud.find({ estado:"pendiente" });
+  res.json(lista);
 });
 
 /* ================= APROBAR ================= */
 app.post("/api/aprobar", async (req,res)=>{
   const s = await Solicitud.findById(req.body.id);
-  if (!s) return res.json({ ok:false });
+  if (!s || s.estado !== "pendiente")
+    return res.json({ ok:false });
 
   const u = await User.findOne({ email:s.email });
   if (!u) return res.json({ ok:false });
 
   if (s.tipo === "inversion") {
 
+    u.montoInvertido += s.monto;
     u.inversionActiva = true;
 
     if (!u.ultimaActualizacion) {
@@ -158,10 +159,26 @@ app.post("/api/aprobar", async (req,res)=>{
   }
 
   if (s.tipo === "retiro") {
-    // aquí puedes luego marcar como pagado si quieres
+
+    u.montoInvertido = 0;
+    u.inversionActiva = false;
+    u.ultimaActualizacion = null;
+    await u.save();
   }
 
   s.estado = "aprobado";
+  await s.save();
+
+  res.json({ ok:true });
+});
+
+/* ================= RECHAZAR ================= */
+app.post("/api/rechazar", async (req,res)=>{
+  const s = await Solicitud.findById(req.body.id);
+  if (!s || s.estado !== "pendiente")
+    return res.json({ ok:false });
+
+  s.estado = "rechazado";
   await s.save();
 
   res.json({ ok:true });
@@ -179,17 +196,13 @@ app.post("/api/retirar", async (req,res)=>{
     email:u.email,
     monto:u.saldo,
     tipo:"retiro",
-    estado:"pendiente",
     wallet:u.wallet
   });
 
   u.saldo = 0;
-  u.inversionActiva = false;
-  u.ultimaActualizacion = null;
-
   await u.save();
 
-  res.json({ ok:true, msg:"Retiro enviado" });
+  res.json({ ok:true });
 });
 
 /* ================= WALLET ================= */
@@ -200,17 +213,13 @@ app.post("/api/wallet", async (req,res)=>{
   u.wallet = req.body.wallet;
   await u.save();
 
-  res.json({ ok:true, msg:"Billetera guardada" });
+  res.json({ ok:true });
 });
 
-/* ================= ADMIN VER USUARIOS ================= */
+/* ================= VER USUARIOS ================= */
 app.get("/api/usuarios", async (req,res)=>{
-  try{
-    const usuarios = await User.find().select("-password");
-    res.json(usuarios);
-  }catch(error){
-    res.status(500).json({ error:"Error obteniendo usuarios" });
-  }
+  const usuarios = await User.find().select("-password");
+  res.json(usuarios);
 });
 
 /* ================= SERVER ================= */
