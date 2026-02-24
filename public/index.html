@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>BITUSDT Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BITUSDT</title>
 
 <style>
 *{
@@ -15,13 +15,14 @@
 
 body{
   background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
   color:white;
 }
 
+/* LOGIN BOX */
 .box{
   background:#1e293b;
   padding:25px;
@@ -30,43 +31,31 @@ body{
   box-shadow:0 10px 25px rgba(0,0,0,.5);
 }
 
-h2,h3{
+h2{
   text-align:center;
-  margin-bottom:15px;
-}
-
-/* INFO USUARIO */
-.usuario-info{
-  background:#334155;
-  padding:15px;
-  border-radius:8px;
-  margin-bottom:15px;
-}
-
-.usuario-info p{
-  margin:6px 0;
-}
-
-/* RELOJ */
-#reloj{
-  font-size:24px;
-  font-weight:bold;
-  text-align:center;
-  margin-top:10px;
+  margin-bottom:20px;
   color:#00ffcc;
 }
 
-/* BOTONES */
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+  font-size:14px;
+}
+
 button{
   width:100%;
   padding:10px;
+  margin-top:10px;
   border:none;
   border-radius:6px;
   background:#00c896;
   color:white;
   font-weight:bold;
   cursor:pointer;
-  margin-top:10px;
 }
 
 button:disabled{
@@ -74,157 +63,107 @@ button:disabled{
   cursor:not-allowed;
 }
 
-/* TERMINOS */
-.terminos-box{
-  display:flex;
-  align-items:flex-start;
-  font-size:13px;
-  margin-top:10px;
-}
-
-.terminos-box input{
-  margin-right:8px;
-  margin-top:3px;
-}
-
-/* MODAL */
+/* MODAL TERMINOS */
 .modal{
   position:fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,.7);
-  display:none;
+  background:#0f172a;
+  display:flex;
   justify-content:center;
   align-items:center;
+  padding:20px;
 }
 
 .modal-content{
   background:#1e293b;
   padding:20px;
-  width:90%;
+  border-radius:12px;
   max-width:400px;
-  border-radius:10px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
 }
 
 .modal-content h3{
-  margin-bottom:10px;
+  margin-bottom:15px;
+  text-align:center;
+  color:#00ffcc;
 }
 
 .modal-content p{
   font-size:14px;
-  margin-bottom:15px;
+  margin-bottom:8px;
+  line-height:1.5;
+}
+
+.terminos-box{
+  display:flex;
+  align-items:center;
+  margin-top:15px;
+}
+
+.terminos-box input{
+  width:auto;
+  margin-right:8px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div class="box">
-  <h2>Panel Usuario</h2>
+  <h2>LOGIN</h2>
 
-  <div class="usuario-info">
-    <p><b>Saldo:</b> $<span id="saldo">0</span></p>
-    <p><b>Inversión:</b> $<span id="inversion">0</span></p>
-    <p><b>Ganancias:</b> $<span id="ganancias">0</span></p>
-  </div>
+  <input type="email" id="email" placeholder="Correo">
+  <input type="password" id="password" placeholder="Contraseña">
 
-  <h3>Próxima ganancia en:</h3>
-  <div id="reloj">--:--:--</div>
-
-  <div class="terminos-box">
-    <input type="checkbox" id="aceptaTerminos">
-    <label>
-      Acepto los <span style="color:#00c896;cursor:pointer" onclick="abrirTerminos()">términos y condiciones</span>
-    </label>
-  </div>
-
-  <button id="btnInvertir" disabled>Confirmar Inversión</button>
+  <button id="btnLogin" disabled onclick="login()">Entrar</button>
 </div>
 
-<!-- MODAL TERMINOS -->
+<!-- TERMINOS -->
 <div class="modal" id="modalTerminos">
   <div class="modal-content">
     <h3>Términos y Condiciones</h3>
-    <p>
-      1. Las inversiones generan ganancias cada 24 horas.<br>
-      2. El saldo debe mantenerse activo.<br>
-      3. Las ganancias se calculan automáticamente.<br>
-      4. No se permite manipulación del sistema.<br>
-      5. Al aceptar, confirmas estar de acuerdo.
-    </p>
-    <button onclick="cerrarTerminos()">Cerrar</button>
+
+    <p>1. Cada usuario debe realizar la tarea diaria para ganar 0.5 USD.</p>
+    <p>2. Por cada invitado activo ganas 2 USD.</p>
+    <p>3. Si hay grupo de WhatsApp, debes subir la captura.</p>
+    <p>4. Invertir 10 USD → ganas 16 USD.</p>
+    <p>5. Invertir 20 USD → ganas 26 USD.</p>
+    <p>6. Nequi solo con amigos de confianza que tengan Binance.</p>
+    <p>7. Correo oficial: Binancecoin958@gmail.com</p>
+    <p>8. BITUSDT funciona como modelo CDT.</p>
+    <p>9. Al retirar el saldo, retiras inversión más ganancias.</p>
+    <p><b>LOS RETIROS LLEGAN DENTRO DE 72 HORAS.</b></p>
+
+    <div class="terminos-box">
+      <input type="checkbox" id="aceptar">
+      <label>Acepto los términos y condiciones</label>
+    </div>
   </div>
 </div>
 
 <script>
-// ====== SIMULACIÓN DE DATOS (VIENEN DEL BACKEND) ======
-const usuarioActual = {
-  saldo: 100,
-  inversion: 50,
-  ganancias: 10,
-  inversionActiva: true,
-  ultimaActualizacion: "2026-02-22T18:00:00Z" // FECHA DESDE SERVER
-};
+const modal = document.getElementById("modalTerminos");
+const aceptar = document.getElementById("aceptar");
+const btnLogin = document.getElementById("btnLogin");
 
-// ====== ELEMENTOS ======
-const saldo = document.getElementById("saldo");
-const inversion = document.getElementById("inversion");
-const ganancias = document.getElementById("ganancias");
-const reloj = document.getElementById("reloj");
-const check = document.getElementById("aceptaTerminos");
-const btn = document.getElementById("btnInvertir");
-
-// ====== PANEL ======
-function cargarPanel(){
-  saldo.innerText = usuarioActual.saldo;
-  inversion.innerText = usuarioActual.inversion;
-  ganancias.innerText = usuarioActual.ganancias;
-  iniciarReloj();
-}
-
-// ====== RELOJ 24H ======
-function iniciarReloj(){
-  if(!usuarioActual.inversionActiva || !usuarioActual.ultimaActualizacion){
-    reloj.innerText = "--:--:--";
-    return;
+// CUANDO ACEPTA
+aceptar.addEventListener("change", () => {
+  if(aceptar.checked){
+    modal.style.display = "none";
+    btnLogin.disabled = false;
   }
-
-  setInterval(()=>{
-    const ahora = new Date();
-    const ultimo = new Date(usuarioActual.ultimaActualizacion);
-    const diff = 24*60*60*1000 - (ahora - ultimo);
-
-    if(diff <= 0){
-      reloj.innerText = "00:00:00";
-      return;
-    }
-
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000)/60000);
-    const s = Math.floor((diff % 60000)/1000);
-
-    reloj.innerText =
-      `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-  },1000);
-}
-
-// ====== TERMINOS ======
-check.addEventListener("change",()=>{
-  btn.disabled = !check.checked;
 });
 
-function abrirTerminos(){
-  document.getElementById("modalTerminos").style.display="flex";
+// LOGIN EJEMPLO
+function login(){
+  alert("Login habilitado");
 }
-
-function cerrarTerminos(){
-  document.getElementById("modalTerminos").style.display="none";
-}
-
-// ====== INICIO ======
-cargarPanel();
 </script>
 
 </body>
