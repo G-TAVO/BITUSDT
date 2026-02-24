@@ -22,7 +22,6 @@ body{
   color:white;
 }
 
-/* LOGIN BOX */
 .box{
   background:#1e293b;
   padding:25px;
@@ -63,7 +62,6 @@ button:disabled{
   cursor:not-allowed;
 }
 
-/* MODAL TERMINOS */
 .modal{
   position:fixed;
   top:0;
@@ -114,17 +112,15 @@ button:disabled{
 
 <body>
 
-<!-- LOGIN -->
 <div class="box">
   <h2>LOGIN</h2>
 
   <input type="email" id="email" placeholder="Correo">
   <input type="password" id="password" placeholder="Contraseña">
 
-  <button id="btnLogin" disabled onclick="login()">Entrar</button>
+  <button id="btnLogin" disabled>Entrar</button>
 </div>
 
-<!-- TERMINOS -->
 <div class="modal" id="modalTerminos">
   <div class="modal-content">
     <h3>Términos y Condiciones</h3>
@@ -147,15 +143,14 @@ button:disabled{
   </div>
 </div>
 
-  <script>
+<script>
 const modal = document.getElementById("modalTerminos");
 const aceptar = document.getElementById("aceptar");
 const btnLogin = document.getElementById("btnLogin");
-
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
-// ACTIVAR LOGIN AL ACEPTAR
+// Activar botón al aceptar
 aceptar.addEventListener("change", () => {
   if(aceptar.checked){
     modal.style.display = "none";
@@ -163,7 +158,9 @@ aceptar.addEventListener("change", () => {
   }
 });
 
-// LOGIN REAL CON BACKEND
+// Evento botón
+btnLogin.addEventListener("click", login);
+
 async function login(){
 
   if(!emailInput.value || !passwordInput.value){
@@ -171,79 +168,35 @@ async function login(){
     return;
   }
 
-  const res = await fetch("/api/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email: emailInput.value,
-      password: passwordInput.value
-    })
-  });
+  try{
+    const res = await fetch("/api/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email: emailInput.value,
+        password: passwordInput.value
+      })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if(!data.ok){
-    alert(data.msg);
-    return;
-  }
+    if(!data.ok){
+      alert(data.msg);
+      return;
+    }
 
-  if(data.rol === "admin"){
-    alert("Bienvenido Admin");
-    // aquí puedes redirigir a panel admin si quieres
-  } else {
-    alert("Bienvenido Usuario");
-    // aquí puedes redirigir a panel usuario si quieres
-  }
-}
-  
-const modal = document.getElementById("modalTerminos");
-const aceptar = document.getElementById("aceptar");
-const btnLogin = document.getElementById("btnLogin");
+    localStorage.setItem("usuario", JSON.stringify(data.user));
 
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
+    if(data.rol === "admin"){
+      window.location.href = "/admin.html";
+    } else {
+      window.location.href = "/panel.html";
+    }
 
-// ACTIVAR LOGIN AL ACEPTAR
-aceptar.addEventListener("change", () => {
-  if(aceptar.checked){
-    modal.style.display = "none";
-    btnLogin.disabled = false;
-  }
-});
-
-// LOGIN REAL CON BACKEND
-async function login(){
-
-  if(!emailInput.value || !passwordInput.value){
-    alert("Complete todos los campos");
-    return;
-  }
-
-  const res = await fetch("/api/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email: emailInput.value,
-      password: passwordInput.value
-    })
-  });
-
-  const data = await res.json();
-
-  if(!data.ok){
-    alert(data.msg);
-    return;
-  }
-
-  if(data.rol === "admin"){
-    alert("Bienvenido Admin");
-    // aquí puedes redirigir a panel admin si quieres
-  } else {
-    alert("Bienvenido Usuario");
-    // aquí puedes redirigir a panel usuario si quieres
+  }catch(error){
+    alert("Error conectando con el servidor");
   }
 }
-
 </script>
 
 </body>
