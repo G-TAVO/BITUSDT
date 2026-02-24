@@ -1,4 +1,4 @@
-const express = require("express");
+2const express = require("express");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -202,6 +202,10 @@ app.post("/api/wallet", async (req,res)=>{
 
   res.json({ ok:true, msg:"Billetera guardada" });
 });
-
+/* ================= ADMIN VER USUARIOS ================= */
+app.get("/api/usuarios", async (req,res)=>{
+  const usuarios = await User.find().select("-password");
+  res.json(usuarios);
+});
 /* ================= SERVER ================= */
 app.listen(PORT, ()=>console.log("🚀 Servidor activo"));
