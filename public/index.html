@@ -147,12 +147,15 @@ button:disabled{
   </div>
 </div>
 
-<script>
+  <script>
 const modal = document.getElementById("modalTerminos");
 const aceptar = document.getElementById("aceptar");
 const btnLogin = document.getElementById("btnLogin");
 
-// CUANDO ACEPTA
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+// ACTIVAR LOGIN AL ACEPTAR
 aceptar.addEventListener("change", () => {
   if(aceptar.checked){
     modal.style.display = "none";
@@ -160,9 +163,37 @@ aceptar.addEventListener("change", () => {
   }
 });
 
-// LOGIN EJEMPLO
-function login(){
-  alert("Login habilitado");
+// LOGIN REAL CON BACKEND
+async function login(){
+
+  if(!emailInput.value || !passwordInput.value){
+    alert("Complete todos los campos");
+    return;
+  }
+
+  const res = await fetch("/api/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email: emailInput.value,
+      password: passwordInput.value
+    })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.msg);
+    return;
+  }
+
+  if(data.rol === "admin"){
+    alert("Bienvenido Admin");
+    // aquí puedes redirigir a panel admin si quieres
+  } else {
+    alert("Bienvenido Usuario");
+    // aquí puedes redirigir a panel usuario si quieres
+  }
 }
 </script>
 
