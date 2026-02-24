@@ -22,6 +22,11 @@ mongoose.connect(
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
+
+  role: { type: String, default: "user" },
+  approved: { type: Boolean, default: true }, // entra directo
+  blocked: { type: Boolean, default: false },
+
   saldo: { type: Number, default: 0 },
   montoInvertido: { type: Number, default: 0 },
   wallet: { type: String, default: "" },
@@ -32,20 +37,14 @@ const UserSchema = new mongoose.Schema({
 const SolicitudSchema = new mongoose.Schema({
   email: String,
   monto: Number,
-  tipo: String, // inversion o retiro
-  estado: { type: String, default: "pendiente" }, // pendiente, aprobado, rechazado
+  tipo: String, // inversion | retiro
+  estado: { type: String, default: "pendiente" },
   wallet: String,
   fecha: { type: Date, default: Date.now }
 });
 
 const User = mongoose.model("User", UserSchema);
 const Solicitud = mongoose.model("Solicitud", SolicitudSchema);
-
-/* ================= ADMIN ================= */
-const ADMIN = {
-  email: "Binancecoin958@gmail.com",
-  password: "Enriique1998"
-};
 
 /* ================= GANANCIA AUTOMÁTICA 5% ================= */
 async function actualizarGanancias(user){
@@ -56,11 +55,9 @@ async function actualizarGanancias(user){
 
   if (horas >= 24) {
     const ciclos = Math.floor(horas / 24);
+    const ganancia = user.montoInvertido * 0.05 * ciclos;
 
-    const gananciaDiaria = user.montoInvertido * 0.05; // 5% diario
-
-    user.saldo += ciclos * gananciaDiaria;
-
+    user.saldo += ganancia;
     user.ultimaActualizacion = new Date(
       user.ultimaActualizacion.getTime() + ciclos * 24 * 60 * 60 * 1000
     );
@@ -86,15 +83,11 @@ app.post("/api/register", async (req,res)=>{
 app.post("/api/login", async (req,res)=>{
   const { email, password } = req.body;
 
-  if (email === ADMIN.email) {
-    if (password !== ADMIN.password)
-      return res.json({ ok:false });
-
-    return res.json({ ok:true, rol:"admin" });
-  }
-
   const user = await User.findOne({ email });
   if (!user) return res.json({ ok:false });
+
+  if (user.blocked)
+    return res.json({ ok:false, msg:"Cuenta bloqueada" });
 
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) return res.json({ ok:false });
@@ -103,7 +96,7 @@ app.post("/api/login", async (req,res)=>{
 
   res.json({
     ok:true,
-    rol:"user",
+    rol:user.role,
     user:{
       email:user.email,
       saldo:user.saldo,
@@ -128,12 +121,50 @@ app.post("/api/invertir", async (req,res)=>{
     wallet:u.wallet
   });
 
-  res.json({ ok:true, msg:"Enviado a revisión" });
+  res.json({ ok:true, msg:"Solicitud enviada al administrador" });
 });
 
-/* ================= VER SOLICITUDES PENDIENTES ================= */
+/* ================= RETIRAR ================= */
+app.post("/api/retirar", async (req,res)=>{
+  const u = await User.findOne({ email:req.body.email });
+  if (!u) return res.json({ ok:false });
+
+  if (u.saldo < 20)
+    return res.json({ ok:false, msg:"Mínimo 20 USDT" });
+
+  await Solicitud.create({
+    email:u.email,
+    monto:u.saldo,
+    tipo:"retiro",
+    wallet:u.wallet
+  });
+
+  u.saldo = 0;
+  await u.save();
+
+  res.json({ ok:true, msg:"Retiro enviado a revisión" });
+});
+
+/* ================= VER SOLICITUDES (ADMIN) ================= */
 app.get("/api/solicitudes", async (req,res)=>{
-  const lista = await Solicitud.find({ estado:"pendiente" });
+  const solicitudes = await Solicitud.find({ estado:"pendiente" });
+  const lista = [];
+
+  for (let s of solicitudes) {
+    const u = await User.findOne({ email:s.email }).select("-password");
+    if (u) {
+      lista.push({
+        _id: s._id,
+        email: u.email,
+        tipo: s.tipo,
+        monto: s.monto,
+        saldo: u.saldo,
+        wallet: u.wallet,
+        fecha: s.fecha
+      });
+    }
+  }
+
   res.json(lista);
 });
 
@@ -147,19 +178,13 @@ app.post("/api/aprobar", async (req,res)=>{
   if (!u) return res.json({ ok:false });
 
   if (s.tipo === "inversion") {
-
     u.montoInvertido += s.monto;
     u.inversionActiva = true;
-
-    if (!u.ultimaActualizacion) {
-      u.ultimaActualizacion = new Date();
-    }
-
+    u.ultimaActualizacion = new Date();
     await u.save();
   }
 
   if (s.tipo === "retiro") {
-
     u.montoInvertido = 0;
     u.inversionActiva = false;
     u.ultimaActualizacion = null;
@@ -184,27 +209,6 @@ app.post("/api/rechazar", async (req,res)=>{
   res.json({ ok:true });
 });
 
-/* ================= RETIRAR ================= */
-app.post("/api/retirar", async (req,res)=>{
-  const u = await User.findOne({ email:req.body.email });
-  if (!u) return res.json({ ok:false });
-
-  if (u.saldo < 20)
-    return res.json({ ok:false, msg:"Mínimo 20 USDT" });
-
-  await Solicitud.create({
-    email:u.email,
-    monto:u.saldo,
-    tipo:"retiro",
-    wallet:u.wallet
-  });
-
-  u.saldo = 0;
-  await u.save();
-
-  res.json({ ok:true });
-});
-
 /* ================= WALLET ================= */
 app.post("/api/wallet", async (req,res)=>{
   const u = await User.findOne({ email:req.body.email });
@@ -223,4 +227,4 @@ app.get("/api/usuarios", async (req,res)=>{
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT, ()=>console.log("🚀 Servidor activo"));
+app.listen(PORT, ()=>console.log("🚀 Servidor activo en puerto", PORT));
