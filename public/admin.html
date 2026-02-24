@@ -85,10 +85,14 @@ button{
 </div>
 
 <script>
-const usuario = JSON.parse(localStorage.getItem("usuario"));
-if(!usuario || usuario.rol !== "admin"){
+/* ===== VALIDAR ADMIN ===== */
+const rol = localStorage.getItem("rol");
+if(rol !== "admin"){
   window.location.href = "/";
 }
+
+/* ===== ADMIN KEY ===== */
+const ADMIN_KEY = "ADMIN123";
 
 /* ================= CARGAR SOLICITUDES ================= */
 async function cargarSolicitudes(){
@@ -126,26 +130,32 @@ async function cargarSolicitudes(){
 
 /* ================= APROBAR ================= */
 async function aprobar(id){
-  await fetch("/api/aprobar",{
+  const res = await fetch("/api/aprobar",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ id })
+    body: JSON.stringify({ id, adminKey: ADMIN_KEY })
   });
+
+  const data = await res.json();
+  alert(data.msg);
   cargarSolicitudes();
 }
 
 /* ================= RECHAZAR ================= */
 async function rechazar(id){
-  await fetch("/api/rechazar",{
+  const res = await fetch("/api/rechazar",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ id })
+    body: JSON.stringify({ id, adminKey: ADMIN_KEY })
   });
+
+  const data = await res.json();
+  alert(data.msg);
   cargarSolicitudes();
 }
 
 function salir(){
-  localStorage.removeItem("usuario");
+  localStorage.clear();
   window.location.href = "/";
 }
 
