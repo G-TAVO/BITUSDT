@@ -207,5 +207,14 @@ app.get("/api/usuarios", async (req,res)=>{
   const usuarios = await User.find().select("-password");
   res.json(usuarios);
 });
+/* ================= ADMIN VER USUARIOS ================= */
+app.get("/api/usuarios", async (req,res)=>{
+  try{
+    const usuarios = await User.find().select("-password");
+    res.json(usuarios);
+  }catch(error){
+    res.status(500).json({ error:"Error obteniendo usuarios" });
+  }
+});
 /* ================= SERVER ================= */
 app.listen(PORT, ()=>console.log("🚀 Servidor activo"));
