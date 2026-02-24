@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -44,6 +43,7 @@ button{
   margin-top:10px;
   font-weight:bold;
   cursor:pointer;
+  color:white;
 }
 
 .btn-green{ background:#22c55e; }
@@ -75,21 +75,21 @@ input{
 <h2>Panel Usuario</h2>
 
 <div class="card">
-<p><b>Billetera de Depósito:</b></p>
-<p id="walletDeposito">TRC20-XXXX-XXXX-XXXX</p>
+<p><b>Billetera registrada:</b></p>
+<p id="walletDeposito">No registrada</p>
 <button class="btn-blue" onclick="copiar()">Copiar billetera</button>
 </div>
 
 <div class="card">
 <p><b>Saldo:</b> <span id="saldo">0</span> USDT</p>
-<p><b>Ganancia diaria:</b> 0.5 USDT</p>
+<p><b>Ganancia diaria:</b> 5%</p>
 </div>
 
 <div class="card">
 <input type="number" id="monto" placeholder="Monto a invertir">
 <button class="btn-green" onclick="invertir()">Invertir</button>
 <button class="btn-orange" onclick="retirar()">Retirar</button>
-<button class="btn-purple" onclick="guardarWallet()">Agregar billetera</button>
+<button class="btn-purple" onclick="guardarWallet()">Agregar / Cambiar billetera</button>
 <button class="btn-blue" onclick="whatsapp()">WhatsApp</button>
 <button class="btn-red" onclick="salir()">Salir</button>
 </div>
@@ -104,61 +104,89 @@ input{
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 if(!usuario) window.location.href="/";
 
+/* ===== CARGAR DATOS ===== */
 document.getElementById("saldo").innerText = usuario.saldo || 0;
+document.getElementById("walletDeposito").innerText =
+  usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
 
+/* ===== COPIAR WALLET ===== */
 function copiar(){
-  navigator.clipboard.writeText("TU_WALLET_TRON_AQUI");
+  if(!usuario.wallet){
+    alert("No tienes billetera registrada");
+    return;
+  }
+  navigator.clipboard.writeText(usuario.wallet);
   alert("Billetera copiada");
 }
 
+/* ===== INVERTIR ===== */
 async function invertir(){
   const monto = document.getElementById("monto").value;
 
+  if(!monto || monto <= 0){
+    alert("Ingresa un monto válido");
+    return;
+  }
+
   const res = await fetch("/api/invertir",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:usuario.email,
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      email: usuario.email,
       monto
     })
   });
 
   const data = await res.json();
-  alert(data.msg);
+  alert(data.msg || "Solicitud enviada");
 }
 
+/* ===== RETIRAR ===== */
 async function retirar(){
   const res = await fetch("/api/retirar",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ email:usuario.email })
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ email: usuario.email })
   });
 
   const data = await res.json();
-  alert(data.msg);
+  alert(data.msg || "Solicitud enviada");
 }
 
+/* ===== GUARDAR WALLET ===== */
 async function guardarWallet(){
-  const w = prompt("Ingresa tu billetera Binance o Nequi:");
+  const w = prompt("Ingresa tu billetera (TRC20 / Nequi):");
 
-  await fetch("/api/wallet",{
+  if(!w){
+    alert("Billetera no válida");
+    return;
+  }
+
+  const res = await fetch("/api/wallet",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:usuario.email,
-      wallet:w
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      email: usuario.email,
+      wallet: w
     })
   });
 
-  alert("Billetera guardada");
+  const data = await res.json();
+  alert(data.msg || "Billetera guardada");
+
+  usuario.wallet = w;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+  document.getElementById("walletDeposito").innerText = w;
 }
 
+/* ===== WHATSAPP ===== */
 function whatsapp(){
-  window.open("https://wa.me/57TU_NUMERO");
+  window.open("https://wa.me/57XXXXXXXXXX","_blank");
 }
 
+/* ===== SALIR ===== */
 function salir(){
-  localStorage.removeItem("usuario");
+  localStorage.clear();
   window.location.href="/";
 }
 </script>
