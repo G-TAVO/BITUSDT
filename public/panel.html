@@ -1,9 +1,167 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel Usuario</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:white;
+  padding:20px;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  background:#111827;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+
+h2{
+  text-align:center;
+  color:#00ffcc;
+}
+
+.card{
+  background:#1f2937;
+  padding:15px;
+  border-radius:10px;
+  margin:15px 0;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  margin-top:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.btn-green{ background:#22c55e; }
+.btn-orange{ background:#f97316; }
+.btn-blue{ background:#3b82f6; }
+.btn-purple{ background:#9333ea; }
+.btn-red{ background:#ef4444; }
+
+input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  margin-top:10px;
+}
+
+.footer{
+  text-align:center;
+  margin-top:20px;
+  font-size:14px;
+  opacity:.8;
+}
+</style>
 </head>
-<body style="background:#111;color:white;text-align:center;">
-<h1>Bienvenido Usuario</h1>
+<body>
+
+<div class="container">
+
+<h2>Panel Usuario</h2>
+
+<div class="card">
+<p><b>Billetera de Depósito:</b></p>
+<p id="walletDeposito">TRC20-XXXX-XXXX-XXXX</p>
+<button class="btn-blue" onclick="copiar()">Copiar billetera</button>
+</div>
+
+<div class="card">
+<p><b>Saldo:</b> <span id="saldo">0</span> USDT</p>
+<p><b>Ganancia diaria:</b> 0.5 USDT</p>
+</div>
+
+<div class="card">
+<input type="number" id="monto" placeholder="Monto a invertir">
+<button class="btn-green" onclick="invertir()">Invertir</button>
+<button class="btn-orange" onclick="retirar()">Retirar</button>
+<button class="btn-purple" onclick="guardarWallet()">Agregar billetera</button>
+<button class="btn-blue" onclick="whatsapp()">WhatsApp</button>
+<button class="btn-red" onclick="salir()">Salir</button>
+</div>
+
+<div class="footer">
+📩 Binancecoin958@gmail.com
+</div>
+
+</div>
+
+<script>
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+if(!usuario) window.location.href="/";
+
+document.getElementById("saldo").innerText = usuario.saldo || 0;
+
+function copiar(){
+  navigator.clipboard.writeText("TU_WALLET_TRON_AQUI");
+  alert("Billetera copiada");
+}
+
+async function invertir(){
+  const monto = document.getElementById("monto").value;
+
+  const res = await fetch("/api/invertir",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:usuario.email,
+      monto
+    })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+}
+
+async function retirar(){
+  const res = await fetch("/api/retirar",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ email:usuario.email })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+}
+
+async function guardarWallet(){
+  const w = prompt("Ingresa tu billetera Binance o Nequi:");
+
+  await fetch("/api/wallet",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:usuario.email,
+      wallet:w
+    })
+  });
+
+  alert("Billetera guardada");
+}
+
+function whatsapp(){
+  window.open("https://wa.me/57TU_NUMERO");
+}
+
+function salir(){
+  localStorage.removeItem("usuario");
+  window.location.href="/";
+}
+</script>
+
 </body>
 </html>
