@@ -15,7 +15,7 @@ body{
 }
 
 .container{
-  max-width:900px;
+  max-width:1100px;
   margin:auto;
 }
 
@@ -48,9 +48,11 @@ button{
   border:none;
   border-radius:6px;
   cursor:pointer;
-  background:#22c55e;
   color:white;
 }
+
+.btn-ok{ background:#22c55e; }
+.btn-no{ background:#ef4444; }
 
 .btn-red{
   background:#ef4444;
@@ -63,54 +65,91 @@ button{
 <body>
 
 <div class="container">
-<h2>Panel Administrador</h2>
+<h2>Solicitudes Pendientes</h2>
 
 <table>
 <thead>
 <tr>
 <th>Email</th>
+<th>Tipo</th>
+<th>Monto</th>
 <th>Saldo</th>
-<th>Inversión Activa</th>
-<th>Billetera</th>
+<th>Wallet</th>
+<th>Acción</th>
 </tr>
 </thead>
-<tbody id="tablaUsuarios">
-</tbody>
+<tbody id="tablaSolicitudes"></tbody>
 </table>
 
 <button class="btn-red" onclick="salir()">Cerrar sesión</button>
-
 </div>
 
 <script>
 const usuario = JSON.parse(localStorage.getItem("usuario"));
-if(!usuario) window.location.href="/";
+if(!usuario || usuario.rol !== "admin"){
+  window.location.href = "/";
+}
 
-async function cargarUsuarios(){
-  const res = await fetch("/api/usuarios");
+/* ================= CARGAR SOLICITUDES ================= */
+async function cargarSolicitudes(){
+  const res = await fetch("/api/solicitudes");
   const data = await res.json();
 
-  const tabla = document.getElementById("tablaUsuarios");
+  const tabla = document.getElementById("tablaSolicitudes");
   tabla.innerHTML = "";
 
-  data.forEach(u=>{
+  if(data.length === 0){
+    tabla.innerHTML = `
+      <tr>
+        <td colspan="6">No hay solicitudes pendientes</td>
+      </tr>
+    `;
+    return;
+  }
+
+  data.forEach(s=>{
     tabla.innerHTML += `
       <tr>
-        <td>${u.email}</td>
-        <td>${u.saldo} USDT</td>
-        <td>${u.inversionActiva ? "Sí" : "No"}</td>
-        <td>${u.wallet || "No registrada"}</td>
+        <td>${s.email}</td>
+        <td>${s.tipo}</td>
+        <td>${s.monto} USDT</td>
+        <td>${s.saldo} USDT</td>
+        <td>${s.wallet || "-"}</td>
+        <td>
+          <button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
+          <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
+        </td>
       </tr>
     `;
   });
 }
 
-function salir(){
-  localStorage.removeItem("usuario");
-  window.location.href="/";
+/* ================= APROBAR ================= */
+async function aprobar(id){
+  await fetch("/api/aprobar",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ id })
+  });
+  cargarSolicitudes();
 }
 
-cargarUsuarios();
+/* ================= RECHAZAR ================= */
+async function rechazar(id){
+  await fetch("/api/rechazar",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ id })
+  });
+  cargarSolicitudes();
+}
+
+function salir(){
+  localStorage.removeItem("usuario");
+  window.location.href = "/";
+}
+
+cargarSolicitudes();
 </script>
 
 </body>
