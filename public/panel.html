@@ -72,6 +72,12 @@ input{
 .menu-acciones{
   display:none;
   margin-top:10px;
+  animation: slideDown .3s ease;
+}
+
+@keyframes slideDown{
+  from{ opacity:0; transform:translateY(-6px); }
+  to{ opacity:1; transform:translateY(0); }
 }
 </style>
 </head>
@@ -83,37 +89,37 @@ input{
 <h2>Panel Usuario</h2>
 
 <div class="card">
-<p><b>Billetera registrada:</b></p>
-<p id="walletDeposito">No registrada</p>
-<button class="btn-blue" onclick="copiar()">Copiar billetera</button>
+  <p><b>Billetera registrada:</b></p>
+  <p id="walletDeposito">No registrada</p>
+  <button class="btn-blue" onclick="copiar()">Copiar billetera</button>
 </div>
 
 <div class="card">
-<p><b>Saldo:</b> <span id="saldo">0</span> USDT</p>
-<p><b>Ganancia diaria:</b> 5%</p>
+  <p><b>Saldo:</b> <span id="saldo">0</span> USDT</p>
+  <p><b>Ganancia diaria:</b> 5%</p>
 </div>
 
 <div class="card">
 
-<input type="number" id="monto" placeholder="Monto a invertir">
+  <input type="number" id="monto" placeholder="Monto a invertir">
 
-<!-- BOTÓN MENÚ -->
-<button class="btn-menu" onclick="toggleMenu()">☰ Menú de acciones</button>
+  <!-- BOTÓN MENÚ -->
+  <button class="btn-menu" onclick="toggleMenu()">☰ Menú de acciones</button>
 
-<!-- MENÚ OCULTO -->
-<div id="menuAcciones" class="menu-acciones">
+  <!-- MENÚ -->
+  <div id="menuAcciones" class="menu-acciones">
 
-  <button class="btn-green" onclick="invertir()">Invertir</button>
+    <button class="btn-green" onclick="invertir(); cerrarMenu()">Invertir</button>
 
-  <button class="btn-orange" onclick="retirar()">Retirar</button>
+    <button class="btn-orange" onclick="retirar(); cerrarMenu()">Retirar</button>
 
-  <button class="btn-purple" onclick="guardarWallet()">Agregar / Cambiar billetera</button>
+    <button class="btn-purple" onclick="guardarWallet(); cerrarMenu()">Agregar / Cambiar billetera</button>
 
-  <button class="btn-blue" onclick="whatsapp()">WhatsApp</button>
+    <button class="btn-blue" onclick="whatsapp(); cerrarMenu()">WhatsApp</button>
 
-  <button class="btn-red" onclick="salir()">Salir</button>
+    <button class="btn-red" onclick="salir()">Salir</button>
 
-</div>
+  </div>
 
 </div>
 
@@ -131,6 +137,10 @@ if(!usuario) window.location.href="/";
 function toggleMenu(){
   const menu = document.getElementById("menuAcciones");
   menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+function cerrarMenu(){
+  document.getElementById("menuAcciones").style.display = "none";
 }
 
 /* ===== CARGAR DATOS ===== */
@@ -169,8 +179,13 @@ async function invertir(){
   alert(data.msg || "Solicitud enviada");
 }
 
-/* ===== RETIRAR ===== */
+/* ===== RETIRAR (PROTEGIDO) ===== */
 async function retirar(){
+  if(!usuario.wallet){
+    alert("Debes registrar una billetera primero");
+    return;
+  }
+
   const res = await fetch("/api/retirar",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
