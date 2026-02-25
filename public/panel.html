@@ -51,6 +51,7 @@ button{
 .btn-blue{ background:#3b82f6; }
 .btn-purple{ background:#9333ea; }
 .btn-red{ background:#ef4444; }
+.btn-menu{ background:#00c896; }
 
 input{
   width:100%;
@@ -66,8 +67,15 @@ input{
   font-size:14px;
   opacity:.8;
 }
+
+/* MENÚ DESPLEGABLE */
+.menu-acciones{
+  display:none;
+  margin-top:10px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -86,12 +94,27 @@ input{
 </div>
 
 <div class="card">
+
 <input type="number" id="monto" placeholder="Monto a invertir">
-<button class="btn-green" onclick="invertir()">Invertir</button>
-<button class="btn-orange" onclick="retirar()">Retirar</button>
-<button class="btn-purple" onclick="guardarWallet()">Agregar / Cambiar billetera</button>
-<button class="btn-blue" onclick="whatsapp()">WhatsApp</button>
-<button class="btn-red" onclick="salir()">Salir</button>
+
+<!-- BOTÓN MENÚ -->
+<button class="btn-menu" onclick="toggleMenu()">☰ Menú de acciones</button>
+
+<!-- MENÚ OCULTO -->
+<div id="menuAcciones" class="menu-acciones">
+
+  <button class="btn-green" onclick="invertir()">Invertir</button>
+
+  <button class="btn-orange" onclick="retirar()">Retirar</button>
+
+  <button class="btn-purple" onclick="guardarWallet()">Agregar / Cambiar billetera</button>
+
+  <button class="btn-blue" onclick="whatsapp()">WhatsApp</button>
+
+  <button class="btn-red" onclick="salir()">Salir</button>
+
+</div>
+
 </div>
 
 <div class="footer">
@@ -103,6 +126,12 @@ input{
 <script>
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 if(!usuario) window.location.href="/";
+
+/* ===== MENÚ ===== */
+function toggleMenu(){
+  const menu = document.getElementById("menuAcciones");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
 
 /* ===== CARGAR DATOS ===== */
 document.getElementById("saldo").innerText = usuario.saldo || 0;
@@ -122,7 +151,6 @@ function copiar(){
 /* ===== INVERTIR ===== */
 async function invertir(){
   const monto = document.getElementById("monto").value;
-
   if(!monto || monto <= 0){
     alert("Ingresa un monto válido");
     return;
@@ -156,7 +184,6 @@ async function retirar(){
 /* ===== GUARDAR WALLET ===== */
 async function guardarWallet(){
   const w = prompt("Ingresa tu billetera (TRC20 / Nequi):");
-
   if(!w){
     alert("Billetera no válida");
     return;
