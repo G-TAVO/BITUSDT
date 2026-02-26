@@ -232,6 +232,20 @@ app.post("/api/wallet", async (req, res) => {
 app.get("/register", (req, res) => {
   res.sendFile(__dirname + "/register.html");
 });
+const path = require("path");
+
+// servir archivos estáticos (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, "public")));
+
+// RUTA LOGIN
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// RUTA REGISTER (ESTA ES LA QUE FALTABA)
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "register.html"));
+});
 /* ================= SERVER ================= */
 
 app.listen(PORT, () =>
