@@ -247,7 +247,101 @@ app.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 /* ================= SERVER ================= */
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// MIDDLEWARE
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+// ARCHIVO DE USUARIOS
+const USERS_FILE = path.join(__dirname, "users.json");
+
+// crear users.json si no existe
+if (!fs.existsSync(USERS_FILE)) {
+  fs.writeFileSync(USERS_FILE, JSON.stringify([]));
+}
+
+// =====================
+// RUTAS FRONTEND
+// =====================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+
+// =====================
+// API REGISTER
+// =====================
+app.post("/api/register", (req, res) => {
+  const { nombre, email, telefono, password } = req.body;
+
+  if (!nombre || !email || !telefono || !password) {
+    return res.json({ ok: false, msg: "Datos incompletos" });
+  }
+
+  const users = JSON.parse(fs.readFileSync(USERS_FILE));
+
+  // verificar si el correo ya existe
+  const existe = users.find(u => u.email === email);
+  if (existe) {
+    return res.json({ ok: false, msg: "El correo ya está registrado" });
+  }
+
+  const nuevoUsuario = {
+    id: Date.now(),
+    nombre,
+    email,
+    telefono,
+    password, // ⚠️ luego lo ciframos
+    rol: "user"
+  };
+
+  users.push(nuevoUsuario);
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+
+  res.json({ ok: true });
+});
+
+// =====================
+// API LOGIN
+// =====================
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const users = JSON.parse(fs.readFileSync(USERS_FILE));
+
+  const user = users.find(
+    u => u.email === email && u.password === password
+  );
+
+  if (!user) {
+    return res.json({ ok: false, msg: "Credenciales incorrectas" });
+  }
+
+  res.json({
+    ok: true,
+    rol: user.rol,
+    user: {
+      id: user.id,
+      nombre: user.nombre,
+      email: user.email,
+      telefono: user.telefono
+    }
+  });
+});
+
+// =====================
+app.listen(PORT, () => {
+  console.log("Servidor activo en puerto", PORT);
+});
 app.listen(PORT, () =>
   console.log("🚀 Servidor activo en puerto " + PORT)
 );
