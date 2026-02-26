@@ -114,20 +114,20 @@ async function cargarSolicitudes(){
   }
 
   data.forEach(s=>{
-    tabla.innerHTML += `
-      <tr>
-        <td>${s.email}</td>
-        <td>${s.tipo}</td>
-        <td>${s.monto} USDT</td>
-        <td>${s.saldo} USDT</td>
-        <td>${s.wallet || "-"}</td>
-        <td>
-          <button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
-          <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
-        </td>
-      </tr>
-    `;
-  });
+  tabla.innerHTML += `
+    <tr>
+      <td>${s.email}</td>
+      <td>${s.tipo}</td>
+      <td>${s.monto} USDT</td>
+      <td>${s.wallet || "-"}</td>
+      <td>
+        <button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
+        <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
+        <button onclick="editarSaldo('${s.email}')">✏️</button>
+      </td>
+    </tr>
+  `;
+});
 }
 
 /* ================= APROBAR ================= */
