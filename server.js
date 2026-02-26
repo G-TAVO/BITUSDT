@@ -229,7 +229,9 @@ app.post("/api/wallet", async (req, res) => {
     res.json({ ok: false, msg: "Error servidor" });
   }
 });
-
+app.get("/register", (req, res) => {
+  res.sendFile(__dirname + "/register.html");
+});
 /* ================= SERVER ================= */
 
 app.listen(PORT, () =>
