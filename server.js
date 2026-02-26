@@ -251,6 +251,17 @@ app.post("/api/modificar-saldo", async (req, res) => {
     res.json({ ok: false, msg: "Error servidor" });
   }
 });
+/* ================= LISTAR USUARIOS (ADMIN) ================= */
+
+app.get("/api/usuarios", async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (err) {
+    res.json([]);
+  }
+});
+
 app.listen(PORT, () =>
   console.log("🚀 Servidor activo en puerto " + PORT)
 );
