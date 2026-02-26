@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro | BITUSDT</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+
+.box{
+  background:#1e293b;
+  padding:25px;
+  border-radius:12px;
+  width:360px;
+  box-shadow:0 10px 25px rgba(0,0,0,.5);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+  color:#00ffcc;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+  font-size:14px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+  background:#00c896;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  background:#64748b;
+  cursor:not-allowed;
+}
+
+.link-login{
+  margin-top:15px;
+  text-align:center;
+  font-size:14px;
+}
+
+.link-login a{
+  color:#00ffcc;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+.link-login a:hover{
+  text-decoration:underline;
+}
+
+.terminos{
+  display:flex;
+  align-items:center;
+  margin-top:10px;
+  font-size:13px;
+}
+
+.terminos input{
+  width:auto;
+  margin-right:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>REGISTRARSE</h2>
+
+  <input type="text" id="nombre" placeholder="Nombre completo">
+  <input type="email" id="email" placeholder="Correo electrónico">
+  <input type="tel" id="telefono" placeholder="Número de teléfono">
+  <input type="password" id="password" placeholder="Contraseña">
+
+  <div class="terminos">
+    <input type="checkbox" id="aceptar">
+    <label>Acepto los términos y condiciones</label>
+  </div>
+
+  <button id="btnRegister" disabled>Registrarse</button>
+
+  <p class="link-login">
+    ¿Ya tienes cuenta?
+    <a href="/">Inicia sesión</a>
+  </p>
+</div>
+
+<script>
+const nombre = document.getElementById("nombre");
+const email = document.getElementById("email");
+const telefono = document.getElementById("telefono");
+const password = document.getElementById("password");
+const aceptar = document.getElementById("aceptar");
+const btnRegister = document.getElementById("btnRegister");
+
+// activar botón al aceptar términos
+aceptar.addEventListener("change", () => {
+  btnRegister.disabled = !aceptar.checked;
+});
+
+btnRegister.addEventListener("click", registrar);
+
+async function registrar(){
+
+  if(!nombre.value || !email.value || !telefono.value || !password.value){
+    alert("Complete todos los campos");
+    return;
+  }
+
+  try{
+    const res = await fetch("/api/register",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        nombre: nombre.value,
+        email: email.value,
+        telefono: telefono.value,
+        password: password.value
+      })
+    });
+
+    const data = await res.json();
+
+    if(!data.ok){
+      alert(data.msg || "Error al registrarse");
+      return;
+    }
+
+    alert("Registro exitoso. Ahora puedes iniciar sesión.");
+    window.location.href = "/";
+
+  }catch(error){
+    alert("Error conectando con el servidor");
+  }
+}
+</script>
+
+</body>
+</html>
