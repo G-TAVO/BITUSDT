@@ -86,8 +86,9 @@ button{
 
 <script>
 /* ===== VALIDAR ADMIN ===== */
-const rol = localStorage.getItem("rol");
-if(rol !== "admin"){
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+if(!usuario || usuario.rol !== "admin"){
   window.location.href = "/";
 }
 
