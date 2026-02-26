@@ -42,12 +42,12 @@ const Solicitud = mongoose.model("Solicitud", SolicitudSchema);
 
 /* ================= ADMIN ================= */
 const ADMIN = {
-  email: "Binancecoin958@gmail.com",
+  email: "binancecoin958@gmail.com",
   password: "Enriique1998"
 };
 
 /* ================= GANANCIA AUTOMÁTICA ================= */
-async function actualizarGanancias(user){
+async function actualizarGanancias(user) {
   if (!user.inversionActiva || !user.ultimaActualizacion) return;
 
   const ahora = new Date();
@@ -55,103 +55,127 @@ async function actualizarGanancias(user){
 
   if (horas >= 24) {
     const ciclos = Math.floor(horas / 24);
-    user.saldo += ciclos * 0.5;
+
+    // 5% del saldo por cada ciclo
+    for (let i = 0; i < ciclos; i++) {
+      user.saldo += user.saldo * 0.05;
+    }
+
     user.ultimaActualizacion = new Date(
       user.ultimaActualizacion.getTime() + ciclos * 24 * 60 * 60 * 1000
     );
+
     await user.save();
   }
 }
 
 /* ================= REGISTRO ================= */
-app.post("/api/register", async (req,res)=>{
-  const { email, password } = req.body;
-  const existe = await User.findOne({ email });
-  if (existe) return res.json({ ok:false, msg:"Correo ya registrado" });
+app.post("/api/register", async (req, res) => {
+  try {
+    let { email, password } = req.body;
 
-  const hash = await bcrypt.hash(password,10);
-  await User.create({ email, password: hash });
+    if (!email || !password)
+      return res.json({ ok: false, msg: "Datos incompletos" });
 
-  res.json({ ok:true, msg:"Registro exitoso" });
+    email = email.toLowerCase().trim();
+
+    const existe = await User.findOne({ email });
+    if (existe)
+      return res.json({ ok: false, msg: "Correo ya registrado" });
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await User.create({
+      email,
+      password: hash
+    });
+
+    res.json({ ok: true, msg: "Registro exitoso" });
+
+  } catch (error) {
+    res.json({ ok: false, msg: "Error en registro" });
+  }
 });
 
 /* ================= LOGIN ================= */
-app.post("/api/login", async (req,res)=>{
-  const { email, password } = req.body;
+app.post("/api/login", async (req, res) => {
+  try {
+    let { email, password } = req.body;
 
-  // ADMIN
-  if (email === ADMIN.email) {
-    if (password !== ADMIN.password)
-      return res.json({ ok:false, msg:"Clave admin incorrecta" });
+    if (!email || !password)
+      return res.json({ ok: false, msg: "Datos incompletos" });
 
-    return res.json({
-      ok:true,
-      rol:"admin",
-      user:{ email: ADMIN.email }
+    email = email.toLowerCase().trim();
+
+    /* ===== ADMIN ===== */
+    if (email === ADMIN.email.toLowerCase()) {
+
+      if (password !== ADMIN.password)
+        return res.json({ ok: false, msg: "Clave admin incorrecta" });
+
+      return res.json({
+        ok: true,
+        rol: "admin",
+        user: { email: ADMIN.email }
+      });
+    }
+
+    /* ===== USUARIO ===== */
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.json({ ok: false, msg: "Usuario no existe" });
+
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok)
+      return res.json({ ok: false, msg: "Clave incorrecta" });
+
+    await actualizarGanancias(user);
+
+    res.json({
+      ok: true,
+      rol: "user",
+      user: {
+        email: user.email,
+        saldo: user.saldo,
+        wallet: user.wallet,
+        ultimaActualizacion: user.ultimaActualizacion,
+        inversionActiva: user.inversionActiva
+      }
     });
-  }
 
-  // USUARIO
-  const user = await User.findOne({ email });
-  if (!user) return res.json({ ok:false, msg:"Usuario no existe" });
-
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.json({ ok:false, msg:"Clave incorrecta" });
-
-  await actualizarGanancias(user);
-
-//  res.json({
-  //  ok:true,
-  //  rol:"user",
-  //  user:{
-    //  email:user.email,
-    //  saldo:user.saldo,
-    //  wallet:user.wallet,
-   //   ultimaActualizacion:user.ultimaActualizacion,
-    //  inversionActiva:user.inversionActiva
-   // }
- // });
-//});
-  res.json({
-  ok: true,
-  rol: "user",
-  user: {
-    email: user.email,
-    saldo: user.saldo,
-    wallet: user.wallet,
-    ultimaActualizacion: user.ultimaActualizacion,
-    inversionActiva: user.saldo > 0
+  } catch (error) {
+    res.json({ ok: false, msg: "Error en login" });
   }
 });
 
 /* ================= INVERTIR ================= */
-app.post("/api/invertir", async (req,res)=>{
-  const u = await User.findOne({ email:req.body.email });
-  if (!u) return res.json({ ok:false });
+app.post("/api/invertir", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
+  if (!u) return res.json({ ok: false });
 
   await Solicitud.create({
-    email:u.email,
-    monto:Number(req.body.monto),
-    tipo:"inversion",
-    estado:"pendiente",
-    wallet:u.wallet
+    email: u.email,
+    monto: Number(req.body.monto),
+    tipo: "inversion",
+    estado: "pendiente",
+    wallet: u.wallet
   });
 
-  res.json({ ok:true, msg:"Solicitud enviada al admin" });
+  res.json({ ok: true, msg: "Solicitud enviada al admin" });
 });
 
 /* ================= ADMIN VER SOLICITUDES ================= */
-app.get("/api/solicitudes", async (req,res)=>{
-  const s = await Solicitud.find({ estado:"pendiente" });
+app.get("/api/solicitudes", async (req, res) => {
+  const s = await Solicitud.find({ estado: "pendiente" });
   res.json(s);
 });
 
 /* ================= APROBAR ================= */
-app.post("/api/aprobar", async (req,res)=>{
+app.post("/api/aprobar", async (req, res) => {
   const s = await Solicitud.findById(req.body.id);
-  if (!s) return res.json({ ok:false });
+  if (!s) return res.json({ ok: false });
 
-  const u = await User.findOne({ email:s.email });
+  const u = await User.findOne({ email: s.email });
 
   if (s.tipo === "inversion") {
     u.saldo = s.monto;
@@ -160,25 +184,41 @@ app.post("/api/aprobar", async (req,res)=>{
     await u.save();
   }
 
+  if (s.tipo === "retiro") {
+    // aquí solo marcamos aprobado
+  }
+
   s.estado = "aprobado";
   await s.save();
 
-  res.json({ ok:true });
+  res.json({ ok: true, msg: "Solicitud aprobada" });
+});
+
+/* ================= RECHAZAR ================= */
+app.post("/api/rechazar", async (req, res) => {
+  const s = await Solicitud.findById(req.body.id);
+  if (!s) return res.json({ ok: false });
+
+  s.estado = "rechazado";
+  await s.save();
+
+  res.json({ ok: true, msg: "Solicitud rechazada" });
 });
 
 /* ================= RETIRAR ================= */
-app.post("/api/retirar", async (req,res)=>{
-  const u = await User.findOne({ email:req.body.email });
+app.post("/api/retirar", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
+  if (!u) return res.json({ ok: false });
 
   if (u.saldo < 20)
-    return res.json({ ok:false, msg:"Mínimo 20 USDT" });
+    return res.json({ ok: false, msg: "Mínimo 20 USDT" });
 
   await Solicitud.create({
-    email:u.email,
-    monto:u.saldo,
-    tipo:"retiro",
-    estado:"pendiente",
-    wallet:u.wallet
+    email: u.email,
+    monto: u.saldo,
+    tipo: "retiro",
+    estado: "pendiente",
+    wallet: u.wallet
   });
 
   u.saldo = 0;
@@ -186,19 +226,19 @@ app.post("/api/retirar", async (req,res)=>{
   u.ultimaActualizacion = null;
   await u.save();
 
-  res.json({ ok:true, msg:"Retiro enviado" });
+  res.json({ ok: true, msg: "Retiro enviado" });
 });
 
 /* ================= WALLET ================= */
-app.post("/api/wallet", async (req,res)=>{
-  const u = await User.findOne({ email:req.body.email });
-  if (!u) return res.json({ ok:false });
+app.post("/api/wallet", async (req, res) => {
+  const u = await User.findOne({ email: req.body.email });
+  if (!u) return res.json({ ok: false });
 
   u.wallet = req.body.wallet;
   await u.save();
 
-  res.json({ ok:true, msg:"Billetera guardada" });
+  res.json({ ok: true, msg: "Billetera guardada" });
 });
 
 /* ================= SERVER ================= */
-app.listen(PORT, ()=>console.log("🚀 Servidor activo"));
+app.listen(PORT, () => console.log("🚀 Servidor activo en puerto " + PORT));
