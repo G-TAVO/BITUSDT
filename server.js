@@ -231,7 +231,26 @@ app.post("/api/wallet", async (req, res) => {
 });
 
 /* ================= SERVER ================= */
+/* ================= MODIFICAR SALDO (ADMIN) ================= */
 
+app.post("/api/modificar-saldo", async (req, res) => {
+  try {
+    const { email, monto } = req.body;
+
+    const u = await User.findOne({ email });
+    if (!u) {
+      return res.json({ ok: false, msg: "Usuario no encontrado" });
+    }
+
+    u.saldo = Number(monto);
+    await u.save();
+
+    res.json({ ok: true, msg: "Saldo actualizado correctamente" });
+
+  } catch (err) {
+    res.json({ ok: false, msg: "Error servidor" });
+  }
+});
 app.listen(PORT, () =>
   console.log("🚀 Servidor activo en puerto " + PORT)
 );
