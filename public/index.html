@@ -62,6 +62,24 @@ button:disabled{
   cursor:not-allowed;
 }
 
+/* REGISTRO */
+.register-text{
+  margin-top:15px;
+  text-align:center;
+  font-size:14px;
+}
+
+.register-text a{
+  color:#00ffcc;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.register-text a:hover{
+  text-decoration:underline;
+}
+
+/* MODAL */
 .modal{
   position:fixed;
   top:0;
@@ -119,15 +137,19 @@ button:disabled{
   <input type="password" id="password" placeholder="Contraseña">
 
   <button id="btnLogin" disabled>Entrar</button>
+
+  <!-- REGÍSTRATE -->
+  <p class="register-text">
+    ¿No tienes cuenta?
+    <a href="/register">Regístrate</a>
+  </p>
 </div>
-<p class="register-text">
-  ¿No tienes cuenta?
-  <a href="register.html">Regístrate</a>
-</p>
+
+<!-- MODAL TÉRMINOS -->
 <div class="modal" id="modalTerminos">
   <div class="modal-content">
     <h3>Términos y Condiciones</h3>
-    
+
     <p>1. TAREAS AUTOMÁTICA CADA 24 HORAS TU SALDO SUBE.</p>
     <p>2. Por cada invitado activo ganas 2 USD.</p>
     <p>3. Si hay grupo de WhatsApp, debes subir la captura.</p>
@@ -156,7 +178,7 @@ const passwordInput = document.getElementById("password");
 
 // Activar botón al aceptar términos
 aceptar.addEventListener("change", () => {
-  if(aceptar.checked){
+  if (aceptar.checked) {
     modal.style.display = "none";
     btnLogin.disabled = false;
   }
@@ -164,18 +186,18 @@ aceptar.addEventListener("change", () => {
 
 btnLogin.addEventListener("click", login);
 
-async function login(){
+async function login() {
 
-  if(!emailInput.value || !passwordInput.value){
+  if (!emailInput.value || !passwordInput.value) {
     alert("Complete todos los campos");
     return;
   }
 
-  try{
-    const res = await fetch("/api/login",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         email: emailInput.value,
         password: passwordInput.value
       })
@@ -183,13 +205,12 @@ async function login(){
 
     const data = await res.json();
 
-    if(!data.ok){
+    if (!data.ok) {
       alert(data.msg);
       return;
     }
 
-    // ✅ GUARDADO CORRECTO SEGÚN ROL
-    if(data.rol === "admin"){
+    if (data.rol === "admin") {
       localStorage.setItem("usuario", JSON.stringify({
         rol: "admin",
         email: emailInput.value
@@ -203,7 +224,7 @@ async function login(){
       window.location.href = "/panel.html";
     }
 
-  }catch(error){
+  } catch (error) {
     alert("Error conectando con el servidor");
   }
 }
