@@ -68,26 +68,22 @@ async function actualizarGanancias(user) {
   
 }
 
-/* ================= REGISTRO ================= */
-
+/* ================= REGISTRO ===*/
 app.post("/api/register", async (req, res) => {
-  try {
-    const existe = await User.findOne({ email: req.body.email });
-    if (existe) return res.json({ ok: false, msg: "Correo ya registrado" });
+  const email = req.body.email.toLowerCase();
 
-    const hash = await bcrypt.hash(req.body.password, 10);
+  const existe = await User.findOne({ email });
+  if (existe) return res.json({ ok: false, msg: "Correo ya registrado" });
 
-    await User.create({
-      email: req.body.email,
-      password: hash
-    });
+  const hash = await bcrypt.hash(req.body.password, 10);
 
-    res.json({ ok: true, msg: "Registro exitoso" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error servidor" });
-  }
+  await User.create({
+    email,
+    password: hash
+  });
+
+  res.json({ ok: true, msg: "Registro exitoso" });
 });
-
 /* ================= LOGIN ================= */
 
 app.post("/api/login", async (req, res) => {
