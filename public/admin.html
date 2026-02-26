@@ -191,6 +191,28 @@ function salir(){
 }
 
 cargarSolicitudes();
+async function cargarUsuarios(){
+  const res = await fetch("/api/usuarios");
+  const data = await res.json();
+
+  const tabla = document.getElementById("tablaUsuarios");
+  tabla.innerHTML = "";
+
+  data.forEach(u=>{
+    tabla.innerHTML += `
+      <tr>
+        <td>${u.email}</td>
+        <td>${u.saldo} USDT</td>
+        <td>${u.dias}</td>
+        <td>${u.wallet || "-"}</td>
+        <td>
+          <button onclick="editarSaldo('${u.email}')">✏️</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+  
 </script>
 
 </body>
