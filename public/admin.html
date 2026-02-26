@@ -129,7 +129,23 @@ async function cargarSolicitudes(){
   `;
 });
 }
+async function editarSaldo(email){
+  const nuevo = prompt("Nuevo saldo para " + email);
 
+  if(nuevo === null) return;
+
+  const res = await fetch("/api/modificar-saldo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: email,
+      monto: nuevo
+    })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+}
 /* ================= APROBAR ================= */
 async function aprobar(id){
   const res = await fetch("/api/aprobar",{
