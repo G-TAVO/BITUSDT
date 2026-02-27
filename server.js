@@ -257,24 +257,7 @@ app.get("/api/usuarios", async (req, res) => {
     res.json([]);
   }
 });
-app.post("/api/aprobar", async (req, res) => {
-  const s = await Solicitud.findById(req.body.id);
-  if (!s) return res.json({ ok: false });
 
-  const u = await User.findOne({ email: s.email });
-
-  if (s.tipo === "inversion") {
-    u.saldo += s.monto;
-    u.dias = 0;
-    u.ultimaActualizacion = new Date();
-    await u.save();
-  }
-
-  s.estado = "aprobado";
-  await s.save();
-
-  res.json({ ok: true });
-});
 
 app.listen(PORT, () =>
   console.log("🚀 Servidor activo en puerto " + PORT)
