@@ -164,6 +164,7 @@ function copiar(){
 /* ===== INVERTIR ===== */
 async function invertir(){
   const monto = document.getElementById("monto").value;
+  console.log("Email enviado:", usuario.email);
   if(!monto || monto <= 0){
     alert("Ingresa un monto válido");
     return;
