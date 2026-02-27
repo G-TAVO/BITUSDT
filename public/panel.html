@@ -133,7 +133,25 @@ input{
 </div>
 
 </div>
+<!-- MODAL DE DEPOSITO -->
+<div id="modalDeposito" class="modal">
+  <div class="modal-content">
+    <h3>💰 Depositar USDT</h3>
 
+    <p>Envía el dinero a esta billetera:</p>
+
+    <div class="wallet-box" id="walletAdmin">
+      TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo
+    </div>
+
+    <p><strong>Red:</strong> TRC20 (TRON)</p>
+    <p>⚠️ Envía exactamente el monto que vas a invertir.</p>
+
+    <button onclick="copiarWallet()">Copiar Dirección</button>
+    <button onclick="confirmarDeposito()">Confirmar depósito</button>
+    <button onclick="cerrarDeposito()">Cerrar</button>
+  </div>
+</div>
 <script>
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 if(!usuario) window.location.href="/";
