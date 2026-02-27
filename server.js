@@ -153,13 +153,20 @@ app.post("/api/aprobar", async (req, res) => {
   if (!s) return res.json({ ok: false });
 
   const u = await User.findOne({ email: s.email });
+if (s.tipo === "inversion") {
+  let ganancia = s.monto;
 
-  if (s.tipo === "inversion") {
-    u.saldo += s.monto;
-    u.dias = 0;
-    u.ultimaActualizacion = new Date();
-    await u.save();
-  }
+  if (s.monto == 10) ganancia = 16;
+  else if (s.monto == 20) ganancia = 26;
+  else if (s.monto == 30) ganancia = 40;
+  else if (s.monto > 30) ganancia = s.monto * 1.5;
+
+  u.saldo += ganancia;
+  u.dias = 0;
+  u.ultimaActualizacion = new Date();
+  await u.save();
+}
+  
 
   s.estado = "aprobado";
   await s.save();
