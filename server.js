@@ -123,20 +123,28 @@ app.post("/api/login", async (req, res) => {
 });
 
 /* ================= INVERTIR (CORREGIDO) ================= */
-
 app.post("/api/invertir", async (req, res) => {
-  const u = await User.findOne({ email: req.body.email });
-  if (!u) return res.json({ ok:false, msg:"Usuario no existe" });
+  try {
+    const email = req.body.email.toLowerCase();
 
-  await Solicitud.create({
-    email: u.email,
-    monto: Number(req.body.monto),
-    estado: "pendiente",
-    tipo: "inversion",
-    wallet: u.wallet // 👈 AHORA EL ADMIN VE LA WALLET
-  });
+    const u = await User.findOne({ email });
+    if (!u) {
+      return res.json({ ok:false, msg:"Usuario no existe" });
+    }
 
-  res.json({ ok: true, msg: "Solicitud enviada al admin" });
+    await Solicitud.create({
+      email: u.email,
+      monto: Number(req.body.monto),
+      estado: "pendiente",
+      tipo: "inversion",
+      wallet: u.wallet
+    });
+
+    res.json({ ok: true, msg: "Solicitud enviada al admin" });
+
+  } catch (err) {
+    res.json({ ok:false, msg:"Error servidor invertir" });
+  }
 });
 
 /* ================= SOLICITUDES ADMIN ================= */
