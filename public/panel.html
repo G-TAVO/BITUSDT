@@ -255,6 +255,41 @@ function salir(){
   localStorage.clear();
   window.location.href="/";
 }
+  function abrirDeposito(){
+  document.getElementById("modalDeposito").style.display = "block";
+}
+
+function cerrarDeposito(){
+  document.getElementById("modalDeposito").style.display = "none";
+}
+
+function copiarWallet(){
+  const wallet = document.getElementById("walletAdmin").innerText;
+  navigator.clipboard.writeText(wallet);
+  alert("Dirección copiada");
+}
+
+async function confirmarDeposito(){
+  const monto = document.getElementById("monto").value;
+
+  if(!monto || monto <= 0){
+    alert("Ingresa el monto que depositaste");
+    return;
+  }
+
+  const res = await fetch("/api/invertir",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      email: usuario.email,
+      monto: Number(monto)
+    })
+  });
+
+  const data = await res.json();
+  alert("Depósito enviado a revisión");
+  cerrarDeposito();
+}
 </script>
 
 </body>
