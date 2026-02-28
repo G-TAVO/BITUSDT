@@ -27,6 +27,7 @@ const UserSchema = new mongoose.Schema({
   saldo: { type: Number, default: 0 },
   dias: { type: Number, default: 0 },
   wallet: { type: String, default: "" },
+  referidoPor: { type: String, default: "" }, // 👈 NUEVO
   ultimaActualizacion: { type: Date, default: Date.now }
 });
 
@@ -65,10 +66,10 @@ async function actualizarGanancias(user) {
     user.ultimaActualizacion = hoy;
     await user.save();
   }
-  
 }
 
-/* ================= REGISTRO ===*/
+/* ================= REGISTRO ================= */
+
 app.post("/api/register", async (req, res) => {
   const email = req.body.email.toLowerCase();
 
@@ -79,17 +80,18 @@ app.post("/api/register", async (req, res) => {
 
   await User.create({
     email,
-    password: hash
+    password: hash,
+    referidoPor: req.body.referidoPor || ""
   });
 
   res.json({ ok: true, msg: "Registro exitoso" });
 });
+
 /* ================= LOGIN ================= */
 
 app.post("/api/login", async (req, res) => {
   try {
 
-    // ADMIN
     if (req.body.email === ADMIN.email) {
       if (req.body.password !== ADMIN.password) {
         return res.json({ ok: false, msg: "Clave admin incorrecta" });
@@ -97,7 +99,6 @@ app.post("/api/login", async (req, res) => {
       return res.json({ ok: true, rol: "admin" });
     }
 
-    // USUARIO
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.json({ ok: false, msg: "Usuario no existe" });
 
@@ -122,7 +123,8 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-/* ================= INVERTIR (CORREGIDO) ================= */
+/* ================= INVERTIR ================= */
+
 app.post("/api/invertir", async (req, res) => {
   try {
     const email = req.body.email.toLowerCase();
@@ -161,20 +163,29 @@ app.post("/api/aprobar", async (req, res) => {
   if (!s) return res.json({ ok: false });
 
   const u = await User.findOne({ email: s.email });
-if (s.tipo === "inversion") {
-  let ganancia = s.monto;
 
-  if (s.monto == 10) ganancia = 16;
-  else if (s.monto == 20) ganancia = 26;
-  else if (s.monto == 30) ganancia = 40;
-  else if (s.monto > 30) ganancia = s.monto * 1.5;
+  if (s.tipo === "inversion") {
+    let ganancia = s.monto;
 
-  u.saldo += ganancia;
-  u.dias = 0;
-  u.ultimaActualizacion = new Date();
-  await u.save();
-}
-  
+    if (s.monto == 10) ganancia = 16;
+    else if (s.monto == 20) ganancia = 26;
+    else if (s.monto == 30) ganancia = 40;
+    else if (s.monto > 30) ganancia = s.monto * 1.5;
+
+    u.saldo += ganancia;
+    u.dias = 0;
+    u.ultimaActualizacion = new Date();
+    await u.save();
+
+    // 👇 BONO REFERIDO
+    if (u.referidoPor) {
+      const patrocinador = await User.findOne({ email: u.referidoPor });
+      if (patrocinador) {
+        patrocinador.saldo += 1;
+        await patrocinador.save();
+      }
+    }
+  }
 
   s.estado = "aprobado";
   await s.save();
@@ -212,7 +223,7 @@ app.post("/api/retirar", async (req, res) => {
     monto: u.saldo,
     estado: "pendiente",
     tipo: "retiro",
-    wallet: u.wallet // 👈 YA FUNCIONABA
+    wallet: u.wallet
   });
 
   u.saldo = 0;
@@ -241,8 +252,7 @@ app.post("/api/wallet", async (req, res) => {
   }
 });
 
-/* ================= SERVER ================= */
-/* ================= MODIFICAR SALDO (ADMIN) ================= */
+/* ================= MODIFICAR SALDO ================= */
 
 app.post("/api/modificar-saldo", async (req, res) => {
   try {
@@ -262,7 +272,8 @@ app.post("/api/modificar-saldo", async (req, res) => {
     res.json({ ok: false, msg: "Error servidor" });
   }
 });
-/* ================= LISTAR USUARIOS (ADMIN) ================= */
+
+/* ================= LISTAR USUARIOS ================= */
 
 app.get("/api/usuarios", async (req, res) => {
   try {
@@ -272,7 +283,6 @@ app.get("/api/usuarios", async (req, res) => {
     res.json([]);
   }
 });
-
 
 app.listen(PORT, () =>
   console.log("🚀 Servidor activo en puerto " + PORT)
