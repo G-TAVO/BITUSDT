@@ -290,6 +290,17 @@ async function confirmarDeposito(){
   alert("Depósito enviado a revisión");
   cerrarDeposito();
 }
+  function compartirWhatsApp(){
+  const link = window.location.origin + "/registro.html?ref=" + usuario.email;
+
+  const mensaje = 
+  "🔥 Gana dinero invirtiendo desde casa.\n\n" +
+  "Regístrate aquí:\n" + link;
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
+
+  window.open(url, "_blank");
+  }
 </script>
 
 </body>
