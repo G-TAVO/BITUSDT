@@ -251,7 +251,36 @@ app.post("/api/wallet", async (req, res) => {
     res.json({ ok: false, msg: "Error servidor" });
   }
 });
+/* ================= ACTUALIZAR PERFIL ================= */
 
+app.post("/api/actualizar-perfil", async (req, res) => {
+  try {
+
+    const { emailActual, nombre, emailNuevo, telefono, wallet } = req.body;
+
+    const user = await User.findOne({ email: emailActual.toLowerCase() });
+
+    if (!user) {
+      return res.json({ ok: false, msg: "Usuario no encontrado" });
+    }
+
+    // Actualizar solo si vienen datos
+    if (emailNuevo) user.email = emailNuevo.toLowerCase();
+    if (wallet) user.wallet = wallet;
+
+    // Estos campos no existen aún en el schema,
+    // pero los podemos guardar igual
+    if (nombre) user.nombre = nombre;
+    if (telefono) user.telefono = telefono;
+
+    await user.save();
+
+    res.json({ ok: true, msg: "Perfil actualizado correctamente" });
+
+  } catch (err) {
+    res.json({ ok: false, msg: "Error servidor" });
+  }
+});
 /* ================= MODIFICAR SALDO ================= */
 
 app.post("/api/modificar-saldo", async (req, res) => {
