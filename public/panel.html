@@ -74,12 +74,6 @@ input{
 .menu-acciones{
   display:none;
   margin-top:10px;
-  animation: slideDown .3s ease;
-}
-
-@keyframes slideDown{
-  from{ opacity:0; transform:translateY(-6px); }
-  to{ opacity:1; transform:translateY(0); }
 }
 </style>
 </head>
@@ -90,17 +84,32 @@ input{
 
 <h2>Panel Usuario</h2>
 
+<!-- CONFIGURACIÓN -->
+<div class="card">
+  <h3>⚙ Configuración</h3>
+
+  <input type="text" id="editNombre" placeholder="Editar nombre">
+  <input type="email" id="editEmail" placeholder="Editar correo">
+  <input type="tel" id="editTelefono" placeholder="Editar teléfono">
+  <input type="text" id="editWallet" placeholder="Editar billetera">
+
+  <button class="btn-purple" onclick="actualizarPerfil()">Guardar Cambios</button>
+</div>
+
+<!-- BILLETERA -->
 <div class="card">
   <p><b>Billetera registrada:</b></p>
   <p id="walletDeposito">No registrada</p>
   <button class="btn-blue" onclick="copiar()">Copiar billetera</button>
 </div>
 
+<!-- SALDO -->
 <div class="card">
   <p><b>Saldo:</b> <span id="saldo">0</span> USDT</p>
   <p><b>Ganancia diaria:</b> 5%</p>
 </div>
 
+<!-- ACCIONES -->
 <div class="card">
 
   <input type="number" id="monto" placeholder="Monto a invertir">
@@ -139,6 +148,10 @@ input{
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 if(!usuario) window.location.href="/";
 
+document.getElementById("saldo").innerText = usuario.saldo || 0;
+document.getElementById("walletDeposito").innerText =
+  usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
+
 function toggleMenu(){
   const menu = document.getElementById("menuAcciones");
   menu.style.display = menu.style.display === "block" ? "none" : "block";
@@ -147,10 +160,6 @@ function toggleMenu(){
 function cerrarMenu(){
   document.getElementById("menuAcciones").style.display = "none";
 }
-
-document.getElementById("saldo").innerText = usuario.saldo || 0;
-document.getElementById("walletDeposito").innerText =
-  usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
 
 function copiar(){
   if(!usuario.wallet){
@@ -161,64 +170,36 @@ function copiar(){
   alert("Billetera copiada");
 }
 
-async function invertir(){
-  const monto = document.getElementById("monto").value;
-  if(!monto || monto <= 0){
-    alert("Ingresa un monto válido");
-    return;
-  }
+async function actualizarPerfil(){
 
-  const res = await fetch("/api/invertir",{
+  const nombre = document.getElementById("editNombre").value;
+  const emailNuevo = document.getElementById("editEmail").value;
+  const telefono = document.getElementById("editTelefono").value;
+  const wallet = document.getElementById("editWallet").value;
+
+  const res = await fetch("/api/actualizar-perfil",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
-      email: usuario.email,
-      monto
+      emailActual: usuario.email,
+      nombre,
+      emailNuevo,
+      telefono,
+      wallet
     })
   });
 
   const data = await res.json();
-  alert(data.msg || "Solicitud enviada");
-}
+  alert(data.msg);
 
-async function retirar(){
-  if(!usuario.wallet){
-    alert("Debes registrar una billetera primero");
-    return;
+  if(data.ok){
+    if(nombre) usuario.nombre = nombre;
+    if(emailNuevo) usuario.email = emailNuevo;
+    if(telefono) usuario.telefono = telefono;
+    if(wallet) usuario.wallet = wallet;
+
+    localStorage.setItem("usuario", JSON.stringify(usuario));
   }
-
-  const res = await fetch("/api/retirar",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ email: usuario.email })
-  });
-
-  const data = await res.json();
-  alert(data.msg || "Solicitud enviada");
-}
-
-async function guardarWallet(){
-  const w = prompt("Ingresa tu billetera (TRC20 / Nequi):");
-  if(!w){
-    alert("Billetera no válida");
-    return;
-  }
-
-  const res = await fetch("/api/wallet",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      email: usuario.email,
-      wallet: w
-    })
-  });
-
-  const data = await res.json();
-  alert(data.msg || "Billetera guardada");
-
-  usuario.wallet = w;
-  localStorage.setItem("usuario", JSON.stringify(usuario));
-  document.getElementById("walletDeposito").innerText = w;
 }
 
 function salir(){
@@ -228,17 +209,14 @@ function salir(){
 
 function compartirWhatsApp(){
   const link = window.location.origin + "/register.html?ref=" + usuario.email;
-
   const mensaje =
-    "🔥 Gana dinero invirtiendo desde casa.\n\n" +
-    "Regístrate aquí 👇\n" + link;
+    "🔥 Gana dinero invirtiendo desde casa.\n\nRegístrate aquí 👇\n" + link;
 
   const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
-
   window.open(url, "_blank");
 }
 
-/* ===== INSTALAR PWA ===== */
+/* INSTALAR PWA */
 let deferredPrompt;
 const btnInstalar = document.getElementById("btnInstalar");
 
@@ -251,7 +229,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
 btnInstalar.addEventListener("click", async () => {
   btnInstalar.style.display = "none";
   deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
+  await deferredPrompt.userChoice;
   deferredPrompt = null;
 });
 </script>
