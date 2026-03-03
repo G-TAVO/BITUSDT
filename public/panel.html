@@ -86,14 +86,23 @@ input{
 
 <!-- CONFIGURACIÓN -->
 <div class="card">
-  <h3>⚙ Configuración</h3>
 
-  <input type="text" id="editNombre" placeholder="Editar nombre">
-  <input type="email" id="editEmail" placeholder="Editar correo">
-  <input type="tel" id="editTelefono" placeholder="Editar teléfono">
-  <input type="text" id="editWallet" placeholder="Editar billetera">
+  <div onclick="toggleConfig()" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+    <h3 style="margin:0;">⚙ Configuración</h3>
+    <span id="flechaConfig">▼</span>
+  </div>
 
-  <button class="btn-purple" onclick="actualizarPerfil()">Guardar Cambios</button>
+  <div id="configContenido" style="display:none; margin-top:15px;">
+
+    <input type="text" id="editNombre" placeholder="Editar nombre">
+    <input type="email" id="editEmail" placeholder="Editar correo">
+    <input type="tel" id="editTelefono" placeholder="Editar teléfono">
+    <input type="text" id="editWallet" placeholder="Editar billetera">
+
+    <button class="btn-purple" onclick="actualizarPerfil()">Guardar Cambios</button>
+
+  </div>
+
 </div>
 
 <!-- BILLETERA -->
