@@ -303,6 +303,22 @@ async function confirmarDeposito(){
 
   window.open(url, "_blank");
   }
+  /* ===== INSTALAR PWA ===== */
+let deferredPrompt;
+const btnInstalar = document.getElementById("btnInstalar");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstalar.style.display = "block";
+});
+
+btnInstalar.addEventListener("click", async () => {
+  btnInstalar.style.display = "none";
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+});
 </script>
 
 </body>
