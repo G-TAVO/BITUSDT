@@ -242,6 +242,19 @@ btnInstalar.addEventListener("click", async () => {
   deferredPrompt = null;
 });
 </script>
+<script>
+function toggleConfig() {
+  const contenido = document.getElementById("configContenido");
+  const flecha = document.getElementById("flechaConfig");
 
+  if (contenido.style.display === "none") {
+    contenido.style.display = "block";
+    flecha.innerHTML = "▲";
+  } else {
+    contenido.style.display = "none";
+    flecha.innerHTML = "▼";
+  }
+}
+</script>
 </body>
 </html>
