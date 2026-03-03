@@ -24,6 +24,8 @@ mongoose.connect(
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
+  nombre: { type: String, default: "" },      // 👈 nuevo
+  telefono: { type: String, default: "" },    // 👈 nuevo
   saldo: { type: Number, default: 0 },
   dias: { type: Number, default: 0 },
   wallet: { type: String, default: "" },
