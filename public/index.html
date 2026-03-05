@@ -5,8 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BITUSDT</title>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000428">
+
 <style>
 *{
   margin:0;
@@ -64,7 +65,6 @@ button:disabled{
   cursor:not-allowed;
 }
 
-/* REGISTRO */
 .register-text{
   margin-top:15px;
   text-align:center;
@@ -81,7 +81,6 @@ button:disabled{
   text-decoration:underline;
 }
 
-/* MODAL */
 .modal{
   position:fixed;
   top:0;
@@ -139,17 +138,18 @@ button:disabled{
   <input type="password" id="password" placeholder="Contraseña">
 
   <button id="btnLogin" disabled>Entrar</button>
-<button id="btnInstalar" style="display:none;">
-  📲 Descargar App
-</button>
-  <!-- REGÍSTRATE -->
+
+  <!-- BOTÓN INSTALAR -->
+  <button id="btnInstalar">
+    📲 Descargar Aplicación
+  </button>
+
   <p class="register-text">
     ¿No tienes cuenta?
     <a href="/register.html">Regístrate</a>
   </p>
 </div>
 
-<!-- MODAL TÉRMINOS -->
 <div class="modal" id="modalTerminos">
   <div class="modal-content">
     <h3>Términos y Condiciones</h3>
@@ -179,8 +179,8 @@ const aceptar = document.getElementById("aceptar");
 const btnLogin = document.getElementById("btnLogin");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
+const btnInstalar = document.getElementById("btnInstalar");
 
-// Activar botón al aceptar términos
 aceptar.addEventListener("change", () => {
   if (aceptar.checked) {
     modal.style.display = "none";
@@ -232,28 +232,35 @@ async function login() {
     alert("Error conectando con el servidor");
   }
 }
-  let deferredPrompt;
-const btnInstalar = document.getElementById("btnInstalar");
+
+/* INSTALACIÓN PWA */
+let deferredPrompt;
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  btnInstalar.style.display = "block";
 });
 
 btnInstalar.addEventListener("click", async () => {
-  btnInstalar.style.display = "none";
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
+
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  } else {
+    alert("Para instalar la app:\n\n1. Presiona los 3 puntos del navegador\n2. Toca 'Instalar aplicación' o 'Agregar a pantalla principal'");
+  }
+
 });
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js")
+  navigator.serviceWorker.register("service-worker.js")
     .then(() => console.log("Service Worker registrado"))
     .catch(err => console.log("Error SW:", err));
 }
 </script>
+
 </body>
 </html>
