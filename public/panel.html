@@ -269,27 +269,6 @@ async function retirar(){
     alert("No tienes saldo suficiente");
     return;
   }
-async function invertir(){
-
-  const monto = document.getElementById("monto").value;
-
-  if(!monto || monto <= 0){
-    alert("Ingresa un monto válido");
-    return;
-  }
-
-  try{
-
-    const res = await fetch("/api/invertir",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        email: usuario.email,
-        monto: Number(monto)
-      })
-    });
 
     const data = await res.json();
 
