@@ -182,14 +182,18 @@ function copiar(){
 function mostrarDeposito(){
 
   const billeteraEmpresa = "TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
-
+const copiar = confirm( 
   alert(
     "💰 DEPÓSITO BITUSDT\n\n" +
     "Envía tu inversión a esta billetera:\n\n" +
     billeteraEmpresa +
-    "\n\nRed recomendada: TRC20"
+    "\n\nRed recomendada: TRC20\n\n" +
+    "presiona ACEPTAR para copiar la billetera."
   );
-
+ if(copiar){
+   navigator.clipboard.writeText( billeteraEmpresa);
+  alert(" Billetera copiada. Ahora puedes pegarla en tu wallet.");
+}
 }
 async function actualizarPerfil(){
 
