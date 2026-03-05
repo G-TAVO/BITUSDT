@@ -224,7 +224,38 @@ function compartirWhatsApp(){
   const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
   window.open(url, "_blank");
 }
+async function retirar(){
 
+  const monto = document.getElementById("monto").value;
+
+  if(!monto || monto <= 0){
+    alert("Ingresa un monto válido");
+    return;
+  }
+
+  if(monto > usuario.saldo){
+    alert("No tienes saldo suficiente");
+    return;
+  }
+
+  const res = await fetch("/api/retirar",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      email: usuario.email,
+      monto
+    })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+
+  if(data.ok){
+    usuario.saldo -= monto;
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+    document.getElementById("saldo").innerText = usuario.saldo;
+  }
+      }
 /* INSTALAR PWA */
 let deferredPrompt;
 const btnInstalar = document.getElementById("btnInstalar");
