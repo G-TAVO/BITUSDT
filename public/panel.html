@@ -104,7 +104,7 @@ input{
   </div>
 
 </div>
-
+<button class="btn-green" onclick="mostrarDeposito(); cerrarMenu()">Depositar</button>
 <!-- BILLETERA -->
 <div class="card">
   <p><b>Billetera registrada:</b></p>
@@ -224,7 +224,21 @@ function compartirWhatsApp(){
   const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
   window.open(url, "_blank");
 }
+function mostrarDeposito(){
 
+  const billeteraEmpresa = "TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
+
+  navigator.clipboard.writeText(billeteraEmpresa);
+
+  alert(
+    "💰 DEPÓSITO BITUSDT\n\n" +
+    "Billetera copiada automáticamente:\n\n" +
+    billeteraEmpresa +
+    "\n\nRed recomendada: TRC20\n\n" +
+    "Ahora puedes pegarla en tu wallet."
+  );
+
+}
 /* INSTALAR PWA */
 let deferredPrompt;
 const btnInstalar = document.getElementById("btnInstalar");
