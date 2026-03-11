@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 mongoose.connect(
   process.env.MONGO_URL ||
-  "mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
+/*  "mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"*/
 )
 .then(() => console.log("✅ MongoDB conectado"))
 .catch(err => console.log("❌ Error Mongo:", err));
