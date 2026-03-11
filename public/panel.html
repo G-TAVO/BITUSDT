@@ -327,7 +327,39 @@ async function retirar(){
   }
 
 }
+async function cargarHistorial(){
 
+  try{
+
+    const res = await fetch("/api/historial/" + usuario.email);
+    const data = await res.json();
+
+    const div = document.getElementById("historial");
+
+    if(data.length === 0){
+      div.innerHTML = "Sin movimientos";
+      return;
+    }
+
+    div.innerHTML = "";
+
+    data.forEach(m => {
+
+      const color = m.tipo === "retiro" ? "#f97316" : "#22c55e";
+
+      div.innerHTML += `
+        <p style="margin:5px 0;color:${color}">
+        ${m.tipo.toUpperCase()} - ${m.monto} USDT - ${m.estado}
+        </p>
+      `;
+
+    });
+
+  }catch(err){
+    console.log(err);
+  }
+
+}
 /* INSTALAR PWA */
 let deferredPrompt;
 const btnInstalar = document.getElementById("btnInstalar");
