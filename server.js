@@ -342,3 +342,22 @@ app.get("/api/usuarios", async (req, res) => {
 app.listen(PORT, () =>
   console.log("🚀 Servidor activo en puerto " + PORT)
 );
+/* ================= HISTORIAL USUARIO ================= */
+
+app.get("/api/historial/:email", async (req, res) => {
+
+  try{
+
+    const email = req.params.email.toLowerCase();
+
+    const historial = await Solicitud.find({ email })
+      .sort({ fecha: -1 })
+      .limit(20);
+
+    res.json(historial);
+
+  }catch(err){
+    res.json([]);
+  }
+
+});
