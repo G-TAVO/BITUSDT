@@ -212,28 +212,52 @@ app.post("/api/rechazar", async (req, res) => {
 });
 
 /* ================= RETIRAR ================= */
-
 app.post("/api/retirar", async (req, res) => {
-  const u = await User.findOne({ email: req.body.email });
+  try{
 
-  if (u.saldo < 20) {
-    return res.json({ ok: false, msg: "Mínimo 20 USDT" });
+    const email = req.body.email.toLowerCase();
+    const monto = Number(req.body.monto);
+
+    const u = await User.findOne({ email });
+
+    if(!u){
+      return res.json({ ok:false, msg:"Usuario no existe" });
+    }
+
+    if(!u.wallet){
+      return res.json({ ok:false, msg:"Debes registrar una billetera" });
+    }
+
+    if(monto <= 0){
+      return res.json({ ok:false, msg:"Monto inválido" });
+    }
+
+    if(monto > u.saldo){
+      return res.json({ ok:false, msg:"Saldo insuficiente" });
+    }
+
+    if(monto < 20){
+      return res.json({ ok:false, msg:"Mínimo retiro 20 USDT" });
+    }
+
+    await Solicitud.create({
+      email: u.email,
+      monto: monto,
+      estado: "pendiente",
+      tipo: "retiro",
+      wallet: u.wallet
+    });
+
+    u.saldo -= monto;
+    await u.save();
+
+    res.json({ ok:true, msg:"Solicitud de retiro enviada", saldo:u.saldo });
+
+  }catch(err){
+    res.json({ ok:false, msg:"Error servidor retirar" });
   }
-
-  await Solicitud.create({
-    email: u.email,
-    monto: u.saldo,
-    estado: "pendiente",
-    tipo: "retiro",
-    wallet: u.wallet
-  });
-
-  u.saldo = 0;
-  u.dias = 0;
-  await u.save();
-
-  res.json({ ok: true, msg: "Retiro enviado al admin" });
 });
+
 
 /* ================= WALLET ================= */
 
