@@ -22,6 +22,7 @@ mongoose.connect(
 /* ================== MODELOS ================== */
 
 const UserSchema = new mongoose.Schema({
+  userId:String,
   email: { type: String, unique: true },
   password: String,
   nombre: { type: String, default: "" },      // 👈 nuevo
