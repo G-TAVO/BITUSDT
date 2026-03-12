@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Panel Usuario</title>
+<title>BITUSDT</title>
 
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000428">
@@ -15,70 +15,116 @@
 body{
 margin:0;
 font-family:Arial;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+background:#0f172a;
 color:white;
-padding:20px;
 }
 
 .container{
 max-width:500px;
 margin:auto;
-background:#111827;
 padding:20px;
-border-radius:15px;
-box-shadow:0 10px 30px rgba(0,0,0,.6);
+padding-bottom:90px;
 }
 
-h2{
+/* HEADER */
+
+.header{
 text-align:center;
+margin-bottom:20px;
+}
+
+.header h1{
+margin:0;
 color:#00ffcc;
 }
 
-.card{
-background:#1f2937;
-padding:15px;
-border-radius:12px;
-margin:15px 0;
+.subtitulo{
+font-size:14px;
+opacity:.8;
+}
+
+/* TARJETA SALDO */
+
+.saldo-card{
+background:linear-gradient(135deg,#2563eb,#1e40af);
+padding:25px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 10px 20px rgba(0,0,0,.5);
 }
 
 .saldo{
-font-size:28px;
+font-size:32px;
 font-weight:bold;
-color:#00ffcc;
-text-align:center;
 margin-top:10px;
 }
 
+/* BOTONES PRINCIPALES */
+
+.botones{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:20px;
+}
+
 button{
-width:100%;
-padding:12px;
+padding:14px;
 border:none;
-border-radius:8px;
-margin-top:10px;
+border-radius:10px;
 font-weight:bold;
 cursor:pointer;
 color:white;
+font-size:15px;
 }
 
 .btn-green{ background:#22c55e; }
 .btn-orange{ background:#f97316; }
 .btn-blue{ background:#3b82f6; }
 .btn-purple{ background:#9333ea; }
-.btn-red{ background:#ef4444; }
+
+/* TARJETAS */
+
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:12px;
+margin-top:20px;
+}
 
 input{
 width:100%;
-padding:10px;
+padding:12px;
 border-radius:8px;
 border:none;
 margin-top:10px;
 }
 
-.footer{
-text-align:center;
-margin-top:20px;
-font-size:14px;
-opacity:.8;
+/* HISTORIAL */
+
+.historial-item{
+margin:5px 0;
+}
+
+/* MENU INFERIOR */
+
+.menu{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#111827;
+display:flex;
+justify-content:space-around;
+padding:12px 0;
+box-shadow:0 -5px 20px rgba(0,0,0,.5);
+}
+
+.menu button{
+background:none;
+border:none;
+color:white;
+font-size:13px;
 }
 
 </style>
@@ -89,24 +135,60 @@ opacity:.8;
 
 <div class="container">
 
-<h2>BITUSDT</h2>
+<div class="header">
+<h1>BITUSDT</h1>
+<div class="subtitulo">Banco de inversiones tipo CDT</div>
+</div>
 
-<!-- SALDO PRINCIPAL -->
+<!-- SALDO -->
 
-<div class="card">
+<div class="saldo-card">
 
-<p style="text-align:center">Saldo disponible</p>
+<p>Saldo disponible</p>
 
 <div class="saldo">
 <span id="saldo">0</span> USDT
 </div>
 
-<p style="text-align:center;margin-top:10px">
-Ganancia diaria: 5%
+<p style="margin-top:10px">
+Ganancia diaria 5%
+</p>
+
+<p style="font-size:13px">
+Al retirar recibes inversión + ganancias
 </p>
 
 </div>
 
+<!-- MONTO -->
+
+<div class="card">
+
+<input type="number" id="monto" placeholder="Monto en USDT">
+
+</div>
+
+<!-- BOTONES -->
+
+<div class="botones">
+
+<button class="btn-green" onclick="invertir()">
+Invertir
+</button>
+
+<button class="btn-orange" onclick="retirar()">
+Retirar
+</button>
+
+<button class="btn-blue" onclick="mostrarDeposito()">
+Depositar
+</button>
+
+<button class="btn-purple" onclick="compartirWhatsApp()">
+Invitar
+</button>
+
+</div>
 
 <!-- BILLETERA -->
 
@@ -122,82 +204,104 @@ Copiar billetera
 
 </div>
 
-
-<!-- ACCIONES PRINCIPALES -->
-
-<div class="card">
-
-<input type="number" id="monto" placeholder="Monto en USDT">
-
-<button class="btn-green" onclick="invertir()">
-Invertir
-</button>
-
-<button class="btn-orange" onclick="retirar()">
-Retirar
-</button>
-
-<button class="btn-blue" onclick="mostrarDeposito()">
-Depositar
-</button>
-
-<button class="btn-purple" onclick="compartirWhatsApp()">
-Invitar Amigos
-</button>
-
-</div>
-
-
 <!-- HISTORIAL -->
 
 <div class="card">
 
 <h3>📜 Historial</h3>
 
-<div id="historial"></div>
+<div id="historial">Sin movimientos</div>
 
 </div>
 
-
-<!-- CONFIGURACIÓN -->
-
-<div class="card">
-
-<h3>⚙ Configuración</h3>
-
-<input type="text" id="editNombre" placeholder="Editar nombre">
-
-<input type="email" id="editEmail" placeholder="Editar correo">
-
-<input type="tel" id="editTelefono" placeholder="Editar teléfono">
-
-<input type="text" id="editWallet" placeholder="Editar billetera">
-
-<button class="btn-purple" onclick="actualizarPerfil()">
-Guardar cambios
-</button>
-
-<button class="btn-red" onclick="salir()">
-Cerrar sesión
-</button>
-
-<button id="btnInstalar" style="display:none">
-📲 Descargar App
-</button>
-
 </div>
 
-<div class="footer">
-📩 Binancecoin958@gmail.com
-</div>
+<!-- MENU INFERIOR -->
+
+<div class="menu">
+
+<button onclick="window.scrollTo(0,0)">
+🏠 Inicio
+</button>
+
+<button onclick="mostrarDeposito()">
+💰 Depositar
+</button>
+
+<button onclick="compartirWhatsApp()">
+👥 Invitar
+</button>
+
+<button onclick="salir()">
+🚪 Salir
+</button>
 
 </div>
 
 <script>
 
-/* TODO TU JAVASCRIPT ORIGINAL VA AQUÍ
-   NO CAMBIES NADA DE LAS FUNCIONES
-*/
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+if(!usuario || !usuario.email){
+alert("Sesión inválida");
+localStorage.clear();
+window.location.href="/login.html";
+}
+
+document.getElementById("saldo").innerText = usuario.saldo || 0;
+
+document.getElementById("walletDeposito").innerText =
+usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
+
+
+function copiar(){
+
+if(!usuario.wallet){
+alert("No tienes billetera registrada");
+return;
+}
+
+navigator.clipboard.writeText(usuario.wallet);
+
+alert("Billetera copiada");
+
+}
+
+
+function salir(){
+localStorage.clear();
+window.location.href="/";
+}
+
+
+function compartirWhatsApp(){
+
+const link = window.location.origin + "/register.html?ref=" + usuario.email;
+
+const mensaje =
+"🔥 Gana dinero invirtiendo desde casa.\n\nRegístrate aquí 👇\n" + link;
+
+const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
+
+window.open(url,"_blank");
+
+}
+
+
+function mostrarDeposito(){
+
+const billeteraEmpresa = "TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
+
+navigator.clipboard.writeText(billeteraEmpresa);
+
+alert(
+"💰 DEPÓSITO BITUSDT\n\n" +
+"Billetera copiada:\n\n" +
+billeteraEmpresa +
+"\n\nRed recomendada TRC20"
+);
+
+}
 
 </script>
 
