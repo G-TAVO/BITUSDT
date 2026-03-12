@@ -1,92 +1,160 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Admin</title>
- <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#000428"> 
+
+<title>BITUSDT ADMIN</title>
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000428">
 
 <style>
+
 body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#000428,#004e92);
-  color:white;
-  padding:20px;
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#000428,#004e92);
+color:white;
+padding:20px;
 }
 
 .container{
-  max-width:1100px;
-  margin:auto;
+max-width:1100px;
+margin:auto;
 }
 
-h2{
-  text-align:center;
-  color:#00ffcc;
+.header{
+text-align:center;
+margin-bottom:20px;
 }
+
+.header h1{
+color:#00ffcc;
+margin:0;
+}
+
+.sub{
+opacity:.8;
+font-size:14px;
+}
+
+/* TARJETAS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.stat-card{
+background:#111827;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+
+.stat-card h3{
+margin:5px 0;
+color:#00ffcc;
+}
+
+/* TABLAS */
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-  background:#111827;
-  border-radius:10px;
-  overflow:hidden;
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+background:#111827;
+border-radius:10px;
+overflow:hidden;
 }
 
 th, td{
-  padding:10px;
-  text-align:center;
-  border-bottom:1px solid #333;
+padding:10px;
+text-align:center;
+border-bottom:1px solid #333;
 }
 
 th{
-  background:#1f2937;
+background:#1f2937;
 }
 
+/* BOTONES */
+
 button{
-  padding:6px 10px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  color:white;
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+color:white;
 }
 
 .btn-ok{ background:#22c55e; }
 .btn-no{ background:#ef4444; }
+.btn-edit{ background:#3b82f6; }
 
 .btn-red{
-  background:#ef4444;
-  margin-top:20px;
-  width:100%;
-  padding:10px;
+background:#ef4444;
+margin-top:20px;
+width:100%;
+padding:12px;
+font-size:16px;
 }
+
 </style>
+
 </head>
+
 <body>
 
 <div class="container">
+
+<div class="header">
+<h1>BITUSDT ADMIN</h1>
+<div class="sub">Panel de control del sistema</div>
+</div>
+
+<!-- ESTADISTICAS -->
+
+<div class="stats">
+
+<div class="stat-card">
+<h3 id="totalUsuarios">0</h3>
+Usuarios
+</div>
+
+<div class="stat-card">
+<h3 id="totalSolicitudes">0</h3>
+Solicitudes
+</div>
+
+</div>
+
 <h2>Solicitudes Pendientes</h2>
 
 <table>
+
 <thead>
 <tr>
 <th>Email</th>
 <th>Tipo</th>
 <th>Monto</th>
-<th>Saldo</th>
 <th>Wallet</th>
 <th>Acción</th>
-<th>Editar Saldo</th>
 </tr>
 </thead>
+
 <tbody id="tablaSolicitudes"></tbody>
+
 </table>
+
 <h2>Usuarios</h2>
 
 <table>
+
 <thead>
 <tr>
 <th>Email</th>
@@ -96,127 +164,200 @@ button{
 <th>Editar</th>
 </tr>
 </thead>
+
 <tbody id="tablaUsuarios"></tbody>
+
 </table>
+
 <button class="btn-red" onclick="salir()">Cerrar sesión</button>
+
 </div>
 
 <script>
-/* ===== VALIDAR ADMIN ===== */
+
+/* VALIDAR ADMIN */
+
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 
 if(!usuario || usuario.rol !== "admin"){
-  window.location.href = "/";
+window.location.href="/";
 }
 
-/* ===== ADMIN KEY ===== */
-const ADMIN_KEY = "ADMIN123";
+/* ADMIN KEY */
 
-/* ================= CARGAR SOLICITUDES ================= */
+const ADMIN_KEY="ADMIN123";
+
+
+/* SOLICITUDES */
+
 async function cargarSolicitudes(){
-  const res = await fetch("/api/solicitudes");
-  const data = await res.json();
 
-  const tabla = document.getElementById("tablaSolicitudes");
-  tabla.innerHTML = "";
+const res = await fetch("/api/solicitudes");
+const data = await res.json();
 
-  if(data.length === 0){
-    tabla.innerHTML = `
-      <tr>
-        <td colspan="6">No hay solicitudes pendientes</td>
-      </tr>
-    `;
-    return;
-  }
+document.getElementById("totalSolicitudes").innerText = data.length;
 
-  data.forEach(s=>{
-  tabla.innerHTML += `
-    <tr>
-      <td>${s.email}</td>
-      <td>${s.tipo}</td>
-      <td>${s.monto} USDT</td>
-      <td>${s.wallet || "-"}</td>
-      <td>
-        <button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
-        <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
-        <button onclick="editarSaldo('${s.email}')">✏️</button>
-      </td>
-    </tr>
-  `;
+const tabla = document.getElementById("tablaSolicitudes");
+tabla.innerHTML="";
+
+if(data.length===0){
+
+tabla.innerHTML=`
+<tr>
+<td colspan="5">No hay solicitudes pendientes</td>
+</tr>
+`;
+
+return;
+}
+
+data.forEach(s=>{
+
+tabla.innerHTML += `
+<tr>
+<td>${s.email}</td>
+<td>${s.tipo}</td>
+<td>${s.monto} USDT</td>
+<td>${s.wallet || "-"}</td>
+<td>
+<button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
+<button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
+<button class="btn-edit" onclick="editarSaldo('${s.email}')">✏️</button>
+</td>
+</tr>
+`;
+
 });
+
 }
+
+
+/* EDITAR SALDO */
+
 async function editarSaldo(email){
-  const nuevo = prompt("Nuevo saldo para " + email);
 
-  if(nuevo === null) return;
+const nuevo = prompt("Nuevo saldo para " + email);
 
-  const res = await fetch("/api/modificar-saldo", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: email,
-      monto: nuevo
-    })
-  });
+if(nuevo===null) return;
 
-  const data = await res.json();
-  alert(data.msg);
+const res = await fetch("/api/modificar-saldo",{
+
+method:"POST",
+
+headers:{ "Content-Type":"application/json" },
+
+body:JSON.stringify({
+email:email,
+monto:nuevo
+})
+
+});
+
+const data = await res.json();
+
+alert(data.msg);
+
 }
-/* ================= APROBAR ================= */
+
+
+/* APROBAR */
+
 async function aprobar(id){
-  const res = await fetch("/api/aprobar",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ id, adminKey: ADMIN_KEY })
-  });
 
-  const data = await res.json();
-  alert(data.msg);
-  cargarSolicitudes();
-}
+const res = await fetch("/api/aprobar",{
 
-/* ================= RECHAZAR ================= */
-async function rechazar(id){
-  const res = await fetch("/api/rechazar",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ id, adminKey: ADMIN_KEY })
-  });
+method:"POST",
 
-  const data = await res.json();
-  alert(data.msg);
-  cargarSolicitudes();
-}
+headers:{ "Content-Type":"application/json" },
 
-function salir(){
-  localStorage.clear();
-  window.location.href = "/";
-}
+body:JSON.stringify({
+id,
+adminKey:ADMIN_KEY
+})
+
+});
+
+const data = await res.json();
+
+alert(data.msg);
 
 cargarSolicitudes();
-async function cargarUsuarios(){
-  const res = await fetch("/api/usuarios");
-  const data = await res.json();
-
-  const tabla = document.getElementById("tablaUsuarios");
-  tabla.innerHTML = "";
-
-  data.forEach(u=>{
-    tabla.innerHTML += `
-      <tr>
-        <td>${u.email}</td>
-        <td>${u.saldo} USDT</td>
-        <td>${u.dias}</td>
-        <td>${u.wallet || "-"}</td>
-        <td>
-          <button onclick="editarSaldo('${u.email}')">✏️</button>
-        </td>
-      </tr>
-    `;
-  });
-}
- cargarSolicitudes();
 cargarUsuarios();
+
+}
+
+
+/* RECHAZAR */
+
+async function rechazar(id){
+
+const res = await fetch("/api/rechazar",{
+
+method:"POST",
+
+headers:{ "Content-Type":"application/json" },
+
+body:JSON.stringify({
+id,
+adminKey:ADMIN_KEY
+})
+
+});
+
+const data = await res.json();
+
+alert(data.msg);
+
+cargarSolicitudes();
+
+}
+
+
+/* USUARIOS */
+
+async function cargarUsuarios(){
+
+const res = await fetch("/api/usuarios");
+
+const data = await res.json();
+
+document.getElementById("totalUsuarios").innerText = data.length;
+
+const tabla=document.getElementById("tablaUsuarios");
+
+tabla.innerHTML="";
+
+data.forEach(u=>{
+
+tabla.innerHTML += `
+<tr>
+<td>${u.email}</td>
+<td>${u.saldo} USDT</td>
+<td>${u.dias}</td>
+<td>${u.wallet || "-"}</td>
+<td>
+<button class="btn-edit" onclick="editarSaldo('${u.email}')">✏️</button>
+</td>
+</tr>
+`;
+
+});
+
+}
+
+
+function salir(){
+
+localStorage.clear();
+
+window.location.href="/";
+
+}
+
+
+cargarSolicitudes();
+cargarUsuarios();
+
 </script>
 
 </body>
