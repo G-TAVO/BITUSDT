@@ -371,3 +371,24 @@ app.get("/api/historial/:email", async (req, res) => {
   }
 
 });
+async function ponerIdUsuariosViejos(){
+
+const usuarios = await User.find({ userId: { $exists:false } });
+
+let contador = 1001;
+
+for(let u of usuarios){
+
+u.userId = "USR-" + contador;
+
+await u.save();
+
+contador++;
+
+}
+
+console.log("IDs asignados a usuarios viejos");
+
+}
+
+ponerIdUsuariosViejos();
