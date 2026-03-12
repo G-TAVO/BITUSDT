@@ -1,52 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Panel Usuario</title>
 
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000428">
 
 <style>
+
 body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:white;
-  padding:20px;
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+padding:20px;
 }
 
 .container{
-  max-width:500px;
-  margin:auto;
-  background:#111827;
-  padding:20px;
-  border-radius:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,.6);
+max-width:500px;
+margin:auto;
+background:#111827;
+padding:20px;
+border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,.6);
 }
 
 h2{
-  text-align:center;
-  color:#00ffcc;
+text-align:center;
+color:#00ffcc;
 }
 
 .card{
-  background:#1f2937;
-  padding:15px;
-  border-radius:10px;
-  margin:15px 0;
+background:#1f2937;
+padding:15px;
+border-radius:12px;
+margin:15px 0;
+}
+
+.saldo{
+font-size:28px;
+font-weight:bold;
+color:#00ffcc;
+text-align:center;
+margin-top:10px;
 }
 
 button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  margin-top:10px;
-  font-weight:bold;
-  cursor:pointer;
-  color:white;
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+margin-top:10px;
+font-weight:bold;
+cursor:pointer;
+color:white;
 }
 
 .btn-green{ background:#22c55e; }
@@ -54,99 +65,125 @@ button{
 .btn-blue{ background:#3b82f6; }
 .btn-purple{ background:#9333ea; }
 .btn-red{ background:#ef4444; }
-.btn-menu{ background:#00c896; }
 
 input{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  margin-top:10px;
+width:100%;
+padding:10px;
+border-radius:8px;
+border:none;
+margin-top:10px;
 }
 
 .footer{
-  text-align:center;
-  margin-top:20px;
-  font-size:14px;
-  opacity:.8;
+text-align:center;
+margin-top:20px;
+font-size:14px;
+opacity:.8;
 }
 
-.menu-acciones{
-  display:none;
-  margin-top:10px;
-}
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>Panel Usuario</h2>
+<h2>BITUSDT</h2>
+
+<!-- SALDO PRINCIPAL -->
+
+<div class="card">
+
+<p style="text-align:center">Saldo disponible</p>
+
+<div class="saldo">
+<span id="saldo">0</span> USDT
+</div>
+
+<p style="text-align:center;margin-top:10px">
+Ganancia diaria: 5%
+</p>
+
+</div>
+
+
+<!-- BILLETERA -->
+
+<div class="card">
+
+<p><b>Billetera registrada</b></p>
+
+<p id="walletDeposito">No registrada</p>
+
+<button class="btn-blue" onclick="copiar()">
+Copiar billetera
+</button>
+
+</div>
+
+
+<!-- ACCIONES PRINCIPALES -->
+
+<div class="card">
+
+<input type="number" id="monto" placeholder="Monto en USDT">
+
+<button class="btn-green" onclick="invertir()">
+Invertir
+</button>
+
+<button class="btn-orange" onclick="retirar()">
+Retirar
+</button>
+
+<button class="btn-blue" onclick="mostrarDeposito()">
+Depositar
+</button>
+
+<button class="btn-purple" onclick="compartirWhatsApp()">
+Invitar Amigos
+</button>
+
+</div>
+
+
+<!-- HISTORIAL -->
+
+<div class="card">
+
+<h3>📜 Historial</h3>
+
+<div id="historial"></div>
+
+</div>
+
 
 <!-- CONFIGURACIÓN -->
+
 <div class="card">
 
-  <div onclick="toggleConfig()" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-    <h3 style="margin:0;">⚙ Configuración</h3>
-    <span id="flechaConfig">▼</span>
-  </div>
+<h3>⚙ Configuración</h3>
 
-  <div id="configContenido" style="display:none; margin-top:15px;">
+<input type="text" id="editNombre" placeholder="Editar nombre">
 
-    <input type="text" id="editNombre" placeholder="Editar nombre">
-    <input type="email" id="editEmail" placeholder="Editar correo">
-    <input type="tel" id="editTelefono" placeholder="Editar teléfono">
-    <input type="text" id="editWallet" placeholder="Editar billetera">
+<input type="email" id="editEmail" placeholder="Editar correo">
 
-    <button class="btn-purple" onclick="actualizarPerfil()">Guardar Cambios</button>
+<input type="tel" id="editTelefono" placeholder="Editar teléfono">
 
-  </div>
+<input type="text" id="editWallet" placeholder="Editar billetera">
 
-</div>
-<button class="btn-green" onclick="mostrarDeposito(); cerrarMenu()">Depositar</button>
-<!-- BILLETERA -->
-<div class="card">
-  <p><b>Billetera registrada:</b></p>
-  <p id="walletDeposito">No registrada</p>
-  <button class="btn-blue" onclick="copiar()">Copiar billetera</button>
-</div>
+<button class="btn-purple" onclick="actualizarPerfil()">
+Guardar cambios
+</button>
 
-<!-- SALDO -->
-<div class="card">
-  <p><b>Saldo:</b> <span id="saldo">0</span> USDT</p>
-  <p><b>Ganancia diaria:</b> 5%</p>
-</div>
-<div class="card">
-  <h3>📜 Historial</h3>
-  <div id="historial"></div>
-</div>
-<!-- ACCIONES -->
-<div class="card">
+<button class="btn-red" onclick="salir()">
+Cerrar sesión
+</button>
 
-  <input type="number" id="monto" placeholder="Monto a invertir">
-
-  <button class="btn-menu" onclick="toggleMenu()">☰ Menú de acciones</button>
-
-  <div id="menuAcciones" class="menu-acciones">
-
-    <button class="btn-green" onclick="invertir(); cerrarMenu()">Invertir</button>
-
-    <button class="btn-orange" onclick="retirar(); cerrarMenu()">Retirar</button>
-
-    <button class="btn-purple" onclick="guardarWallet(); cerrarMenu()">Agregar / Cambiar billetera</button>
-
-    <button class="btn-blue" onclick="compartirWhatsApp(); cerrarMenu()">
-      📲 Invitar Amigos
-    </button>
-
-    <button class="btn-red" onclick="salir()">Salir</button>
-
-    <button id="btnInstalar" style="display:none;">
-      📲 Descargar App
-    </button>
-
-  </div>
+<button id="btnInstalar" style="display:none">
+📲 Descargar App
+</button>
 
 </div>
 
@@ -157,239 +194,12 @@ input{
 </div>
 
 <script>
-const usuario = JSON.parse(localStorage.getItem("usuario"));
-  if(!usuario || !usuario.email){
-  alert("Sesión inválida, inicia sesión nuevamente");
-  localStorage.clear();
-  window.location.href="/login.html";
-  }
-if(!usuario) window.location.href="/";
 
-document.getElementById("saldo").innerText = usuario.saldo || 0;
-document.getElementById("walletDeposito").innerText =
-  usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
+/* TODO TU JAVASCRIPT ORIGINAL VA AQUÍ
+   NO CAMBIES NADA DE LAS FUNCIONES
+*/
 
-function toggleMenu(){
-  const menu = document.getElementById("menuAcciones");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-function cerrarMenu(){
-  document.getElementById("menuAcciones").style.display = "none";
-}
-
-function copiar(){
-  if(!usuario.wallet){
-    alert("No tienes billetera registrada");
-    return;
-  }
-  navigator.clipboard.writeText(usuario.wallet);
-  alert("Billetera copiada");
-}
-
-async function actualizarPerfil(){
-
-  const nombre = document.getElementById("editNombre").value;
-  const emailNuevo = document.getElementById("editEmail").value;
-  const telefono = document.getElementById("editTelefono").value;
-  const wallet = document.getElementById("editWallet").value;
-
-  const res = await fetch("/api/actualizar-perfil",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      emailActual: usuario.email,
-      nombre,
-      emailNuevo,
-      telefono,
-      wallet
-    })
-  });
-
-  const data = await res.json();
-  alert(data.msg);
-
-  if(data.ok){
-    if(nombre) usuario.nombre = nombre;
-    if(emailNuevo) usuario.email = emailNuevo;
-    if(telefono) usuario.telefono = telefono;
-    if(wallet) usuario.wallet = wallet;
-
-    localStorage.setItem("usuario", JSON.stringify(usuario));
-  }
-}
-
-function salir(){
-  localStorage.clear();
-  window.location.href="/";
-}
-
-function compartirWhatsApp(){
-  const link = window.location.origin + "/register.html?ref=" + usuario.email;
-  const mensaje =
-    "🔥 Gana dinero invirtiendo desde casa.\n\nRegístrate aquí 👇\n" + link;
-
-  const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
-  window.open(url, "_blank");
-}
-function mostrarDeposito(){
-
-  const billeteraEmpresa = "TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo";
-
-  navigator.clipboard.writeText(billeteraEmpresa);
-
-  alert(
-    "💰 DEPÓSITO BITUSDT\n\n" +
-    "Billetera copiada automáticamente:\n\n" +
-    billeteraEmpresa +
-    "\n\nRed recomendada: TRC20\n\n" +
-    "Ahora puedes pegarla en tu wallet."
-  );
-
-}
-  async function invertir(){
-
-  const monto = document.getElementById("monto").value;
-
-  if(!monto || monto <= 0){
-    alert("Ingresa un monto válido");
-    return;
-  }
-
-  try{
-
-    const res = await fetch("/api/invertir",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        email: usuario.email,
-        monto: Number(monto)
-      })
-    });
-
-    const data = await res.json();
-
-    alert(data.msg);
-
-    if(data.ok){
-      usuario.saldo = data.saldo;
-      localStorage.setItem("usuario", JSON.stringify(usuario));
-      document.getElementById("saldo").innerText = data.saldo;
-      document.getElementById("monto").value = "";
-    }
-
-  }catch(error){
-    console.error(error);
-    alert("Error al invertir");
-  }
-
-}
-
-
-async function retirar(){
-
-  const monto = document.getElementById("monto").value;
-
-  if(!monto || monto <= 0){
-    alert("Ingresa un monto válido");
-    return;
-  }
-
-  try{
-
-    const res = await fetch("/api/retirar",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        email: usuario.email,
-        monto: Number(monto)
-      })
-    });
-
-    const data = await res.json();
-
-    alert(data.msg);
-
-    if(data.ok){
-      usuario.saldo = data.saldo;
-      localStorage.setItem("usuario", JSON.stringify(usuario));
-      document.getElementById("saldo").innerText = data.saldo;
-      document.getElementById("monto").value = "";
-    }
-
-  }catch(error){
-    console.error(error);
-    alert("Error al retirar");
-  }
-
-}
-async function cargarHistorial(){
-
-  try{
-
-    const res = await fetch("/api/historial/" + usuario.email);
-    const data = await res.json();
-
-    const div = document.getElementById("historial");
-
-    if(data.length === 0){
-      div.innerHTML = "Sin movimientos";
-      return;
-    }
-
-    div.innerHTML = "";
-
-    data.forEach(m => {
-
-      const color = m.tipo === "retiro" ? "#f97316" : "#22c55e";
-
-      div.innerHTML += `
-        <p style="margin:5px 0;color:${color}">
-        ${m.tipo.toUpperCase()} - ${m.monto} USDT - ${m.estado}
-        </p>
-      `;
-
-    });
-
-  }catch(err){
-    console.log(err);
-  }
-
-}
-/* INSTALAR PWA */
-let deferredPrompt;
-const btnInstalar = document.getElementById("btnInstalar");
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  btnInstalar.style.display = "block";
-});
-
-btnInstalar.addEventListener("click", async () => {
-  btnInstalar.style.display = "none";
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
 </script>
-<script>
-function toggleConfig() {
-  const contenido = document.getElementById("configContenido");
-  const flecha = document.getElementById("flechaConfig");
 
-  if (contenido.style.display === "none") {
-    contenido.style.display = "block";
-    flecha.innerHTML = "▲";
-  } else {
-    contenido.style.display = "none";
-    flecha.innerHTML = "▼";
-  }
-}
-</script>
 </body>
 </html>
