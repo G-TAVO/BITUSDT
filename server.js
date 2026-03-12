@@ -72,8 +72,8 @@ async function actualizarGanancias(user) {
 }
 
 /* ================= REGISTRO ================= */
-
 app.post("/api/register", async (req, res) => {
+
   const email = req.body.email.toLowerCase();
 
   const existe = await User.findOne({ email });
@@ -81,15 +81,24 @@ app.post("/api/register", async (req, res) => {
 
   const hash = await bcrypt.hash(req.body.password, 10);
 
+  /* CREAR ID AUTOMATICO */
+
+  const totalUsuarios = await User.countDocuments();
+  const nuevoId = "USR-" + (1001 + totalUsuarios);
+
   await User.create({
+    userId: nuevoId,
     email,
     password: hash,
+    saldo: 0,
+    dias: 0,
+    wallet: "",
     referidoPor: req.body.referidoPor || ""
   });
 
   res.json({ ok: true, msg: "Registro exitoso" });
-});
 
+});
 /* ================= LOGIN ================= */
 
 app.post("/api/login", async (req, res) => {
