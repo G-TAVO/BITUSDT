@@ -1,261 +1,326 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/png" href="favicon.png">
+
+<link rel="icon" type="image/png" href="favicon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>BITUSDT</title>
+
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000428">
+
 <style>
+
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: Arial, Helvetica, sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: Arial, Helvetica, sans-serif;
 }
 
 body{
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  color:white;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
 }
 
 .box{
-  background:#1e293b;
-  padding:25px;
-  border-radius:12px;
-  width:360px;
-  box-shadow:0 10px 25px rgba(0,0,0,.5);
+background:#1e293b;
+padding:30px;
+border-radius:14px;
+width:360px;
+box-shadow:0 15px 35px rgba(0,0,0,.5);
 }
 
-h2{
-  text-align:center;
-  margin-bottom:20px;
-  color:#00ffcc;
+.logo{
+text-align:center;
+font-size:26px;
+font-weight:bold;
+margin-bottom:20px;
+color:#00ffcc;
 }
 
 input{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border:none;
-  border-radius:6px;
-  font-size:14px;
+width:100%;
+padding:12px;
+margin:8px 0;
+border:none;
+border-radius:8px;
+font-size:14px;
 }
 
 button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:6px;
-  background:#00c896;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+width:100%;
+padding:12px;
+margin-top:12px;
+border:none;
+border-radius:8px;
+background:#00c896;
+color:white;
+font-weight:bold;
+cursor:pointer;
+font-size:15px;
 }
 
 button:disabled{
-  background:#64748b;
-  cursor:not-allowed;
+background:#64748b;
+cursor:not-allowed;
 }
 
-/* REGISTRO */
 .register-text{
-  margin-top:15px;
-  text-align:center;
-  font-size:14px;
+margin-top:15px;
+text-align:center;
+font-size:14px;
 }
 
 .register-text a{
-  color:#00ffcc;
-  text-decoration:none;
-  font-weight:bold;
+color:#00ffcc;
+text-decoration:none;
+font-weight:bold;
 }
 
 .register-text a:hover{
-  text-decoration:underline;
+text-decoration:underline;
 }
 
 /* MODAL */
+
 .modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#0f172a;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0f172a;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
 }
 
 .modal-content{
-  background:#1e293b;
-  padding:20px;
-  border-radius:12px;
-  max-width:400px;
-  width:100%;
-  max-height:90vh;
-  overflow-y:auto;
+background:#1e293b;
+padding:20px;
+border-radius:12px;
+max-width:400px;
+width:100%;
+max-height:90vh;
+overflow-y:auto;
 }
 
 .modal-content h3{
-  margin-bottom:15px;
-  text-align:center;
-  color:#00ffcc;
+margin-bottom:15px;
+text-align:center;
+color:#00ffcc;
 }
 
 .modal-content p{
-  font-size:14px;
-  margin-bottom:8px;
-  line-height:1.5;
+font-size:14px;
+margin-bottom:8px;
+line-height:1.5;
 }
 
 .terminos-box{
-  display:flex;
-  align-items:center;
-  margin-top:15px;
+display:flex;
+align-items:center;
+margin-top:15px;
 }
 
 .terminos-box input{
-  width:auto;
-  margin-right:8px;
+width:auto;
+margin-right:8px;
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="box">
-  <h2>LOGIN</h2>
 
-  <input type="email" id="email" placeholder="Correo">
-  <input type="password" id="password" placeholder="Contraseña">
+<div class="logo">BITUSDT</div>
 
-  <button id="btnLogin" disabled>Entrar</button>
+<input type="email" id="email" placeholder="Correo">
+
+<input type="password" id="password" placeholder="Contraseña">
+
+<button id="btnLogin" disabled>Entrar</button>
+
 <button id="btnInstalar" style="display:none;">
-  📲 Descargar App
+📲 Descargar App
 </button>
-  <!-- REGÍSTRATE -->
-  <p class="register-text">
-    ¿No tienes cuenta?
-    <a href="/register.html">Regístrate</a>
-  </p>
+
+<p class="register-text">
+¿No tienes cuenta?
+<a href="/register.html">Regístrate</a>
+</p>
+
 </div>
 
-<!-- MODAL TÉRMINOS -->
+
+<!-- MODAL -->
+
 <div class="modal" id="modalTerminos">
-  <div class="modal-content">
-    <h3>Términos y Condiciones</h3>
 
-    <p>1. TAREAS AUTOMÁTICA CADA 24 HORAS TU SALDO SUBE.</p>
-    <p>2. Por cada invitado activo ganas 1 USD.</p>
-    <p>3. DEPOSITAR EN : TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo .</p>
-    <p>4. Invertir 10 USD → ganas 16 USD.</p>
-    <p>5. Invertir 20 USD → ganas 26 USD.</p>
-    <p>6. Nequi solo con amigos de confianza que tengan Binance.</p>
-    <p>7. Correo oficial: Binancecoin958@gmail.com</p>
-    <p>8. BITUSDT funciona como modelo CDT.</p>
-    <p>9. Al retirar el saldo, retiras inversión más ganancias.</p>
-    <p>10.YA PUEDES DESCARGAR LA APP EN LOS TRES PUNTOS DE GOOGLE.</p>
-    <p><b>LOS RETIROS LLEGAN DENTRO DE 72 HORAS.</b></p>
+<div class="modal-content">
 
-    <div class="terminos-box">
-      <input type="checkbox" id="aceptar">
-      <label>Acepto los términos y condiciones</label>
-    </div>
-  </div>
+<h3>Términos y Condiciones</h3>
+
+<p>1. TAREAS AUTOMÁTICA CADA 24 HORAS TU SALDO SUBE.</p>
+<p>2. Por cada invitado activo ganas 1 USD.</p>
+<p>3. DEPOSITAR EN : TXDiTXnPUV3th3rHtZaX4XqzdJeVLbJeVo .</p>
+<p>4. Invertir 10 USD → ganas 16 USD.</p>
+<p>5. Invertir 20 USD → ganas 26 USD.</p>
+<p>6. Nequi solo con amigos de confianza que tengan Binance.</p>
+<p>7. Correo oficial: Binancecoin958@gmail.com</p>
+<p>8. BITUSDT funciona como modelo CDT.</p>
+<p>9. Al retirar el saldo, retiras inversión más ganancias.</p>
+<p>10.YA PUEDES DESCARGAR LA APP EN LOS TRES PUNTOS DE GOOGLE.</p>
+
+<p><b>LOS RETIROS LLEGAN DENTRO DE 72 HORAS.</b></p>
+
+<div class="terminos-box">
+
+<input type="checkbox" id="aceptar">
+<label>Acepto los términos y condiciones</label>
+
 </div>
+
+</div>
+</div>
+
 
 <script>
+
 const modal = document.getElementById("modalTerminos");
 const aceptar = document.getElementById("aceptar");
 const btnLogin = document.getElementById("btnLogin");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
-// Activar botón al aceptar términos
+
 aceptar.addEventListener("change", () => {
-  if (aceptar.checked) {
-    modal.style.display = "none";
-    btnLogin.disabled = false;
-  }
+
+if(aceptar.checked){
+modal.style.display="none";
+btnLogin.disabled=false;
+}
+
 });
+
 
 btnLogin.addEventListener("click", login);
 
-async function login() {
 
-  if (!emailInput.value || !passwordInput.value) {
-    alert("Complete todos los campos");
-    return;
-  }
+async function login(){
 
-  try {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: emailInput.value,
-        password: passwordInput.value
-      })
-    });
-
-    const data = await res.json();
-
-    if (!data.ok) {
-      alert(data.msg);
-      return;
-    }
-
-    if (data.rol === "admin") {
-      localStorage.setItem("usuario", JSON.stringify({
-        rol: "admin",
-        email: emailInput.value
-      }));
-      window.location.href = "/admin.html";
-    } else {
-      localStorage.setItem("usuario", JSON.stringify({
-        rol: "user",
-        ...data.user
-      }));
-      window.location.href = "/panel.html";
-    }
-
-  } catch (error) {
-    alert("Error conectando con el servidor");
-  }
+if(!emailInput.value || !passwordInput.value){
+alert("Complete todos los campos");
+return;
 }
-  let deferredPrompt;
+
+try{
+
+const res = await fetch("/api/login",{
+
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+
+body:JSON.stringify({
+email:emailInput.value,
+password:passwordInput.value
+})
+
+});
+
+const data = await res.json();
+
+if(!data.ok){
+alert(data.msg);
+return;
+}
+
+if(data.rol==="admin"){
+
+localStorage.setItem("usuario",JSON.stringify({
+rol:"admin",
+email:emailInput.value
+}));
+
+window.location.href="/admin.html";
+
+}else{
+
+localStorage.setItem("usuario",JSON.stringify({
+rol:"user",
+...data.user
+}));
+
+window.location.href="/panel.html";
+
+}
+
+}catch(error){
+
+alert("Error conectando con el servidor");
+
+}
+
+}
+
+</script>
+
+
+<script>
+
+let deferredPrompt;
+
 const btnInstalar = document.getElementById("btnInstalar");
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  btnInstalar.style.display = "block";
+window.addEventListener("beforeinstallprompt",(e)=>{
+
+e.preventDefault();
+
+deferredPrompt=e;
+
+btnInstalar.style.display="block";
+
 });
 
-btnInstalar.addEventListener("click", async () => {
-  btnInstalar.style.display = "none";
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
+btnInstalar.addEventListener("click",async()=>{
+
+btnInstalar.style.display="none";
+
+deferredPrompt.prompt();
+
+const { outcome } = await deferredPrompt.userChoice;
+
+deferredPrompt=null;
+
 });
+
 </script>
+
+
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js")
-    .then(() => console.log("Service Worker registrado"))
-    .catch(err => console.log("Error SW:", err));
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register("/service-worker.js")
+
+.then(()=>console.log("Service Worker registrado"))
+
+.catch(err=>console.log("Error SW:",err));
+
 }
+
 </script>
-  
-</script>
+
+
 </body>
 </html>
