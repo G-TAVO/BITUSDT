@@ -105,23 +105,7 @@ margin-top:10px;
 .historial-item{
 margin:5px 0;
 }
-<div class="card">
 
-<h3>📞 Soporte</h3>
-
-<a href="https://wa.me/573226314209" target="_blank">
-<button class="btn-green">
-Contactar por WhatsApp
-</button>
-</a>
-
-<a href="mailto:enriquevega201618@gmail.com">
-<button class="btn-blue" style="margin-top:10px">
-Enviar correo
-</button>
-</a>
-
-</div>
 /* MENU INFERIOR */
 
 .menu{
@@ -169,9 +153,11 @@ font-size:13px;
 <p style="margin-top:10px">
 Ganancia diaria 5%
 </p>
+
 <p style="font-size:13px;margin-top:6px;">
 ID usuario: <span id="userid"></span>
 </p>
+
 <p style="font-size:13px">
 Al retirar recibes inversión + ganancias
 </p>
@@ -181,9 +167,7 @@ Al retirar recibes inversión + ganancias
 <!-- MONTO -->
 
 <div class="card">
-
 <input type="number" id="monto" placeholder="Monto en USDT">
-
 </div>
 
 <!-- BOTONES -->
@@ -232,9 +216,29 @@ Copiar billetera
 
 </div>
 
+<!-- SOPORTE -->
+
+<div class="card">
+
+<h3>📞 Soporte</h3>
+
+<a href="https://wa.me/573226314209" target="_blank">
+<button class="btn-green">
+Contactar por WhatsApp
+</button>
+</a>
+
+<a href="mailto:enriquevega201618@gmail.com">
+<button class="btn-blue" style="margin-top:10px">
+Enviar correo
+</button>
+</a>
+
 </div>
 
-<!-- MENU INFERIOR -->
+</div>
+
+<!-- MENU -->
 
 <div class="menu">
 
@@ -267,8 +271,10 @@ window.location.href="/login.html";
 }
 
 document.getElementById("saldo").innerText = usuario.saldo || 0;
+
 document.getElementById("userid").innerText =
 usuario.userId || "Sin ID";
+
 document.getElementById("walletDeposito").innerText =
 usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
 
@@ -319,7 +325,10 @@ alert(
 billeteraEmpresa +
 "\n\nRed recomendada TRC20"
 );
+
 }
+
+
 async function invertir(){
 
 const monto = document.getElementById("monto").value;
@@ -373,6 +382,7 @@ alert(data.msg || "Solicitud enviada");
 location.reload();
 
 }
+
 </script>
 
 </body>
