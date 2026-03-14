@@ -199,13 +199,22 @@ app.post("/api/aprobar", async (req, res) => {
       }
     }
   }
+s.estado = "aprobado";
+await s.save();
 
-  s.estado = "aprobado";
-  await s.save();
+/* MENSAJE SEGÚN TIPO */
 
-  res.json({ ok: true });
-});
+let mensaje = "";
 
+if (s.tipo === "inversion") {
+  mensaje = "Tu inversión fue aprobada y ya está generando ganancias.";
+}
+
+if (s.tipo === "retiro") {
+  mensaje = "Tu retiro fue aprobado y enviado a tu billetera.";
+}
+
+res.json({ ok: true, msg: mensaje });
 /* ================= RECHAZAR ================= */
 
 app.post("/api/rechazar", async (req, res) => {
