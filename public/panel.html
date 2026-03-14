@@ -251,7 +251,8 @@ window.location.href="/login.html";
 }
 
 document.getElementById("saldo").innerText = usuario.saldo || 0;
-
+document.getElementById("userid").innerText =
+usuario.userId || "Sin ID";
 document.getElementById("walletDeposito").innerText =
 usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
 
