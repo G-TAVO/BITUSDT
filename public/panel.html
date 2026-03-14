@@ -189,7 +189,9 @@ Depositar
 <button class="btn-purple" onclick="compartirWhatsApp()">
 Invitar
 </button>
-
+<button class="btn-green" onclick="pagarNequi()">
+Recargar cuenta
+</button>
 </div>
 
 <!-- BILLETERA -->
@@ -374,6 +376,22 @@ email: usuario.email,
 monto: monto
 })
 });
+
+  function pagarNequi(){
+
+const numero = "3226314209";
+
+navigator.clipboard.writeText(numero);
+
+alert(
+"💰 Recargar cuenta\n\n" +
+"Puedes recargar tu saldo enviando el dinero al Nequi:\n\n" +
+numero +
+"\n\nEl número fue copiado automáticamente.\n\n" +
+"Después de realizar la transferencia envía el comprobante al soporte para aprobar tu recarga."
+);
+
+  }
 
 const data = await res.json();
 
