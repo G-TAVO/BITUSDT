@@ -118,17 +118,18 @@ app.post("/api/login", async (req, res) => {
     if (!ok) return res.json({ ok: false, msg: "Clave incorrecta" });
 
     await actualizarGanancias(user);
-
-    res.json({
-      ok: true,
-      rol: "user",
-      user: {
-        email: user.email,
-        saldo: user.saldo,
-        dias: user.dias,
-        wallet: user.wallet
-      }
-    });
+res.json({
+  ok: true,
+  rol: "user",
+  user: {
+    userId: user.userId,
+    email: user.email,
+    saldo: user.saldo,
+    dias: user.dias,
+    wallet: user.wallet
+  }
+});
+    
 
   } catch (err) {
     res.json({ ok: false, msg: "Error servidor" });
