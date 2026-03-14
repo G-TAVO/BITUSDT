@@ -215,6 +215,8 @@ if (s.tipo === "retiro") {
 }
 
 res.json({ ok: true, msg: mensaje });
+});
+  
 /* ================= RECHAZAR ================= */
 
 app.post("/api/rechazar", async (req, res) => {
