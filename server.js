@@ -305,7 +305,7 @@ return res.json({ok:false,msg:"Debes registrar tu número de Nequi"});
       monto:monto,
       estado:"pendiente",
       tipo:"retiro",
-      wallet:u.wallet
+     wallet:"Nequi: "+u.nequi 
     });
 
     u.saldo -= monto;
