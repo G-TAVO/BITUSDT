@@ -384,13 +384,22 @@ location.reload();
 
 }
 
+  async function retirar(){
 
-async function retirar(){
-
-const monto = document.getElementById("monto").value;
+const monto = Number(document.getElementById("monto").value);
 
 if(!monto || monto <= 0){
 alert("Ingresa un monto válido");
+return;
+}
+
+if(monto < 20){
+alert("⚠️ El retiro mínimo es de 20 USDT");
+return;
+}
+
+if(monto > usuario.saldo){
+alert("Saldo insuficiente");
 return;
 }
 
@@ -409,7 +418,7 @@ alert(data.msg || "Solicitud enviada");
 
 location.reload();
 
-}
+  }
 
 
 function pagarNequi(){
