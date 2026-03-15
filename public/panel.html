@@ -438,7 +438,37 @@ numero +
 );
 
 }
+async function cargarHistorial(){
 
+const res = await fetch("/api/historial/"+usuario.email);
+
+const datos = await res.json();
+
+const contenedor = document.getElementById("historial");
+
+if(!datos.length){
+contenedor.innerHTML = "Sin movimientos";
+return;
+}
+
+contenedor.innerHTML = "";
+
+datos.forEach(m => {
+
+let icono = "💰";
+
+if(m.tipo === "retiro") icono = "📤";
+if(m.tipo === "inversion") icono = "📈";
+
+contenedor.innerHTML += `
+<div class="historial-item">
+${icono} ${m.tipo} - ${m.monto} USDT - ${m.estado}
+</div>
+`;
+
+});
+
+  }
 
 </script>
 
