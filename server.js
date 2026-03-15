@@ -31,7 +31,7 @@ const UserSchema = new mongoose.Schema({
   dias:{ type:Number, default:0 },
 
   nequi:{ type:String, default:"" },
-  binance:{ type:String, default:"" },
+  
 
   referidoPor:{ type:String, default:"" },
   ultimaActualizacion:{ type:Date, default:Date.now }
@@ -96,7 +96,7 @@ app.post("/api/register", async(req,res)=>{
     password:hash,
     saldo:0,
     dias:0,
-    wallet:"",
+    
     referidoPor:req.body.referidoPor||""
   });
 
