@@ -322,17 +322,23 @@ return res.json({ok:false,msg:"Debes registrar Nequi o Binance"});
 
 /* ================= WALLET ================= */
 
-app.post("/api/wallet", async(req,res)=>{
+
+   app.post("/api/wallet", async(req,res)=>{
 
   try{
 
     const u = await User.findOne({email:req.body.email});
-    if(!u) return res.json({ok:false,msg:"Usuario no encontrado"});
 
-    u.wallet = req.body.wallet;
+    if(!u){
+      return res.json({ok:false,msg:"Usuario no encontrado"});
+    }
+
+    u.nequi = req.body.nequi || "";
+    u.binance = req.body.binance || "";
+
     await u.save();
 
-    res.json({ok:true,msg:"Billetera guardada correctamente"});
+    res.json({ok:true,msg:"Cuenta de retiro guardada correctamente"});
 
   }catch(err){
 
