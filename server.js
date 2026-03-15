@@ -292,7 +292,9 @@ app.post("/api/retirar", async(req,res)=>{
     const u = await User.findOne({email});
 
     if(!u) return res.json({ok:false,msg:"Usuario no existe"});
-    if(!u.wallet) return res.json({ok:false,msg:"Debes registrar una billetera"});
+    if(!u.nequi && !u.binance){
+return res.json({ok:false,msg:"Debes registrar Nequi o Binance"});
+}
     if(monto<=0) return res.json({ok:false,msg:"Monto inválido"});
     if(monto>u.saldo) return res.json({ok:false,msg:"Saldo insuficiente"});
     if(monto<20) return res.json({ok:false,msg:"Mínimo retiro 20 USDT"});
