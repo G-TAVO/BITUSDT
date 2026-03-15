@@ -29,11 +29,13 @@ const UserSchema = new mongoose.Schema({
   telefono:{ type:String, default:"" },
   saldo:{ type:Number, default:0 },
   dias:{ type:Number, default:0 },
-  wallet:{ type:String, default:"" },
+
+  nequi:{ type:String, default:"" },
+  binance:{ type:String, default:"" },
+
   referidoPor:{ type:String, default:"" },
   ultimaActualizacion:{ type:Date, default:Date.now }
 });
-
 const SolicitudSchema = new mongoose.Schema({
   email:String,
   monto:Number,
