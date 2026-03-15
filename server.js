@@ -135,7 +135,8 @@ app.post("/api/login", async(req,res)=>{
         email:user.email,
         saldo:user.saldo,
         dias:user.dias,
-        wallet:user.wallet
+        wallet:user.wallet,
+        ultimaActualizacion:user.ultimaActualizacion,
       }
     });
 
