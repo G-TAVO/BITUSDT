@@ -358,7 +358,6 @@ location.reload();
 }
 
 
-
 async function retirar(){
 
 const monto = document.getElementById("monto").value;
@@ -377,7 +376,16 @@ monto: monto
 })
 });
 
-  function pagarNequi(){
+const data = await res.json();
+
+alert(data.msg || "Solicitud enviada");
+
+location.reload();
+
+}
+
+
+function pagarNequi(){
 
 const numero = "3226314209";
 
@@ -391,7 +399,8 @@ numero +
 "Después de realizar la transferencia envía el comprobante al soporte para aprobar tu recarga."
 );
 
-  }
+}
+
 
 const data = await res.json();
 
