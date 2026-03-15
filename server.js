@@ -285,39 +285,47 @@ app.post("/api/rechazar", async(req,res)=>{
 
 app.post("/api/retirar", async(req,res)=>{
 
-  try{
+try{
 
-    const email = req.body.email.toLowerCase();
-    const monto = Number(req.body.monto);
+const email = req.body.email.toLowerCase();
+const monto = Number(req.body.monto);
 
-    const u = await User.findOne({email});
+const u = await User.findOne({email});
 
-    if(!u) return res.json({ok:false,msg:"Usuario no existe"});
-    if(!u.nequi){
+if(!u) return res.json({ok:false,msg:"Usuario no existe"});
+
+if(!u.nequi){
 return res.json({ok:false,msg:"Debes registrar tu número de Nequi"});
 }
-    if(monto<=0) return res.json({ok:false,msg:"Monto inválido"});
-    if(monto>u.saldo) return res.json({ok:false,msg:"Saldo insuficiente"});
-    if(monto<20) return res.json({ok:false,msg:"Mínimo retiro 20 USDT"});
 
-    await Solicitud.create({
-      email:u.email,
-      monto:monto,
-      estado:"pendiente",
-      tipo:"retiro",
-     wallet:"Nequi: "+u.nequi 
-    });
+if(monto<=0) return res.json({ok:false,msg:"Monto inválido"});
 
-    u.saldo -= monto;
-    await u.save();
+if(monto>u.saldo){
+return res.json({ok:false,msg:"Saldo insuficiente"});
+}
 
-    res.json({ok:true,msg:"Solicitud de retiro enviada",saldo:u.saldo});
+if(monto<20){
+return res.json({ok:false,msg:"Mínimo retiro 20 USDT"});
+}
 
-  }catch(err){
+await Solicitud.create({
+email:u.email,
+monto:monto,
+estado:"pendiente",
+tipo:"retiro",
+nequi:u.nequi
+});
 
-    res.json({ok:false,msg:"Error servidor retirar"});
+res.json({
+ok:true,
+msg:"Solicitud de retiro enviada"
+});
 
-  }
+}catch(err){
+
+res.json({ok:false,msg:"Error servidor retirar"});
+
+}
 
 });
 
