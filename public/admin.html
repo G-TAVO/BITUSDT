@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 
@@ -6,9 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>BITUSDT ADMIN</title>
-
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#000428">
 
 <style>
 
@@ -40,8 +38,6 @@ opacity:.8;
 font-size:14px;
 }
 
-/* TARJETAS */
-
 .stats{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -61,8 +57,6 @@ margin:5px 0;
 color:#00ffcc;
 }
 
-/* TABLAS */
-
 table{
 width:100%;
 border-collapse:collapse;
@@ -81,8 +75,6 @@ border-bottom:1px solid #333;
 th{
 background:#1f2937;
 }
-
-/* BOTONES */
 
 button{
 padding:6px 10px;
@@ -114,10 +106,8 @@ font-size:16px;
 
 <div class="header">
 <h1>BITUSDT ADMIN</h1>
-<div class="sub">Panel de control del sistema</div>
+<div class="sub">Panel de control</div>
 </div>
-
-<!-- ESTADISTICAS -->
 
 <div class="stats">
 
@@ -128,15 +118,13 @@ Usuarios
 
 <div class="stat-card">
 <h3 id="totalSolicitudes">0</h3>
-Solicitudes
+Solicitudes pendientes
 </div>
 
 </div>
 
-<h2>Solicitudes Pendientes</h2>
+<h2>Solicitudes</h2>
 
-
-  <div class="tabla-scroll">
 <table>
 
 <thead>
@@ -144,16 +132,14 @@ Solicitudes
 <th>Email</th>
 <th>Tipo</th>
 <th>Monto</th>
-<th>Wallet</th>
+<th>Nequi</th>
 <th>Acción</th>
 </tr>
 </thead>
 
 <tbody id="tablaSolicitudes"></tbody>
 
-
-    </table>
-  </div>
+</table>
 
 <h2>Usuarios</h2>
 
@@ -164,7 +150,7 @@ Solicitudes
 <th>Email</th>
 <th>Saldo</th>
 <th>Días</th>
-<th>Wallet</th>
+<th>Nequi</th>
 <th>Editar</th>
 </tr>
 </thead>
@@ -179,20 +165,14 @@ Solicitudes
 
 <script>
 
-/* VALIDAR ADMIN */
-
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 
 if(!usuario || usuario.rol !== "admin"){
 window.location.href="/";
 }
 
-/* ADMIN KEY */
-
 const ADMIN_KEY="ADMIN123";
 
-
-/* SOLICITUDES */
 
 async function cargarSolicitudes(){
 
@@ -222,7 +202,7 @@ tabla.innerHTML += `
 <td>${s.email}</td>
 <td>${s.tipo}</td>
 <td>${s.monto} USDT</td>
-<td>${s.wallet || "-"}</td>
+<td>${s.nequi || "No registrado"}</td>
 <td>
 <button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
 <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
@@ -236,7 +216,36 @@ tabla.innerHTML += `
 }
 
 
-/* EDITAR SALDO */
+async function cargarUsuarios(){
+
+const res = await fetch("/api/usuarios");
+
+const data = await res.json();
+
+document.getElementById("totalUsuarios").innerText = data.length;
+
+const tabla=document.getElementById("tablaUsuarios");
+
+tabla.innerHTML="";
+
+data.forEach(u=>{
+
+tabla.innerHTML += `
+<tr>
+<td>${u.email}</td>
+<td>${u.saldo} USDT</td>
+<td>${u.dias || 0}</td>
+<td>${u.nequi || "No registrado"}</td>
+<td>
+<button class="btn-edit" onclick="editarSaldo('${u.email}')">✏️</button>
+</td>
+</tr>
+`;
+
+});
+
+}
+
 
 async function editarSaldo(email){
 
@@ -261,10 +270,10 @@ const data = await res.json();
 
 alert(data.msg);
 
+cargarUsuarios();
+
 }
 
-
-/* APROBAR */
 
 async function aprobar(id){
 
@@ -275,7 +284,7 @@ method:"POST",
 headers:{ "Content-Type":"application/json" },
 
 body:JSON.stringify({
-id,
+id:id,
 adminKey:ADMIN_KEY
 })
 
@@ -291,8 +300,6 @@ cargarUsuarios();
 }
 
 
-/* RECHAZAR */
-
 async function rechazar(id){
 
 const res = await fetch("/api/rechazar",{
@@ -302,7 +309,7 @@ method:"POST",
 headers:{ "Content-Type":"application/json" },
 
 body:JSON.stringify({
-id,
+id:id,
 adminKey:ADMIN_KEY
 })
 
@@ -313,39 +320,6 @@ const data = await res.json();
 alert(data.msg);
 
 cargarSolicitudes();
-
-}
-
-
-/* USUARIOS */
-
-async function cargarUsuarios(){
-
-const res = await fetch("/api/usuarios");
-
-const data = await res.json();
-
-document.getElementById("totalUsuarios").innerText = data.length;
-
-const tabla=document.getElementById("tablaUsuarios");
-
-tabla.innerHTML="";
-
-data.forEach(u=>{
-
-tabla.innerHTML += `
-<tr>
-<td>${u.email}</td>
-<td>${u.saldo} USDT</td>
-<td>${u.dias}</td>
-<td>${u.wallet || "-"}</td>
-<td>
-<button class="btn-edit" onclick="editarSaldo('${u.email}')">✏️</button>
-</td>
-</tr>
-`;
-
-});
 
 }
 
