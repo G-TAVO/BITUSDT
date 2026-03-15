@@ -148,15 +148,23 @@ app.post("/api/login", async(req,res)=>{
 });
 
 /* ================= INVERTIR ================= */
+/* ================= INVERTIR ================= */
 
 app.post("/api/invertir", async(req,res)=>{
 
   try{
 
+    if(!req.body.email){
+      return res.json({ok:false,msg:"Email no enviado"});
+    }
+
     const email = req.body.email.toLowerCase();
+
     const u = await User.findOne({email});
 
-    if(!u) return res.json({ok:false,msg:"Usuario no existe"});
+    if(!u){
+      return res.json({ok:false,msg:"Usuario no existe"});
+    }
 
     await Solicitud.create({
       email:u.email,
