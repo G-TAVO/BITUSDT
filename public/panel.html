@@ -313,7 +313,13 @@ window.location.href="/login.html";
 }
 
 document.getElementById("saldo").innerText = usuario.saldo || 0;
+document.getElementById("saldo").innerText = usuario.saldo || 0;
 
+document.getElementById("nequi").innerText =
+usuario.nequi || "No registrada";
+
+document.getElementById("binance").innerText =
+usuario.binance || "No registrada";
 document.getElementById("userid").innerText =
 usuario.userId || "Sin ID";
 
