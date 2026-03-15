@@ -293,8 +293,8 @@ app.post("/api/retirar", async(req,res)=>{
     const u = await User.findOne({email});
 
     if(!u) return res.json({ok:false,msg:"Usuario no existe"});
-    if(!u.nequi && !u.binance){
-return res.json({ok:false,msg:"Debes registrar Nequi o Binance"});
+    if(!u.nequi){
+return res.json({ok:false,msg:"Debes registrar tu número de Nequi"});
 }
     if(monto<=0) return res.json({ok:false,msg:"Monto inválido"});
     if(monto>u.saldo) return res.json({ok:false,msg:"Saldo insuficiente"});
