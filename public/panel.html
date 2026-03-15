@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 
@@ -6,9 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>BITUSDT</title>
-
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#000428">
 
 <style>
 
@@ -26,8 +24,6 @@ padding:20px;
 padding-bottom:90px;
 }
 
-/* HEADER */
-
 .header{
 text-align:center;
 margin-bottom:20px;
@@ -43,14 +39,11 @@ font-size:14px;
 opacity:.8;
 }
 
-/* TARJETA SALDO */
-
 .saldo-card{
 background:linear-gradient(135deg,#2563eb,#1e40af);
 padding:25px;
 border-radius:15px;
 text-align:center;
-box-shadow:0 10px 20px rgba(0,0,0,.5);
 }
 
 .saldo{
@@ -58,8 +51,6 @@ font-size:32px;
 font-weight:bold;
 margin-top:10px;
 }
-
-/* BOTONES PRINCIPALES */
 
 .botones{
 display:grid;
@@ -83,8 +74,6 @@ font-size:15px;
 .btn-blue{ background:#3b82f6; }
 .btn-purple{ background:#9333ea; }
 
-/* TARJETAS */
-
 .card{
 background:#1e293b;
 padding:15px;
@@ -100,13 +89,9 @@ border:none;
 margin-top:10px;
 }
 
-/* HISTORIAL */
-
 .historial-item{
 margin:5px 0;
 }
-
-/* MENU INFERIOR */
 
 .menu{
 position:fixed;
@@ -117,7 +102,6 @@ background:#111827;
 display:flex;
 justify-content:space-around;
 padding:12px 0;
-box-shadow:0 -5px 20px rgba(0,0,0,.5);
 }
 
 .menu button{
@@ -140,8 +124,6 @@ font-size:13px;
 <div class="subtitulo">Banco de inversiones tipo CDT</div>
 </div>
 
-<!-- SALDO -->
-
 <div class="saldo-card">
 
 <p>Saldo disponible</p>
@@ -153,123 +135,89 @@ font-size:13px;
 <p style="margin-top:10px">
 Ganancia diaria 5%
 </p>
-<p style="font-size:13px;margin-top:6px;">
-⏳ Próxima ganancia en:
-<span id="contador">calculando...</span>
-</p>
+
 <p style="font-size:13px;margin-top:6px;">
 ID usuario: <span id="userid"></span>
 </p>
 
-<p style="font-size:13px">
-Al retirar recibes inversión + ganancias
-</p>
 <p style="font-size:12px;color:#fbbf24">
 Retiro mínimo: 20 USDT
 </p>
+
 </div>
-
-<!-- MONTO -->
-
-
-
-<!-- BOTONES -->
-
-<div class="botones">
-
-<button class="btn-green" onclick="invertir()">
-Invertir
-</button>
-
-<button class="btn-orange" onclick="retirar()">
-Retirar
-</button>
-
-<button class="btn-blue" onclick="mostrarDeposito()">
-Depositar
-</button>
-
-<button class="btn-purple" onclick="compartirWhatsApp()">
-Invitar
-</button>
-<button class="btn-green" onclick="pagarNequi()">
-Recargar cuenta
-</button>
-</div>
-
-<!-- BILLETERA -->
 
 <div class="card">
 
+<p><b>Monto (USDT)</b></p>
 
-  <p><b>Cuenta de retiro</b></p>
+<input type="number" id="monto" placeholder="Ejemplo: 20">
+
+</div>
+
+<div class="botones">
+
+<button class="btn-green" onclick="invertir()">Invertir</button>
+
+<button class="btn-orange" onclick="retirar()">Retirar</button>
+
+<button class="btn-blue" onclick="pagarNequi()">Recargar cuenta</button>
+
+<button class="btn-purple" onclick="compartirWhatsApp()">Invitar</button>
+
+</div>
+
+<div class="card">
+
+<p><b>Cuenta de retiro</b></p>
 
 <p>
 Nequi: <span id="nequi">No registrado</span>
 </p>
 
-
-
-<p id="walletDeposito">No registrada</p>
 <button class="btn-blue" onclick="agregarCuenta()">
-Agregar cuenta de retiro
-</button>
-<button class="btn-blue" onclick="copiar()">
-Copiar billetera
+Agregar número de Nequi
 </button>
 
 </div>
 
-<!-- HISTORIAL -->
-
 <div class="card">
 
-<h3>📜 Historial</h3>
+<h3>Historial</h3>
 
 <div id="historial">Sin movimientos</div>
 
 </div>
 
-<!-- SOPORTE -->
-
 <div class="card">
 
-<h3>📞 Soporte</h3>
+<h3>Soporte</h3>
 
 <a href="https://wa.me/573226314209" target="_blank">
 <button class="btn-green">
-Contactar por WhatsApp
-</button>
-</a>
-
-<a href="mailto:enriquevega201618@gmail.com">
-<button class="btn-blue" style="margin-top:10px">
-Enviar correo
+Enviar comprobante por WhatsApp
 </button>
 </a>
 
 </div>
 
 </div>
-
-<!-- MENU -->
 
 <div class="menu">
 
 <button onclick="window.scrollTo(0,0)">
-🏠 Inicio
+Inicio
 </button>
 
-<button onclick="mostrarDeposito()">
-💰 Depositar
+<button onclick="pagarNequi()">
+Depositar
 </button>
 
 <button onclick="compartirWhatsApp()">
-👥 Invitar
+Invitar
 </button>
 
 <button onclick="salir()">
-🚪 Salir
+Salir
 </button>
 
 </div>
@@ -277,262 +225,170 @@ Enviar correo
 <script>
 
 const usuario = JSON.parse(localStorage.getItem("usuario"));
-const ultima = new Date(usuario.ultimaActualizacion);
-const proxima = new Date(ultima.getTime() + (24*60*60*1000));
 
-function actualizarContador(){
-
-const ahora = new Date();
-
-let diferencia = proxima - ahora;
-
-if(diferencia <= 0){
-document.getElementById("contador").innerText = "Actualizando...";
-return;
-}
-
-let horas = Math.floor(diferencia / (1000*60*60));
-let minutos = Math.floor((diferencia % (1000*60*60)) / (1000*60));
-let segundos = Math.floor((diferencia % (1000*60)) / 1000);
-
-document.getElementById("contador").innerText =
-horas+"h "+minutos+"m "+segundos+"s";
-
-}
-
-setInterval(actualizarContador,1000);
-actualizarContador();
-if(!usuario || !usuario.email){
+if(!usuario){
 alert("Sesión inválida");
-localStorage.clear();
 window.location.href="/login.html";
 }
 
 document.getElementById("saldo").innerText = usuario.saldo || 0;
-document.getElementById("saldo").innerText = usuario.saldo || 0;
-
-document.getElementById("nequi").innerText =
-usuario.nequi || "No registrada";
-
-
-document.getElementById("userid").innerText =
-usuario.userId || "Sin ID";
-
-document.getElementById("walletDeposito").innerText =
-usuario.wallet && usuario.wallet !== "" ? usuario.wallet : "No registrada";
-
-
-function copiar(){
-
-if(!usuario.wallet){
-alert("No tienes billetera registrada");
-return;
-}
-
-navigator.clipboard.writeText(usuario.wallet);
-
-alert("Billetera copiada");
-
-}
-
+document.getElementById("userid").innerText = usuario.userId || "Sin ID";
+document.getElementById("nequi").innerText = usuario.nequi || "No registrado";
 
 function salir(){
 localStorage.clear();
 window.location.href="/";
 }
 
-
-function compartirWhatsApp(){
-
-const link = window.location.origin + "/register.html?ref=" + usuario.email;
-
-const mensaje =
-"🔥 Gana dinero invirtiendo desde casa.\n\nRegístrate aquí 👇\n" + link;
-
-const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
-
-window.open(url,"_blank");
-
-}
-
-
-function mostrarDeposito(){
-
-const billeteraEmpresa = "3226314209";
-
-navigator.clipboard.writeText(billeteraEmpresa);
-
-alert(
-"💰 DEPÓSITO BITUSDT\n\n" +
-"Billetera copiada:\n\n" +
-billeteraEmpresa +
-"\n\nRed recomendada TRC20"
-);
-
-}
-
-
-async function invertir(){
-
-const monto = document.getElementById("monto").value;
-
-if(!monto || monto <= 0){
-alert("Ingresa un monto válido");
-return;
-}
-
-const res = await fetch("/api/invertir",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email: usuario.email,
-monto: monto
-})
-});
-
-const data = await res.json();
-
-alert(data.msg || "Solicitud enviada");
-
-location.reload();
-
-}
-
-  async function retirar(){
-
-const monto = Number(document.getElementById("monto").value);
-
-if(!monto || monto <= 0){
-alert("Ingresa un monto válido");
-return;
-}
-
-if(monto < 20){
-alert("⚠️ El retiro mínimo es de 20 USDT");
-return;
-}
-
-if(monto > usuario.saldo){
-alert("Saldo insuficiente");
-return;
-}
-
-const res = await fetch("/api/retirar",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email: usuario.email,
-monto: monto
-})
-});
-
-const data = await res.json();
-
-alert(data.msg || "Solicitud enviada");
-
-location.reload();
-
-  }
-
-
 function pagarNequi(){
 
-const numero = "3226314209";
+const numero="3226314209";
 
 navigator.clipboard.writeText(numero);
 
 alert(
-"💰 Recargar cuenta\n\n" +
-"Puedes recargar tu saldo enviando el dinero al Nequi:\n\n" +
-numero +
-"\n\nEl número fue copiado automáticamente.\n\n" +
-"Después de realizar la transferencia envía el comprobante al soporte para aprobar tu recarga."
+"Recargar cuenta\n\n"+
+"Envía el dinero al Nequi:\n\n"+
+numero+
+"\n\nLuego envía el comprobante al WhatsApp de soporte."
 );
 
 }
-async function agregarCuenta(){
 
-const nequi = prompt("Ingresa tu número de Nequi:");
+async function invertir(){
 
-const binance = prompt("Ingresa tu correo de Binance:");
+const monto=document.getElementById("monto").value;
 
-const res = await fetch("/api/wallet",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email: usuario.email,
-nequi: nequi,
-binance: binance
-})
-});
-async function agregarCuenta(){
-
-const nequi = prompt("Ingresa tu número de Nequi:");
-
-const binance = prompt("Ingresa tu correo de Binance:");
-
-const res = await fetch("/api/wallet",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email: usuario.email,
-nequi: nequi,
-binance: binance
-})
-});
-
-const data = await res.json();
-
-alert(data.msg || "Cuenta guardada");
-
-// actualizar datos en el panel
-usuario.nequi = nequi;
-usuario.binance = binance;
-
-localStorage.setItem("usuario", JSON.stringify(usuario));
-
-location.reload();
-
-}
-const data = await res.json();
-
-alert(data.msg || "Cuenta guardada");
-
-location.reload();
-
-}
-  
-async function cargarHistorial(){
-
-const res = await fetch("/api/historial/"+usuario.email);
-
-const datos = await res.json();
-
-const contenedor = document.getElementById("historial");
-
-if(!datos.length){
-contenedor.innerHTML = "Sin movimientos";
+if(!monto || monto<=0){
+alert("Ingresa un monto válido");
 return;
 }
 
-contenedor.innerHTML = "";
+const res=await fetch("/api/invertir",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+monto:monto
+})
+});
 
-datos.forEach(m => {
+const data=await res.json();
 
-let icono = "💰";
+alert("⏳ Inversión en espera por confirmar.\n\nEnvía el comprobante al WhatsApp de soporte.");
 
-if(m.tipo === "retiro") icono = "📤";
-if(m.tipo === "inversion") icono = "📈";
+const numero="573226314209";
 
-contenedor.innerHTML += `
+const mensaje=
+"Hola, acabo de realizar una inversión en BITUSDT.\n\n"+
+"Usuario: "+usuario.email+"\n"+
+"Monto: "+monto+" USDT\n\n"+
+"Adjunto comprobante.";
+
+const url="https://wa.me/"+numero+"?text="+encodeURIComponent(mensaje);
+
+window.open(url,"_blank");
+
+location.reload();
+
+}
+
+async function retirar(){
+
+const monto=document.getElementById("monto").value;
+
+if(!monto){
+alert("Ingresa un monto");
+return;
+}
+
+if(monto<20){
+alert("Retiro mínimo 20 USDT");
+return;
+}
+
+const res=await fetch("/api/retirar",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+monto:monto
+})
+});
+
+const data=await res.json();
+
+alert(data.msg);
+
+location.reload();
+
+}
+
+async function agregarCuenta(){
+
+const nequi=prompt("Ingresa tu número de Nequi");
+
+if(!nequi)return;
+
+const res=await fetch("/api/wallet",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+nequi:nequi
+})
+});
+
+const data=await res.json();
+
+alert(data.msg);
+
+usuario.nequi=nequi;
+
+localStorage.setItem("usuario",JSON.stringify(usuario));
+
+location.reload();
+
+}
+
+function compartirWhatsApp(){
+
+const link=window.location.origin+"/register.html?ref="+usuario.email;
+
+const mensaje="Gana dinero invirtiendo desde casa\n\nRegístrate aquí:\n"+link;
+
+window.open("https://api.whatsapp.com/send?text="+encodeURIComponent(mensaje));
+
+}
+
+async function cargarHistorial(){
+
+const res=await fetch("/api/historial/"+usuario.email);
+
+const datos=await res.json();
+
+const cont=document.getElementById("historial");
+
+if(!datos.length){
+cont.innerHTML="Sin movimientos";
+return;
+}
+
+cont.innerHTML="";
+
+datos.forEach(m=>{
+
+cont.innerHTML+=`
 <div class="historial-item">
-${icono} ${m.tipo} - ${m.monto} USDT - ${m.estado}
+${m.tipo} - ${m.monto} USDT - ${m.estado}
 </div>
 `;
 
 });
 
-  }
+}
+
+cargarHistorial();
 
 </script>
 
