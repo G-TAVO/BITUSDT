@@ -138,7 +138,7 @@ app.post("/api/login", async(req,res)=>{
         saldo:user.saldo,
         dias:user.dias,
        nequi:user.nequi,
-  binance:user.binance, 
+  
         ultimaActualizacion:user.ultimaActualizacion,
       }
     });
