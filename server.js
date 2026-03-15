@@ -175,7 +175,7 @@ app.post("/api/invertir", async(req,res)=>{
       monto:Number(req.body.monto),
       estado:"pendiente",
       tipo:"inversion",
-     wallet:"Nequi" 
+     nequi:u.nequi,
     });
 
     res.json({ok:true,msg:"Solicitud enviada al admin"});
