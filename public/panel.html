@@ -170,23 +170,7 @@ Retiro mínimo: 20 USDT
 </div>
 
 <!-- MONTO -->
-<div class="card">
 
-<h3>Cuenta de retiro</h3>
-
-<p>
-Nequi: <span id="nequi">No registrada</span>
-</p>
-
-<p>
-Binance: <span id="binance">No registrada</span>
-</p>
-
-<button onclick="agregarCuenta()">
-Agregar cuenta de retiro
-</button>
-
-</div>
 
 
 <!-- BOTONES -->
@@ -469,6 +453,30 @@ numero +
 );
 
 }
+async function agregarCuenta(){
+
+const nequi = prompt("Ingresa tu número de Nequi:");
+
+const binance = prompt("Ingresa tu correo de Binance:");
+
+const res = await fetch("/api/wallet",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email: usuario.email,
+nequi: nequi,
+binance: binance
+})
+});
+
+const data = await res.json();
+
+alert(data.msg || "Cuenta guardada");
+
+location.reload();
+
+}
+  
 async function cargarHistorial(){
 
 const res = await fetch("/api/historial/"+usuario.email);
