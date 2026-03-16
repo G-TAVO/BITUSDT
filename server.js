@@ -119,7 +119,12 @@ app.post("/api/login", async(req,res)=>{
       return res.json({ok:true,rol:"admin"});
     }
 
-    const user = await User.findOne({email:req.body.email});
+   // const user = await User.findOne({email:req.body.email});//
+    app.post("/api/rechazar", async(req,res)=>{
+
+  if(req.body.adminKey !== "ADMIN123"){
+    return res.json({ok:false,msg:"Acceso denegado"});
+  }
 
     if(!user) return res.json({ok:false,msg:"Usuario no existe"});
 
