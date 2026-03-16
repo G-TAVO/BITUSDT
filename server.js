@@ -515,6 +515,28 @@ async function ponerIdUsuariosViejos(){
 
 ponerIdUsuariosViejos();
 
+async function arreglarUsuariosSinNombre(){
+
+const usuarios = await User.find({
+$or:[
+{nombre:{$exists:false}},
+{nombre:""}
+]
+});
+
+for(let u of usuarios){
+
+u.nombre = "Usuario";
+
+await u.save();
+
+}
+
+console.log("Usuarios sin nombre corregidos");
+
+}
+
+arreglarUsuariosSinNombre();
 /* ================= SERVER ================= */
 
 app.listen(PORT,()=>{
