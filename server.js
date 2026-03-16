@@ -383,7 +383,10 @@ msg:"Error al modificar saldo"
 
   try{
 
-    const u = await User.findOne({email:req.body.email});
+  //  const u = await User.findOne({email:req.body.email});//
+    const u = await User.findOne({
+email:req.body.email.toLowerCase()
+});
 
     if(!u){
       return res.json({ok:false,msg:"Usuario no encontrado"});
