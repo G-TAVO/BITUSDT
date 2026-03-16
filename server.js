@@ -328,22 +328,25 @@ res.json({ok:false,msg:"Error servidor retirar"});
 }
 
 });
-/* ================= MODIFICAR SALDO (ADMIN) ================= */
-
+/* ================= MODIFICAR SALDO (ADMIN) ===*/
 app.post("/api/modificar-saldo", async(req,res)=>{
 
 try{
 
-const email = req.body.email.toLowerCase();
+const email = req.body.email.trim();
 const monto = Number(req.body.monto);
 
-const u = await User.findOne({email});
+const u = await User.findOne({
+email: { $regex: new RegExp("^" + email + "$","i") }
+});
 
 if(!u){
 return res.json({ok:false,msg:"Usuario no encontrado"});
 }
 
 u.saldo = monto;
+u.dias = 0;
+u.ultimaActualizacion = new Date();
 
 await u.save();
 
