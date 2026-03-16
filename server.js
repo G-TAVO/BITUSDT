@@ -438,20 +438,22 @@ app.post("/api/eliminar-usuario", async(req,res)=>{
 
 try{
 
-const email = req.body.email.toLowerCase();
+const email = req.body.email.trim();
 
-const u = await User.findOne({email});
+const u = await User.findOne({
+email: { $regex: new RegExp("^" + email + "$","i") }
+});
 
 if(!u){
 return res.json({ok:false,msg:"Usuario no existe"});
 }
 
-await User.deleteOne({email});
-await Solicitud.deleteMany({email});
+await User.deleteOne({email:u.email});
+await Solicitud.deleteMany({email:u.email});
 
 res.json({
 ok:true,
-msg:"Usuario eliminado completamente"
+msg:"Usuario eliminado correctamente"
 });
 
 }catch(err){
@@ -464,28 +466,7 @@ msg:"Error eliminando usuario"
 }
 
 });
-
-/* ================= ID USUARIOS VIEJOS ================= */
-
-async function ponerIdUsuariosViejos(){
-
-  const usuarios = await User.find({userId:{$exists:false}});
-
-  let contador = 1001;
-
-  for(let u of usuarios){
-
-    u.userId="USR-"+contador;
-    await u.save();
-    contador++;
-
-  }
-
-  console.log("IDs asignados a usuarios viejos");
-
-}
-
-ponerIdUsuariosViejos();
+    
 
 /* ================= SERVER ================= */
 
