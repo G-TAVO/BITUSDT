@@ -266,7 +266,35 @@ monto:nuevo
 })
 
 });
+async function editarUsuario(email){
 
+const nombre = prompt("Nuevo nombre");
+const nuevoEmail = prompt("Nuevo correo");
+const nequi = prompt("Nuevo Nequi");
+
+const res = await fetch("/api/editar-usuario",{
+
+method:"POST",
+
+headers:{ "Content-Type":"application/json" },
+
+body:JSON.stringify({
+email:email,
+nombre:nombre,
+nuevoEmail:nuevoEmail,
+nequi:nequi
+})
+
+});
+
+const data = await res.json();
+
+alert(data.msg);
+
+cargarUsuarios();
+
+}
+  
 const data = await res.json();
 
 alert(data.msg);
