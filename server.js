@@ -199,9 +199,11 @@ app.get("/api/solicitudes", async(req,res)=>{
 
 /* ================= APROBAR ================= */
 
-app.post("/api/aprobar", async(req,res)=>{
+    app.post("/api/aprobar", async(req,res)=>{
 
-  try{
+  if(req.body.adminKey !== "ADMIN123"){
+    return res.json({ok:false,msg:"Acceso denegado"});
+  }
 
     const s = await Solicitud.findById(req.body.id);
     if(!s) return res.json({ok:false});
