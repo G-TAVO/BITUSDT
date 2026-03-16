@@ -394,7 +394,7 @@ msg:"Error actualizando usuario"
 
   try{
 
-  //  const u = await User.findOne({email:req.body.email});//
+  const u = await User.findOne({email:req.body.email});
     const u = await User.findOne({
 email:req.body.email.toLowerCase()
 });
