@@ -90,39 +90,29 @@ app.post("/api/register", async(req,res)=>{
   const totalUsuarios = await User.countDocuments();
   const nuevoId = "USR-"+(1001+totalUsuarios);
 
-//  await User.create({//
- //   userId:nuevoId,//
-  //  email,//
-  //  password:hash,//
-  //  n//
-   // saldo:0,//
-   // dias:0,//
-    
-  //  referidoPor:req.body.referidoPor||""//
-//  });//
   await User.create({
-userId:nuevoId,
-email,
-password:hash,
-nombre:req.body.nombre || "Usuario",
-telefono:req.body.telefono || "",
-saldo:0,
-dias:0,
-referidoPor:req.body.referidoPor || ""
-});
+    userId:nuevoId,
+    email,
+    password:hash,
+    saldo:0,
+    dias:0,
+    
+    referidoPor:req.body.referidoPor||""
+  });
 
   res.json({ok:true,msg:"Registro exitoso"});
 
 });
 
 /* ================= LOGIN ================= */
+
 app.post("/api/login", async(req,res)=>{
 
   try{
 
-    if(req.body.email === ADMIN.email){
+    if(req.body.email===ADMIN.email){
 
-      if(req.body.password !== ADMIN.password){
+      if(req.body.password!==ADMIN.password){
         return res.json({ok:false,msg:"Clave admin incorrecta"});
       }
 
@@ -131,15 +121,11 @@ app.post("/api/login", async(req,res)=>{
 
     const user = await User.findOne({email:req.body.email});
 
-    if(!user){
-      return res.json({ok:false,msg:"Usuario no existe"});
-    }
+    if(!user) return res.json({ok:false,msg:"Usuario no existe"});
 
     const ok = await bcrypt.compare(req.body.password,user.password);
 
-    if(!ok){
-      return res.json({ok:false,msg:"Clave incorrecta"});
-    }
+    if(!ok) return res.json({ok:false,msg:"Clave incorrecta"});
 
     await actualizarGanancias(user);
 
@@ -151,8 +137,9 @@ app.post("/api/login", async(req,res)=>{
         email:user.email,
         saldo:user.saldo,
         dias:user.dias,
-        nequi:user.nequi,
-        ultimaActualizacion:user.ultimaActualizacion
+       nequi:user.nequi,
+  
+        ultimaActualizacion:user.ultimaActualizacion,
       }
     });
 
@@ -163,7 +150,43 @@ app.post("/api/login", async(req,res)=>{
   }
 
 });
-      
+
+/* ================= INVERTIR ================= */
+/* ================= INVERTIR ================= */
+
+app.post("/api/invertir", async(req,res)=>{
+
+  try{
+
+    if(!req.body.email){
+      return res.json({ok:false,msg:"Email no enviado"});
+    }
+
+    const email = req.body.email.toLowerCase();
+
+   const u = await User.findOne({email: email.toLowerCase()}); 
+
+    if(!u){
+      return res.json({ok:false,msg:"Usuario no existe"});
+    }
+
+    await Solicitud.create({
+      email:u.email,
+      monto:Number(req.body.monto),
+      estado:"pendiente",
+      tipo:"inversion",
+     nequi:u.nequi,
+    });
+
+    res.json({ok:true,msg:"Solicitud enviada al admin"});
+
+  }catch(err){
+
+    res.json({ok:false,msg:"Error servidor invertir"});
+
+  }
+
+});
 
 /* ================= SOLICITUDES ================= */
 
@@ -176,80 +199,71 @@ app.get("/api/solicitudes", async(req,res)=>{
 
 /* ================= APROBAR ================= */
 
-    /* ================= APROBAR ================= */
-
 app.post("/api/aprobar", async(req,res)=>{
 
-try{
+  try{
 
-  if(req.body.adminKey !== "ADMIN123"){
-    return res.json({ok:false,msg:"Acceso denegado"});
-  }
+    const s = await Solicitud.findById(req.body.id);
+    if(!s) return res.json({ok:false});
 
-  const s = await Solicitud.findById(req.body.id);
-  if(!s) return res.json({ok:false});
+    const u = await User.findOne({email:s.email});
 
-  const u = await User.findOne({email:s.email});
+    if(s.tipo==="inversion"){
 
-  if(s.tipo==="inversion"){
+      let ganancia = s.monto;
 
-    let ganancia = s.monto;
+      if(s.monto==10) ganancia=16;
+      else if(s.monto==20) ganancia=26;
+      else if(s.monto==30) ganancia=40;
+      else if(s.monto>30) ganancia=s.monto*1.5;
 
-    if(s.monto==10) ganancia=16;
-    else if(s.monto==20) ganancia=26;
-    else if(s.monto==30) ganancia=40;
-    else if(s.monto>30) ganancia=s.monto*1.5;
+      u.saldo += ganancia;
+      u.dias = 0;
+      u.ultimaActualizacion = new Date();
 
-    u.saldo += ganancia;
-    u.dias = 0;
-    u.ultimaActualizacion = new Date();
+      await u.save();
 
-    await u.save();
+      if(u.referidoPor){
 
-    if(u.referidoPor){
+        const patrocinador = await User.findOne({email:u.referidoPor});
 
-      const patrocinador = await User.findOne({email:u.referidoPor});
+        if(patrocinador){
+          patrocinador.saldo += 1;
+          await patrocinador.save();
+        }
 
-      if(patrocinador){
-        patrocinador.saldo += 1;
-        await patrocinador.save();
       }
 
     }
 
+    s.estado="aprobado";
+    await s.save();
+
+    let mensaje="";
+
+    if(s.tipo==="inversion"){
+      mensaje="Tu inversión fue aprobada y ya está generando ganancias.";
+    }
+
+    if(s.tipo==="retiro"){
+      mensaje="Tu retiro fue aprobado y enviado a tu billetera.";
+    }
+
+    res.json({ok:true,msg:mensaje});
+
+  }catch(err){
+
+    res.json({ok:false});
+
   }
-
-  s.estado="aprobado";
-  await s.save();
-
-  let mensaje="";
-
-  if(s.tipo==="inversion"){
-    mensaje="Tu inversión fue aprobada y ya está generando ganancias.";
-  }
-
-  if(s.tipo==="retiro"){
-    mensaje="Tu retiro fue aprobado y enviado a tu billetera.";
-  }
-
-  res.json({ok:true,msg:mensaje});
-
-}catch(err){
-
-  res.json({ok:false});
-
-}
 
 });
 
 /* ================= RECHAZAR ================= */
 
+app.post("/api/rechazar", async(req,res)=>{
 
-    app.post("/api/rechazar", async(req,res)=>{
-
-  if(req.body.adminKey !== "ADMIN123"){
-    return res.json({ok:false,msg:"Acceso denegado"});
-  }
+  try{
 
     const s = await Solicitud.findById(req.body.id);
     if(!s) return res.json({ok:false});
@@ -351,41 +365,6 @@ msg:"Error al modificar saldo"
 }
 
 });
-/* ================= EDITAR USUARIO ================= */
-
-app.post("/api/editar-usuario", async(req,res)=>{
-
-try{
-
-const email = req.body.email;
-
-const u = await User.findOne({email});
-
-if(!u){
-return res.json({ok:false,msg:"Usuario no encontrado"});
-}
-
-u.nombre = req.body.nombre || u.nombre;
-u.email = req.body.nuevoEmail || u.email;
-u.nequi = req.body.nequi || u.nequi;
-
-await u.save();
-
-res.json({
-ok:true,
-msg:"Usuario actualizado"
-});
-
-}catch(err){
-
-res.json({
-ok:false,
-msg:"Error actualizando usuario"
-});
-
-}
-
-});
 
 /* ================= WALLET ================= */
 
@@ -394,16 +373,14 @@ msg:"Error actualizando usuario"
 
   try{
 
-  const u = await User.findOne({
-      email:req.body.email.toLowerCase()
-    });
+    const u = await User.findOne({email:req.body.email});
 
     if(!u){
       return res.json({ok:false,msg:"Usuario no encontrado"});
     }
 
     u.nequi = req.body.nequi || "";
-    
+    u.binance = req.body.binance || "";
 
     await u.save();
 
@@ -479,28 +456,6 @@ async function ponerIdUsuariosViejos(){
 
 ponerIdUsuariosViejos();
 
-async function arreglarUsuariosSinNombre(){
-
-const usuarios = await User.find({
-$or:[
-{nombre:{$exists:false}},
-{nombre:""}
-]
-});
-
-for(let u of usuarios){
-
-u.nombre = "Usuario";
-
-await u.save();
-
-}
-
-console.log("Usuarios sin nombre corregidos");
-
-}
-
-arreglarUsuariosSinNombre();
 /* ================= SERVER ================= */
 
 app.listen(PORT,()=>{
