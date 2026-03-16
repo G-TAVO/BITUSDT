@@ -433,6 +433,37 @@ app.get("/api/historial/:email", async(req,res)=>{
   }
 
 });
+// Eliminar usuario//
+app.post("/api/eliminar-usuario", async(req,res)=>{
+
+try{
+
+const email = req.body.email.toLowerCase();
+
+const u = await User.findOne({email});
+
+if(!u){
+return res.json({ok:false,msg:"Usuario no existe"});
+}
+
+await User.deleteOne({email});
+await Solicitud.deleteMany({email});
+
+res.json({
+ok:true,
+msg:"Usuario eliminado completamente"
+});
+
+}catch(err){
+
+res.json({
+ok:false,
+msg:"Error eliminando usuario"
+});
+
+}
+
+});
 
 /* ================= ID USUARIOS VIEJOS ================= */
 
