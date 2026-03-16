@@ -176,65 +176,69 @@ app.get("/api/solicitudes", async(req,res)=>{
 
 /* ================= APROBAR ================= */
 
-    app.post("/api/aprobar", async(req,res)=>{
+    /* ================= APROBAR ================= */
+
+app.post("/api/aprobar", async(req,res)=>{
+
+try{
 
   if(req.body.adminKey !== "ADMIN123"){
     return res.json({ok:false,msg:"Acceso denegado"});
   }
 
-    const s = await Solicitud.findById(req.body.id);
-    if(!s) return res.json({ok:false});
+  const s = await Solicitud.findById(req.body.id);
+  if(!s) return res.json({ok:false});
 
-    const u = await User.findOne({email:s.email});
+  const u = await User.findOne({email:s.email});
 
-    if(s.tipo==="inversion"){
+  if(s.tipo==="inversion"){
 
-      let ganancia = s.monto;
+    let ganancia = s.monto;
 
-      if(s.monto==10) ganancia=16;
-      else if(s.monto==20) ganancia=26;
-      else if(s.monto==30) ganancia=40;
-      else if(s.monto>30) ganancia=s.monto*1.5;
+    if(s.monto==10) ganancia=16;
+    else if(s.monto==20) ganancia=26;
+    else if(s.monto==30) ganancia=40;
+    else if(s.monto>30) ganancia=s.monto*1.5;
 
-      u.saldo += ganancia;
-      u.dias = 0;
-      u.ultimaActualizacion = new Date();
+    u.saldo += ganancia;
+    u.dias = 0;
+    u.ultimaActualizacion = new Date();
 
-      await u.save();
+    await u.save();
 
-      if(u.referidoPor){
+    if(u.referidoPor){
 
-        const patrocinador = await User.findOne({email:u.referidoPor});
+      const patrocinador = await User.findOne({email:u.referidoPor});
 
-        if(patrocinador){
-          patrocinador.saldo += 1;
-          await patrocinador.save();
-        }
-
+      if(patrocinador){
+        patrocinador.saldo += 1;
+        await patrocinador.save();
       }
 
     }
 
-    s.estado="aprobado";
-    await s.save();
-
-    let mensaje="";
-
-    if(s.tipo==="inversion"){
-      mensaje="Tu inversión fue aprobada y ya está generando ganancias.";
-    }
-
-    if(s.tipo==="retiro"){
-      mensaje="Tu retiro fue aprobado y enviado a tu billetera.";
-    }
-
-    res.json({ok:true,msg:mensaje});
-
-  }catch(err){
-
-    res.json({ok:false});
-
   }
+
+  s.estado="aprobado";
+  await s.save();
+
+  let mensaje="";
+
+  if(s.tipo==="inversion"){
+    mensaje="Tu inversión fue aprobada y ya está generando ganancias.";
+  }
+
+  if(s.tipo==="retiro"){
+    mensaje="Tu retiro fue aprobado y enviado a tu billetera.";
+  }
+
+  res.json({ok:true,msg:mensaje});
+
+}catch(err){
+
+  res.json({ok:false});
+
+}
 
 });
 
