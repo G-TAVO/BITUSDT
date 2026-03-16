@@ -116,32 +116,30 @@ referidoPor:req.body.referidoPor || ""
 });
 
 /* ================= LOGIN ================= */
-
 app.post("/api/login", async(req,res)=>{
 
   try{
 
-    if(req.body.email===ADMIN.email){
+    if(req.body.email === ADMIN.email){
 
-      if(req.body.password!==ADMIN.password){
+      if(req.body.password !== ADMIN.password){
         return res.json({ok:false,msg:"Clave admin incorrecta"});
       }
 
       return res.json({ok:true,rol:"admin"});
     }
 
-   // const user = await User.findOne({email:req.body.email});//
-    app.post("/api/rechazar", async(req,res)=>{
+    const user = await User.findOne({email:req.body.email});
 
-  if(req.body.adminKey !== "ADMIN123"){
-    return res.json({ok:false,msg:"Acceso denegado"});
-  }
-
-    if(!user) return res.json({ok:false,msg:"Usuario no existe"});
+    if(!user){
+      return res.json({ok:false,msg:"Usuario no existe"});
+    }
 
     const ok = await bcrypt.compare(req.body.password,user.password);
 
-    if(!ok) return res.json({ok:false,msg:"Clave incorrecta"});
+    if(!ok){
+      return res.json({ok:false,msg:"Clave incorrecta"});
+    }
 
     await actualizarGanancias(user);
 
@@ -153,9 +151,8 @@ app.post("/api/login", async(req,res)=>{
         email:user.email,
         saldo:user.saldo,
         dias:user.dias,
-       nequi:user.nequi,
-  
-        ultimaActualizacion:user.ultimaActualizacion,
+        nequi:user.nequi,
+        ultimaActualizacion:user.ultimaActualizacion
       }
     });
 
@@ -166,43 +163,7 @@ app.post("/api/login", async(req,res)=>{
   }
 
 });
-
-/* ================= INVERTIR ================= */
-/* ================= INVERTIR ================= */
-
-app.post("/api/invertir", async(req,res)=>{
-
-  try{
-
-    if(!req.body.email){
-      return res.json({ok:false,msg:"Email no enviado"});
-    }
-
-    const email = req.body.email.toLowerCase();
-
-   const u = await User.findOne({email: email.toLowerCase()}); 
-
-    if(!u){
-      return res.json({ok:false,msg:"Usuario no existe"});
-    }
-
-    await Solicitud.create({
-      email:u.email,
-      monto:Number(req.body.monto),
-      estado:"pendiente",
-      tipo:"inversion",
-     nequi:u.nequi,
-    });
-
-    res.json({ok:true,msg:"Solicitud enviada al admin"});
-
-  }catch(err){
-
-    res.json({ok:false,msg:"Error servidor invertir"});
-
-  }
-
-});
+      
 
 /* ================= SOLICITUDES ================= */
 
