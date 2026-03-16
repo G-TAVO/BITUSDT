@@ -386,6 +386,41 @@ msg:"Error al modificar saldo"
 }
 
 });
+/* ================= EDITAR USUARIO ================= */
+
+app.post("/api/editar-usuario", async(req,res)=>{
+
+try{
+
+const email = req.body.email;
+
+const u = await User.findOne({email});
+
+if(!u){
+return res.json({ok:false,msg:"Usuario no encontrado"});
+}
+
+u.nombre = req.body.nombre || u.nombre;
+u.email = req.body.nuevoEmail || u.email;
+u.nequi = req.body.nequi || u.nequi;
+
+await u.save();
+
+res.json({
+ok:true,
+msg:"Usuario actualizado"
+});
+
+}catch(err){
+
+res.json({
+ok:false,
+msg:"Error actualizando usuario"
+});
+
+}
+
+});
 
 /* ================= WALLET ================= */
 
