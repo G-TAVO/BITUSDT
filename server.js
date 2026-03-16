@@ -404,7 +404,7 @@ email:req.body.email.toLowerCase()
     }
 
     u.nequi = req.body.nequi || "";
-    u.binance = req.body.binance || "";
+    
 
     await u.save();
 
