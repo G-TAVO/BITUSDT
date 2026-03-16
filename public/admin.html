@@ -208,6 +208,9 @@ tabla.innerHTML += `
 <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
 <button class="btn-edit" onclick="editarSaldo('${s.email}')">✏️</button>
 <button class="btn-edit" onclick="editarUsuario('${u.email}')">👤</button>
+<button onclick="eliminarUsuario('${u.email}')">
+Eliminar
+</button>
 </td>
 </tr>
 `;
@@ -302,7 +305,34 @@ alert(data.msg);
 cargarUsuarios();
 
 }
+function eliminarUsuario(email){
 
+if(!confirm("¿Seguro que deseas eliminar este usuario?")){
+return;
+}
+
+fetch("/api/eliminar-usuario",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email:email
+})
+})
+.then(r=>r.json())
+.then(d=>{
+
+alert(d.msg);
+
+if(d.ok){
+cargarUsuarios();
+}
+
+});
+
+}
+  
 
 async function aprobar(id){
 
