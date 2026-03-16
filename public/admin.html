@@ -151,7 +151,7 @@ Solicitudes pendientes
 <th>Saldo</th>
 <th>Días</th>
 <th>Nequi</th>
-<th>Editar</th>
+<th>Acción</th>
 </tr>
 </thead>
 
@@ -206,11 +206,6 @@ tabla.innerHTML += `
 <td>
 <button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
 <button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
-<button class="btn-edit" onclick="editarSaldo('${s.email}')">✏️</button>
-<button class="btn-edit" onclick="editarUsuario('${u.email}')">👤</button>
-<button onclick="eliminarUsuario('${u.email}')">
-Eliminar
-</button>
 </td>
 </tr>
 `;
@@ -223,7 +218,6 @@ Eliminar
 async function cargarUsuarios(){
 
 const res = await fetch("/api/usuarios");
-
 const data = await res.json();
 
 document.getElementById("totalUsuarios").innerText = data.length;
@@ -241,7 +235,11 @@ tabla.innerHTML += `
 <td>${u.dias || 0}</td>
 <td>${u.nequi || "No registrado"}</td>
 <td>
+
 <button class="btn-edit" onclick="editarSaldo('${u.email}')">✏️</button>
+
+<button class="btn-no" onclick="eliminarUsuario('${u.email}')">❌</button>
+
 </td>
 </tr>
 `;
@@ -269,26 +267,6 @@ monto:nuevo
 })
 
 });
-async function editarUsuario(email){
-
-const nombre = prompt("Nuevo nombre");
-const nuevoEmail = prompt("Nuevo correo");
-const nequi = prompt("Nuevo Nequi");
-
-const res = await fetch("/api/editar-usuario",{
-
-method:"POST",
-
-headers:{ "Content-Type":"application/json" },
-
-body:JSON.stringify({
-email:email,
-nombre:nombre,
-nuevoEmail:nuevoEmail,
-nequi:nequi
-})
-
-});
 
 const data = await res.json();
 
@@ -297,14 +275,8 @@ alert(data.msg);
 cargarUsuarios();
 
 }
-  
-const data = await res.json();
 
-alert(data.msg);
 
-cargarUsuarios();
-
-}
 function eliminarUsuario(email){
 
 if(!confirm("¿Seguro que deseas eliminar este usuario?")){
@@ -332,7 +304,7 @@ cargarUsuarios();
 });
 
 }
-  
+
 
 async function aprobar(id){
 
