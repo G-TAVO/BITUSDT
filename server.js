@@ -41,7 +41,7 @@ const SolicitudSchema = new mongoose.Schema({
   monto:Number,
   estado:String,
   tipo:String,
-  wallet:String,
+  nequi:String,
   fecha:{ type:Date, default:Date.now }
 });
 
