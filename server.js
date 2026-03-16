@@ -328,6 +328,40 @@ res.json({ok:false,msg:"Error servidor retirar"});
 }
 
 });
+/* ================= MODIFICAR SALDO (ADMIN) ================= */
+
+app.post("/api/modificar-saldo", async(req,res)=>{
+
+try{
+
+const email = req.body.email.toLowerCase();
+const monto = Number(req.body.monto);
+
+const u = await User.findOne({email});
+
+if(!u){
+return res.json({ok:false,msg:"Usuario no encontrado"});
+}
+
+u.saldo = monto;
+
+await u.save();
+
+res.json({
+ok:true,
+msg:"Saldo actualizado correctamente"
+});
+
+}catch(err){
+
+res.json({
+ok:false,
+msg:"Error al modificar saldo"
+});
+
+}
+
+});
 
 /* ================= WALLET ================= */
 
