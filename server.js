@@ -90,15 +90,26 @@ app.post("/api/register", async(req,res)=>{
   const totalUsuarios = await User.countDocuments();
   const nuevoId = "USR-"+(1001+totalUsuarios);
 
-  await User.create({
-    userId:nuevoId,
-    email,
-    password:hash,
-    saldo:0,
-    dias:0,
+//  await User.create({//
+ //   userId:nuevoId,//
+  //  email,//
+  //  password:hash,//
+  //  n//
+   // saldo:0,//
+   // dias:0,//
     
-    referidoPor:req.body.referidoPor||""
-  });
+  //  referidoPor:req.body.referidoPor||""//
+//  });//
+  await User.create({
+userId:nuevoId,
+email,
+password:hash,
+nombre:req.body.nombre || "Usuario",
+telefono:req.body.telefono || "",
+saldo:0,
+dias:0,
+referidoPor:req.body.referidoPor || ""
+});
 
   res.json({ok:true,msg:"Registro exitoso"});
 
