@@ -164,7 +164,7 @@ app.post("/api/invertir", async(req,res)=>{
 
     const email = req.body.email.toLowerCase();
 
-    const u = await User.findOne({email});
+   const u = await User.findOne({email: email.toLowerCase()}); 
 
     if(!u){
       return res.json({ok:false,msg:"Usuario no existe"});
