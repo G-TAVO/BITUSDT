@@ -220,6 +220,7 @@ app.post("/api/aprobar", async(req,res)=>{
       u.saldo += ganancia;
       u.dias = 0;
       u.ultimaActualizacion = new Date();
+      u.cicloActivo = true;
 
       await u.save();
 
