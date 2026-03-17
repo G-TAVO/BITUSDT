@@ -35,6 +35,7 @@ const UserSchema = new mongoose.Schema({
 
   referidoPor:{ type:String, default:"" },
   ultimaActualizacion:{ type:Date, default:Date.now }
+  cicloActivo:{ type:Boolean, default:false },
 });
 const SolicitudSchema = new mongoose.Schema({
   email:String,
