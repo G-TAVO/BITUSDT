@@ -316,7 +316,8 @@ estado:"pendiente",
 tipo:"retiro",
 nequi:u.nequi
 });
-
+u.cicloActivo = false;
+await u.save();
 res.json({
 ok:true,
 msg:"Solicitud de retiro enviada"
