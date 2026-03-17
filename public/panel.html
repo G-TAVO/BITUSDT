@@ -298,7 +298,8 @@ numero+
 async function invertir(){
 
 const monto=document.getElementById("monto").value;
-
+user.ultimaActualizacion = Date.now();
+await user.save();
 if(!monto || monto<=0){
 alert("Ingresa un monto válido");
 return;
