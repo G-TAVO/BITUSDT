@@ -1,12 +1,7 @@
-// =============================================
-// server.js - Servidor principal de BITUSDT
-// =============================================
-
 const express = require("express");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
@@ -14,361 +9,470 @@ app.use(cors());
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
-const SECRET = process.env.JWT_SECRET;
 
 /* ================== MONGODB ================== */
 
-mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log("✅ MongoDB conectado"))
-  .catch(err => console.log("❌ Error Mongo:", err));
+mongoose.connect(
+  process.env.MONGO_URL ||
+  "mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/bitusdt"
+)
+.then(() => console.log("✅ MongoDB conectado"))
+.catch(err => console.log("❌ Error Mongo:", err));
 
 /* ================== MODELOS ================== */
 
 const UserSchema = new mongoose.Schema({
-  userId: String,
-  email: { type: String, unique: true },
-  password: String,
-  nombre: { type: String, default: "" },
-  telefono: { type: String, default: "" },
-  saldo: { type: Number, default: 0 },
-  dias: { type: Number, default: 0 },
-  nequi: { type: String, default: "" },
-  referidoPor: { type: String, default: "" },
-  ultimaActualizacion: { type: Date, default: Date.now },
-  cicloActivo: { type: Boolean, default: false },
-});
+  userId:String,
+  email:{ type:String, unique:true },
+  password:String,
+  nombre:{ type:String, default:"" },
+  telefono:{ type:String, default:"" },
+  saldo:{ type:Number, default:0 },
+  dias:{ type:Number, default:0 },
 
+  nequi:{ type:String, default:"" },
+  
+
+  referidoPor:{ type:String, default:"" },
+  ultimaActualizacion:{ type:Date, default:Date.now },
+  cicloActivo:{ type:Boolean, default:false },
+});
 const SolicitudSchema = new mongoose.Schema({
-  email: String,
-  monto: Number,
-  estado: String,
-  tipo: String,
-  nequi: String,
-  fecha: { type: Date, default: Date.now }
+  email:String,
+  monto:Number,
+  estado:String,
+  tipo:String,
+  nequi:String,
+  fecha:{ type:Date, default:Date.now }
 });
 
 const User = mongoose.model("User", UserSchema);
 const Solicitud = mongoose.model("Solicitud", SolicitudSchema);
 
-/* ================= MIDDLEWARES ================= */
+/* ================= ADMIN ================= */
 
-// Protege rutas que solo puede usar el admin
-function soloAdmin(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.json({ ok: false, msg: "Sin autorización" });
-  try {
-    const datos = jwt.verify(token, SECRET);
-    if (datos.rol !== "admin") return res.json({ ok: false, msg: "No eres admin" });
-    next();
-  } catch {
-    res.json({ ok: false, msg: "Token inválido o expirado" });
-  }
-}
-
-// Protege rutas que solo puede usar el usuario dueño
-function soloUsuario(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.json({ ok: false, msg: "Sin autorización" });
-  try {
-    const datos = jwt.verify(token, SECRET);
-    req.emailUsuario = datos.email;
-    next();
-  } catch {
-    res.json({ ok: false, msg: "Token inválido o expirado" });
-  }
-}
+const ADMIN = {
+  email:"Binancecoin958@gmail.com",
+  password:"Enriique1998"
+};
 
 /* ================= GANANCIAS ================= */
 
-async function actualizarGanancias(user) {
+async function actualizarGanancias(user){
+
   const hoy = new Date();
   const ultimo = new Date(user.ultimaActualizacion);
-  const diasPasados = Math.floor((hoy - ultimo) / (1000 * 60 * 60 * 24));
 
-  if (diasPasados > 0 && user.saldo > 0) {
-    const ganancia = user.saldo * 0.05 * diasPasados; // 5% diario sobre saldo
-    user.saldo = Math.round((user.saldo + ganancia) * 100) / 100;
+  const diasPasados = Math.floor((hoy-ultimo)/(1000*60*60*24));
+
+  if(diasPasados>0){
+
+    user.saldo += diasPasados*0.5;
     user.dias += diasPasados;
     user.ultimaActualizacion = hoy;
+
     await user.save();
+
   }
+
 }
 
 /* ================= REGISTRO ================= */
 
-app.post("/api/register", async (req, res) => {
-  try {
-    const email = req.body.email.toLowerCase().trim();
-    const existe = await User.findOne({ email });
-    if (existe) return res.json({ ok: false, msg: "Correo ya registrado" });
+app.post("/api/register", async(req,res)=>{
 
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const totalUsuarios = await User.countDocuments();
-    const nuevoId = "USR-" + (1001 + totalUsuarios);
+  const email = req.body.email.toLowerCase();
 
-    await User.create({
-      userId: nuevoId,
-      email,
-      password: hash,
-      saldo: 0,
-      dias: 0,
-      referidoPor: req.body.referidoPor || ""
-    });
+  const existe = await User.findOne({email});
+  if(existe) return res.json({ok:false,msg:"Correo ya registrado"});
 
-    res.json({ ok: true, msg: "Registro exitoso" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error en el registro" });
-  }
+  const hash = await bcrypt.hash(req.body.password,10);
+
+  const totalUsuarios = await User.countDocuments();
+  const nuevoId = "USR-"+(1001+totalUsuarios);
+
+  await User.create({
+    userId:nuevoId,
+    email,
+    password:hash,
+    saldo:0,
+    dias:0,
+    
+    referidoPor:req.body.referidoPor||""
+  });
+
+  res.json({ok:true,msg:"Registro exitoso"});
+
 });
 
 /* ================= LOGIN ================= */
 
-app.post("/api/login", async (req, res) => {
-  try {
-    const emailIngresado = req.body.email.toLowerCase().trim();
-    const claveIngresada = req.body.password;
+app.post("/api/login", async(req,res)=>{
 
-    // Login admin
-    const adminEmail = process.env.ADMIN_EMAIL.toLowerCase();
-    if (emailIngresado === adminEmail) {
-      const claveOk = await bcrypt.compare(claveIngresada, process.env.ADMIN_PASSWORD_HASH);
-      if (!claveOk) return res.json({ ok: false, msg: "Clave admin incorrecta" });
+  try{
 
-      const token = jwt.sign({ rol: "admin" }, SECRET, { expiresIn: "8h" });
-      return res.json({ ok: true, rol: "admin", token });
+    if(req.body.email===ADMIN.email){
+
+      if(req.body.password!==ADMIN.password){
+        return res.json({ok:false,msg:"Clave admin incorrecta"});
+      }
+
+      return res.json({ok:true,rol:"admin"});
     }
 
-    // Login usuario
-    const user = await User.findOne({ email: emailIngresado });
-    if (!user) return res.json({ ok: false, msg: "Usuario no existe" });
+    const user = await User.findOne({email:req.body.email});
 
-    const claveOk = await bcrypt.compare(claveIngresada, user.password);
-    if (!claveOk) return res.json({ ok: false, msg: "Clave incorrecta" });
+    if(!user) return res.json({ok:false,msg:"Usuario no existe"});
+
+    const ok = await bcrypt.compare(req.body.password,user.password);
+
+    if(!ok) return res.json({ok:false,msg:"Clave incorrecta"});
 
     await actualizarGanancias(user);
 
-    const token = jwt.sign({ email: user.email, rol: "user" }, SECRET, { expiresIn: "8h" });
-
     res.json({
-      ok: true,
-      rol: "user",
-      token,
-      user: {
-        userId: user.userId,
-        email: user.email,
-        saldo: user.saldo,
-        dias: user.dias,
-        nequi: user.nequi,
-        ultimaActualizacion: user.ultimaActualizacion,
+      ok:true,
+      rol:"user",
+      user:{
+        userId:user.userId,
+        email:user.email,
+        saldo:user.saldo,
+        dias:user.dias,
+       nequi:user.nequi,
+  
+        ultimaActualizacion:user.ultimaActualizacion,
       }
     });
 
-  } catch (err) {
-    res.json({ ok: false, msg: "Error servidor" });
+  }catch(err){
+
+    res.json({ok:false,msg:"Error servidor"});
+
   }
+
 });
 
 /* ================= INVERTIR ================= */
+/* ================= INVERTIR ================= */
 
-app.post("/api/invertir", soloUsuario, async (req, res) => {
-  try {
-    const email = req.emailUsuario;
-    const u = await User.findOne({ email });
-    if (!u) return res.json({ ok: false, msg: "Usuario no existe" });
+app.post("/api/invertir", async(req,res)=>{
 
-    await Solicitud.create({
-      email: u.email,
-      monto: Number(req.body.monto),
-      estado: "pendiente",
-      tipo: "inversion",
-      nequi: u.nequi,
-    });
+  try{
 
-    res.json({ ok: true, msg: "Solicitud enviada al admin" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error servidor" });
-  }
-});
+    if(!req.body.email){
+      return res.json({ok:false,msg:"Email no enviado"});
+    }
 
-/* ================= RETIRAR ================= */
+    const email = req.body.email.toLowerCase();
 
-app.post("/api/retirar", soloUsuario, async (req, res) => {
-  try {
-    const email = req.emailUsuario;
-    const monto = Number(req.body.monto);
-    const u = await User.findOne({ email });
+   const u = await User.findOne({email: email.toLowerCase()}); 
 
-    if (!u) return res.json({ ok: false, msg: "Usuario no existe" });
-    if (!u.nequi) return res.json({ ok: false, msg: "Debes registrar tu número de Nequi" });
-    if (monto < 20) return res.json({ ok: false, msg: "Mínimo retiro 20 USDT" });
-    if (monto > u.saldo) return res.json({ ok: false, msg: "Saldo insuficiente" });
-
-    // Descontar saldo al crear solicitud
-    u.saldo = Math.round((u.saldo - monto) * 100) / 100;
-    u.cicloActivo = false;
-    await u.save();
+    if(!u){
+      return res.json({ok:false,msg:"Usuario no existe"});
+    }
 
     await Solicitud.create({
-      email: u.email,
-      monto,
-      estado: "pendiente",
-      tipo: "retiro",
-      nequi: u.nequi
+      email:u.email,
+      monto:Number(req.body.monto),
+      estado:"pendiente",
+      tipo:"inversion",
+     nequi:u.nequi,
     });
 
-    res.json({ ok: true, msg: "Solicitud de retiro enviada" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error servidor" });
+    res.json({ok:true,msg:"Solicitud enviada al admin"});
+
+  }catch(err){
+
+    res.json({ok:false,msg:"Error servidor invertir"});
+
   }
+
 });
 
-/* ================= WALLET ================= */
+/* ================= SOLICITUDES ================= */
 
-app.post("/api/wallet", soloUsuario, async (req, res) => {
-  try {
-    const email = req.emailUsuario;
-    const u = await User.findOne({ email });
-    if (!u) return res.json({ ok: false, msg: "Usuario no encontrado" });
+app.get("/api/solicitudes", async(req,res)=>{
 
-    u.nequi = req.body.nequi || "";
-    await u.save();
-
-    res.json({ ok: true, msg: "Cuenta de retiro guardada correctamente" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error servidor" });
-  }
-});
-
-/* ================= HISTORIAL ================= */
-
-app.get("/api/historial/:email", soloUsuario, async (req, res) => {
-  try {
-    const email = req.emailUsuario;
-    const historial = await Solicitud.find({ email }).sort({ fecha: -1 }).limit(20);
-    res.json(historial);
-  } catch (err) {
-    res.json([]);
-  }
-});
-
-/* ================= RUTAS ADMIN ================= */
-
-app.get("/api/solicitudes", soloAdmin, async (req, res) => {
-  const sol = await Solicitud.find({ estado: "pendiente" });
+  const sol = await Solicitud.find({estado:"pendiente"});
   res.json(sol);
+
 });
 
-app.get("/api/usuarios", soloAdmin, async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-    res.json(users);
-  } catch (err) {
-    res.json([]);
-  }
-});
+/* ================= APROBAR ================= */
 
-app.post("/api/aprobar", soloAdmin, async (req, res) => {
-  try {
+app.post("/api/aprobar", async(req,res)=>{
+
+  try{
+
     const s = await Solicitud.findById(req.body.id);
-    if (!s) return res.json({ ok: false, msg: "Solicitud no encontrada" });
+    if(!s) return res.json({ok:false});
 
-    const u = await User.findOne({ email: s.email });
-    if (!u) return res.json({ ok: false, msg: "Usuario no encontrado" });
+    const u = await User.findOne({email:s.email});
 
-    if (s.tipo === "inversion") {
+    if(s.tipo==="inversion"){
+
       let ganancia = s.monto;
-      if (s.monto == 10) ganancia = 16;
-      else if (s.monto == 20) ganancia = 26;
-      else if (s.monto == 30) ganancia = 40;
-      else if (s.monto > 30) ganancia = s.monto * 1.5;
+
+      if(s.monto==10) ganancia=16;
+      else if(s.monto==20) ganancia=26;
+      else if(s.monto==30) ganancia=40;
+      else if(s.monto>30) ganancia=s.monto*1.5;
 
       u.saldo += ganancia;
       u.dias = 0;
       u.ultimaActualizacion = new Date();
       u.cicloActivo = true;
+
       await u.save();
 
-      // Comisión al referido
-      if (u.referidoPor) {
-        const patrocinador = await User.findOne({ email: u.referidoPor });
-        if (patrocinador) {
+      if(u.referidoPor){
+
+        const patrocinador = await User.findOne({email:u.referidoPor});
+
+        if(patrocinador){
           patrocinador.saldo += 1;
           await patrocinador.save();
         }
+
       }
+
     }
 
-    // En retiro: el saldo ya fue descontado al crear la solicitud
-    s.estado = "aprobado";
+    s.estado="aprobado";
     await s.save();
 
-    const mensaje = s.tipo === "inversion"
-      ? "Inversión aprobada y generando ganancias."
-      : "Retiro aprobado y enviado.";
+    let mensaje="";
 
-    res.json({ ok: true, msg: mensaje });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error aprobando" });
+    if(s.tipo==="inversion"){
+      mensaje="Tu inversión fue aprobada y ya está generando ganancias.";
+    }
+
+    if(s.tipo==="retiro"){
+      mensaje="Tu retiro fue aprobado y enviado a tu billetera.";
+    }
+
+    res.json({ok:true,msg:mensaje});
+
+  }catch(err){
+
+    res.json({ok:false});
+
   }
+
 });
 
-app.post("/api/rechazar", soloAdmin, async (req, res) => {
-  try {
+/* ================= RECHAZAR ================= */
+
+app.post("/api/rechazar", async(req,res)=>{
+
+  try{
+
     const s = await Solicitud.findById(req.body.id);
-    if (!s) return res.json({ ok: false, msg: "Solicitud no encontrada" });
+    if(!s) return res.json({ok:false});
 
-    // Si era retiro, devolver el saldo al usuario
-    if (s.tipo === "retiro") {
-      const u = await User.findOne({ email: s.email });
-      if (u) {
-        u.saldo = Math.round((u.saldo + s.monto) * 100) / 100;
-        await u.save();
-      }
-    }
-
-    s.estado = "rechazado";
+    s.estado="rechazado";
     await s.save();
-    res.json({ ok: true, msg: "Solicitud rechazada" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error rechazando" });
+
+    res.json({ok:true});
+
+  }catch(err){
+
+    res.json({ok:false});
+
   }
+
 });
 
-app.post("/api/modificar-saldo", soloAdmin, async (req, res) => {
-  try {
-    const email = req.body.email.trim().toLowerCase();
-    const monto = Number(req.body.monto);
-    const u = await User.findOne({ email });
-    if (!u) return res.json({ ok: false, msg: "Usuario no encontrado" });
+/* ================= RETIRAR ================= */
 
-    u.saldo = monto;
-    u.dias = 0;
-    u.ultimaActualizacion = new Date();
+app.post("/api/retirar", async(req,res)=>{
+
+try{
+
+const email = req.body.email.toLowerCase();
+const monto = Number(req.body.monto);
+
+const u = await User.findOne({email});
+
+if(!u) return res.json({ok:false,msg:"Usuario no existe"});
+
+if(!u.nequi){
+return res.json({ok:false,msg:"Debes registrar tu número de Nequi"});
+}
+
+if(monto<=0) return res.json({ok:false,msg:"Monto inválido"});
+
+if(monto>u.saldo){
+return res.json({ok:false,msg:"Saldo insuficiente"});
+}
+
+if(monto<20){
+return res.json({ok:false,msg:"Mínimo retiro 20 USDT"});
+}
+
+await Solicitud.create({
+email:u.email,
+monto:monto,
+estado:"pendiente",
+tipo:"retiro",
+nequi:u.nequi
+});
+u.cicloActivo = false;
+await u.save();
+res.json({
+ok:true,
+msg:"Solicitud de retiro enviada"
+});
+
+}catch(err){
+
+res.json({ok:false,msg:"Error servidor retirar"});
+
+}
+
+});
+/* ================= MODIFICAR SALDO (ADMIN) ===*/
+app.post("/api/modificar-saldo", async(req,res)=>{
+
+try{
+
+const email = req.body.email.trim();
+const monto = Number(req.body.monto);
+
+const u = await User.findOne({
+email: { $regex: new RegExp("^" + email + "$","i") }
+});
+
+if(!u){
+return res.json({ok:false,msg:"Usuario no encontrado"});
+}
+
+u.saldo = monto;
+u.dias = 0;
+u.ultimaActualizacion = new Date();
+
+await u.save();
+
+res.json({
+ok:true,
+msg:"Saldo actualizado correctamente"
+});
+
+}catch(err){
+
+res.json({
+ok:false,
+msg:"Error al modificar saldo"
+});
+
+}
+
+});
+
+/* ================= WALLET ================= */
+
+
+   app.post("/api/wallet", async(req,res)=>{
+
+  try{
+
+    const u = await User.findOne({email:req.body.email});
+
+    if(!u){
+      return res.json({ok:false,msg:"Usuario no encontrado"});
+    }
+
+    u.nequi = req.body.nequi || "";
+    u.binance = req.body.binance || "";
+
     await u.save();
 
-    res.json({ ok: true, msg: "Saldo actualizado correctamente" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error modificando saldo" });
+    res.json({ok:true,msg:"Cuenta de retiro guardada correctamente"});
+
+  }catch(err){
+
+    res.json({ok:false,msg:"Error servidor"});
+
   }
+
 });
 
-app.post("/api/eliminar-usuario", soloAdmin, async (req, res) => {
-  try {
-    const email = req.body.email.trim().toLowerCase();
-    const u = await User.findOne({ email });
-    if (!u) return res.json({ ok: false, msg: "Usuario no existe" });
+/* ================= USUARIOS ================= */
 
-    await User.deleteOne({ email: u.email });
-    await Solicitud.deleteMany({ email: u.email });
+app.get("/api/usuarios", async(req,res)=>{
 
-    res.json({ ok: true, msg: "Usuario eliminado correctamente" });
-  } catch (err) {
-    res.json({ ok: false, msg: "Error eliminando usuario" });
+  try{
+
+    const users = await User.find().select("-password");
+    res.json(users);
+
+  }catch(err){
+
+    res.json([]);
+
   }
+
 });
 
-/* ================== SERVER ================== */
+/* ================= HISTORIAL ================= */
 
-app.listen(PORT, () => {
-  console.log("🚀 Servidor activo en puerto " + PORT);
+app.get("/api/historial/:email", async(req,res)=>{
+
+  try{
+
+    const email = req.params.email.toLowerCase();
+
+    const historial = await Solicitud
+      .find({email})
+      .sort({fecha:-1})
+      .limit(20);
+
+    res.json(historial);
+
+  }catch(err){
+
+    res.json([]);
+
+  }
+
+});
+// Eliminar usuario//
+app.post("/api/eliminar-usuario", async(req,res)=>{
+
+try{
+
+const email = req.body.email.trim();
+
+const u = await User.findOne({
+email: { $regex: new RegExp("^" + email + "$","i") }
+});
+
+if(!u){
+return res.json({ok:false,msg:"Usuario no existe"});
+}
+
+await User.deleteOne({email:u.email});
+await Solicitud.deleteMany({email:u.email});
+
+res.json({
+ok:true,
+msg:"Usuario eliminado correctamente"
+});
+
+}catch(err){
+
+res.json({
+ok:false,
+msg:"Error eliminando usuario"
+});
+
+}
+
+});
+    
+
+/* ================= SERVER ================= */
+
+app.listen(PORT,()=>{
+  console.log("🚀 Servidor activo en puerto "+PORT);
 });
