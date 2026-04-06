@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BITUSDT ADMIN</title>
+<title>Préstamos TAVO - Admin</title>
 
 <style>
-
 body{
 margin:0;
 font-family:Arial;
@@ -99,7 +97,6 @@ width:100%;
 padding:12px;
 font-size:16px;
 }
-
 </style>
 
 </head>
@@ -109,7 +106,7 @@ font-size:16px;
 <div class="container">
 
 <div class="header">
-<h1>BITUSDT ADMIN</h1>
+<h1>PRÉSTAMOS TAVO - ADMIN</h1>
 <div class="sub">Panel de control</div>
 </div>
 
@@ -117,7 +114,7 @@ font-size:16px;
 
 <div class="stat-card">
 <h3 id="totalUsuarios">0</h3>
-Usuarios
+Usuarios registrados
 </div>
 
 <div class="stat-card">
@@ -130,7 +127,6 @@ Solicitudes pendientes
 <h2>Solicitudes</h2>
 
 <table>
-
 <thead>
 <tr>
 <th>Email</th>
@@ -140,27 +136,22 @@ Solicitudes pendientes
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tablaSolicitudes"></tbody>
-
 </table>
 
 <h2>Usuarios</h2>
 
 <table>
-
 <thead>
 <tr>
 <th>Email</th>
-<th>Saldo</th>
-<th>Días</th>
+<th>Deuda</th>
+<th>Días restantes</th>
 <th>Nequi</th>
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tablaUsuarios"></tbody>
-
 </table>
 
 <button class="btn-red" onclick="salir()">Cerrar sesión</button>
@@ -178,6 +169,7 @@ window.location.href="/";
 const ADMIN_KEY="ADMIN123";
 
 
+/* ================== CARGAR SOLICITUDES ================== */
 async function cargarSolicitudes(){
 
 const res = await fetch("/api/solicitudes");
@@ -189,36 +181,31 @@ const tabla = document.getElementById("tablaSolicitudes");
 tabla.innerHTML="";
 
 if(data.length===0){
-
 tabla.innerHTML=`
-<tr>
-<td colspan="5">No hay solicitudes pendientes</td>
-</tr>
+<tr><td colspan="5">No hay solicitudes pendientes</td></tr>
 `;
-
 return;
 }
 
 data.forEach(s=>{
-
 tabla.innerHTML += `
 <tr>
 <td>${s.email}</td>
-<td>${s.tipo}</td>
-<td>${s.monto} USDT</td>
+<td>${s.tipo === "prestamo" ? "Préstamo" : s.tipo}</td>
+<td>$${s.monto}</td>
 <td>${s.nequi || "No registrado"}</td>
 <td>
-<button class="btn-ok" onclick="aprobar('${s._id}')">✅</button>
-<button class="btn-no" onclick="rechazar('${s._id}')">❌</button>
+<button class="btn-ok" onclick="aprobar('${s._id}')">Aprobar</button>
+<button class="btn-no" onclick="rechazar('${s._id}')">Rechazar</button>
 </td>
 </tr>
 `;
-
 });
 
 }
 
 
+/* ================== CARGAR USUARIOS ================== */
 async function cargarUsuarios(){
 
 const res = await fetch("/api/usuarios");
@@ -227,49 +214,40 @@ const data = await res.json();
 document.getElementById("totalUsuarios").innerText = data.length;
 
 const tabla=document.getElementById("tablaUsuarios");
-
 tabla.innerHTML="";
 
 data.forEach(u=>{
-
 tabla.innerHTML += `
 <tr>
 <td>${u.email}</td>
-<td>${u.saldo} USDT</td>
+<td>$${u.saldo}</td>
 <td>${u.dias || 0}</td>
 <td>${u.nequi || "No registrado"}</td>
 <td>
-
-<button class="btn-edit" onclick="editarSaldo('${u.email}')">✏️</button>
-
-<button class="btn-no" onclick="eliminarUsuario('${u.email}')">❌</button>
-
+<button class="btn-edit" onclick="editarSaldo('${u.email}')">Editar deuda</button>
+<button class="btn-no" onclick="eliminarUsuario('${u.email}')">Eliminar</button>
 </td>
 </tr>
 `;
-
 });
 
 }
 
 
+/* ================== EDITAR DEUDA ================== */
 async function editarSaldo(email){
 
-const nuevo = prompt("Nuevo saldo para " + email);
+const nuevo = prompt("Nueva deuda para " + email);
 
 if(nuevo===null) return;
 
 const res = await fetch("/api/modificar-saldo",{
-
 method:"POST",
-
 headers:{ "Content-Type":"application/json" },
-
 body:JSON.stringify({
 email:email,
 monto:nuevo
 })
-
 });
 
 const data = await res.json();
@@ -281,6 +259,7 @@ cargarUsuarios();
 }
 
 
+/* ================== ELIMINAR USUARIO ================== */
 function eliminarUsuario(email){
 
 if(!confirm("¿Seguro que deseas eliminar este usuario?")){
@@ -289,40 +268,25 @@ return;
 
 fetch("/api/eliminar-usuario",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:email
-})
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({ email:email })
 })
 .then(r=>r.json())
 .then(d=>{
-
 alert(d.msg);
-
-if(d.ok){
-cargarUsuarios();
-}
-
+if(d.ok) cargarUsuarios();
 });
 
 }
 
 
+/* ================== APROBAR ================== */
 async function aprobar(id){
 
 const res = await fetch("/api/aprobar",{
-
 method:"POST",
-
 headers:{ "Content-Type":"application/json" },
-
-body:JSON.stringify({
-id:id,
-adminKey:ADMIN_KEY
-})
-
+body:JSON.stringify({ id:id, adminKey:ADMIN_KEY })
 });
 
 const data = await res.json();
@@ -335,19 +299,13 @@ cargarUsuarios();
 }
 
 
+/* ================== RECHAZAR ================== */
 async function rechazar(id){
 
 const res = await fetch("/api/rechazar",{
-
 method:"POST",
-
 headers:{ "Content-Type":"application/json" },
-
-body:JSON.stringify({
-id:id,
-adminKey:ADMIN_KEY
-})
-
+body:JSON.stringify({ id:id, adminKey:ADMIN_KEY })
 });
 
 const data = await res.json();
@@ -359,14 +317,11 @@ cargarSolicitudes();
 }
 
 
+/* ================== SALIR ================== */
 function salir(){
-
 localStorage.clear();
-
 window.location.href="/";
-
 }
-
 
 cargarSolicitudes();
 cargarUsuarios();
