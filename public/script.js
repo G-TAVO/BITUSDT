@@ -66,8 +66,8 @@ async function register(){
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      email:r_email.value,
-      password:r_pass.value
+      email: r_email.value,
+      password: r_pass.value
     })
   });
 
@@ -77,32 +77,33 @@ async function register(){
   if(data.ok) volverLogin();
 }
 
-// PANEL
+// PANEL (Usuario)
 function cargarPanel(){
   document.getElementById("tituloPanel").innerText = usuarioActual.email;
-  saldo.innerText = usuarioActual.saldo;
-  dia.innerText = usuarioActual.dias;
-  wallet.innerText = usuarioActual.wallet
-    ? usuarioActual.wallet
-    : "No registrada";
+
+  document.getElementById("saldoPendiente").innerText = usuarioActual.saldoPendiente ?? 0;
+  document.getElementById("montoPrestamo").innerText = usuarioActual.montoPrestamo ?? 0;
+  document.getElementById("diasRestantes").innerText = usuarioActual.diasPrestamo ?? 0;
+
+  telefono.innerText = usuarioActual.telefono
+    ? usuarioActual.telefono
+    : "No registrado";
 }
 
-
-
-// INVERTIR
-async function invertir(){
+// SOLICITAR PRÉSTAMO
+async function solicitarPrestamo(){
 
   if(!monto.value){
     alert("Ingrese un monto");
     return;
   }
 
-  const res = await fetch("/api/invertir",{
+  const res = await fetch("/api/solicitar-prestamo",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      email:usuarioActual.email,
-      monto:monto.value
+      email: usuarioActual.email,
+      monto: monto.value
     })
   });
 
@@ -110,42 +111,47 @@ async function invertir(){
   alert(data.msg);
 }
 
-// AGREGAR WALLET
-async function agregarWallet(){
+// ACTUALIZAR TELÉFONO
+async function actualizarTelefono(){
 
-  let w = prompt("Pega tu billetera TRC20");
-  if(!w || w.trim() === ""){
-    alert("Debe pegar una billetera válida");
+  let t = prompt("Ingresa tu número de teléfono");
+  if(!t || t.trim() === ""){
+    alert("Debe ingresar un número válido");
     return;
   }
 
-  const res = await fetch("/api/wallet",{
+  const res = await fetch("/api/telefono",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      email:usuarioActual.email,
-      wallet:w
+      email: usuarioActual.email,
+      telefono: t
     })
   });
 
   const data = await res.json();
   alert(data.msg);
 
-  // ACTUALIZAR WALLET EN EL PANEL
   if(data.ok){
-    usuarioActual.wallet = w;
+    usuarioActual.telefono = t;
     cargarPanel();
   }
 }
 
-// RETIRAR
-async function retirar(){
+// SOLICITAR ABONO
+async function solicitarAbono(){
 
-  const res = await fetch("/api/retirar",{
+  if(!monto.value){
+    alert("Ingrese el monto a abonar");
+    return;
+  }
+
+  const res = await fetch("/api/solicitar-abono",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
-      email:usuarioActual.email
+      email: usuarioActual.email,
+      monto: monto.value
     })
   });
 
@@ -155,17 +161,7 @@ async function retirar(){
 
 // INVITAR
 function invitar(){
-  window.open("https://wa.me/?text=Regístrate aquí https://bitusdt-1.onrender.com");
-}
-
-// COPIAR WALLET
-function copiarWallet(){
-  if(!usuarioActual.wallet){
-    alert("No hay billetera registrada");
-    return;
-  }
-  navigator.clipboard.writeText(usuarioActual.wallet);
-  alert("Billetera copiada");
+  window.open("https://wa.me/?text=Solicita tu préstamo aquí: https://tuapp.com");
 }
 
 // LOGOUT
