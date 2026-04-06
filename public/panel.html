@@ -1,129 +1,109 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BITUSDT</title>
+<title>PRÉSTAMOS TAVO</title>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#000428">
+<meta name="theme-color" content="#0f172a">
+
 <style>
-
 body{
-margin:0;
-font-family:Arial;
-background:#0f172a;
-color:white;
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
 }
-
 .container{
-max-width:500px;
-margin:auto;
-padding:20px;
-padding-bottom:90px;
+  max-width:500px;
+  margin:auto;
+  padding:20px;
+  padding-bottom:90px;
 }
-
 .header{
-text-align:center;
-margin-bottom:20px;
+  text-align:center;
+  margin-bottom:20px;
 }
-
 .header h1{
-margin:0;
-color:#00ffcc;
+  margin:0;
+  color:#00ffcc;
 }
-
 .subtitulo{
-font-size:14px;
-opacity:.8;
+  font-size:14px;
+  opacity:.8;
 }
 
+/* CARD SALDO */
 .saldo-card{
-background:linear-gradient(135deg,#2563eb,#1e40af);
-padding:25px;
-border-radius:15px;
-text-align:center;
+  background:linear-gradient(135deg,#2563eb,#1e40af);
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
 }
-
 .saldo{
-font-size:32px;
-font-weight:bold;
-margin-top:10px;
+  font-size:32px;
+  font-weight:bold;
+  margin-top:10px;
 }
-
-.botones{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:20px;
-}
-
-button{
-padding:14px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
-color:white;
-font-size:15px;
-}
-
-.btn-green{ background:#22c55e; }
-.btn-orange{ background:#f97316; }
-.btn-blue{ background:#3b82f6; }
-.btn-purple{ background:#9333ea; }
-
 .card{
-background:#1e293b;
-padding:15px;
-border-radius:12px;
-margin-top:20px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin-top:20px;
 }
-
 input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:none;
-margin-top:10px;
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  margin-top:10px;
 }
-
-.historial-item{
-margin:5px 0;
+button{
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  color:white;
+  font-size:15px;
+  width:100%;
+  margin-top:10px;
 }
+.btn-green{ background:#22c55e }
+.btn-blue{ background:#3b82f6 }
+.btn-orange{ background:#f97316 }
+.btn-red{ background:#ef4444 }
 
+/* MENU */
 .menu{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:#111827;
-display:flex;
-justify-content:space-around;
-align-items:center;
-padding:10px 0;
-border-top:2px solid #1f2937;
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#111827;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  padding:10px 0;
+  border-top:2px solid #1f2937;
 }
-
 .menu button{
-background:none;
-border:none;
-color:white;
-font-size:13px;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-flex:1;
-padding:6px 0;
+  background:none;
+  border:none;
+  color:white;
+  font-size:13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:6px 0;
 }
-
 .menu button:hover{
-color:#00ffcc;
+  color:#00ffcc;
 }
-
+.historial-item{
+  margin:5px 0;
+}
 </style>
 
 </head>
@@ -132,304 +112,167 @@ color:#00ffcc;
 
 <div class="container">
 
-<div class="header">
-<h1>BITUSDT</h1>
-<div class="subtitulo">Banco de inversiones tipo CDT</div>
-</div>
+  <div class="header">
+    <h1>PRÉSTAMOS TAVO</h1>
+    <div class="subtitulo">Préstamos rápidos y flexibles</div>
+  </div>
 
-<div class="saldo-card">
+  <div class="saldo-card">
+    <p>Deuda actual</p>
 
-<p>Saldo disponible</p>
+    <div class="saldo">
+      $<span id="saldo">0</span>
+    </div>
 
-<div class="saldo">
-<span id="saldo">0</span> USDT
-</div>
+    <p style="margin-top:10px">
+      Interés: 10% mensual – Abonos cada 8 días
+    </p>
 
-<p style="margin-top:10px">
-Ganancia diaria 5%
-</p>
-<p style="font-size:13px;margin-top:6px;">
-⏳ Próxima ganancia en:
-<span id="contador">calculando...</span>
-</p>
-<p style="font-size:13px;margin-top:6px;">
-ID usuario: <span id="userid"></span>
-</p>
+    <p style="font-size:13px;margin-top:6px;">
+      Días restantes del préstamo:
+      <span id="dias">0</span>
+    </p>
 
-<p style="font-size:12px;color:#fbbf24">
-Retiro mínimo: 20 USDT
-</p>
+    <p style="font-size:13px;margin-top:6px;">
+      Préstamo activo: <span id="prestamoEstado">No</span>
+    </p>
 
-</div>
+    <p style="font-size:12px;color:#fbbf24">
+      Monto disponible desde 50.000 hasta 500.000
+    </p>
+  </div>
 
-<div class="card">
+  <!-- Solicitar préstamo -->
+  <div class="card">
+    <h3>Solicitar préstamo</h3>
+    <input type="number" id="monto" placeholder="Ejemplo: 150000">
 
-<p><b>Monto (USDT)</b></p>
+    <button class="btn-green" onclick="solicitarPrestamo()">
+      Solicitar
+    </button>
+  </div>
 
-<input type="number" id="monto" placeholder="Ejemplo: 20">
+  <!-- Cuenta bancaria -->
+  <div class="card">
+    <h3>Cuenta de retiro</h3>
+    <p>Nequi: <span id="nequi">No registrado</span></p>
 
-</div>
+    <button class="btn-blue" onclick="agregarNequi()">
+      Registrar número de Nequi
+    </button>
+  </div>
 
-<div class="botones">
+  <!-- Abonos -->
+  <div class="card">
+    <h3>Historial de abonos</h3>
+    <div id="historial">Cargando...</div>
+  </div>
 
-<button class="btn-green" onclick="invertir()">Invertir</button>
-
-<button class="btn-orange" onclick="retirar()">Retirar</button>
-
-<button class="btn-blue" onclick="pagarNequi()">Recargar cuenta</button>
-
-<button class="btn-purple" onclick="compartirWhatsApp()">Invitar</button>
-
-</div>
-
-<div class="card">
-
-<p><b>Cuenta de retiro</b></p>
-
-<p>
-Nequi: <span id="nequi">No registrado</span>
-</p>
-
-<button class="btn-blue" onclick="agregarCuenta()">
-Agregar número de Nequi
-</button>
-
-</div>
-
-<div class="card">
-
-<h3>Historial</h3>
-
-<div id="historial">Sin movimientos</div>
-
-</div>
-
-<div class="card">
-
-<h3>Soporte</h3>
-
-<a href="https://wa.me/573226314209" target="_blank">
-<button class="btn-green">
-Enviar comprobante por WhatsApp
-</button>
-</a>
-
-</div>
+  <!-- Soporte -->
+  <div class="card">
+    <h3>Soporte</h3>
+    <a href="https://wa.me/573012245428" target="_blank">
+      <button class="btn-orange">Contactar soporte</button>
+    </a>
+  </div>
 
 </div>
 
 <div class="menu">
-
-<button onclick="window.scrollTo(0,0)">
-Inicio
-</button>
-
-<button onclick="pagarNequi()">
-Depositar
-</button>
-
-<button onclick="compartirWhatsApp()">
-Invitar
-</button>
-
-<button onclick="salir()">
-Salir
-</button>
-
+  <button onclick="window.scrollTo(0,0)">Inicio</button>
+  <button onclick="solicitarPrestamo()">Pedir préstamo</button>
+  <button onclick="agregarNequi()">Mi Nequi</button>
+  <button onclick="salir()">Salir</button>
 </div>
 
 <script>
-
 const usuario = JSON.parse(localStorage.getItem("usuario"));
-const ultima = new Date(usuario.ultimaActualizacion);
-const proxima = new Date(ultima.getTime() + (24*60*60*1000));
 
-function actualizarContador(){
-
-const ahora = new Date();
-
-let diferencia = proxima - ahora;
-
-if(diferencia <= 0){
-document.getElementById("contador").innerText = "Actualizando...";
-return;
-}
-
-let horas = Math.floor(diferencia / (1000*60*60));
-let minutos = Math.floor((diferencia % (1000*60*60)) / (1000*60));
-let segundos = Math.floor((diferencia % (1000*60)) / 1000);
-
-document.getElementById("contador").innerText =
-horas+"h "+minutos+"m "+segundos+"s";
-
-}
-
-setInterval(actualizarContador,1000);
-actualizarContador();
 if(!usuario){
-alert("Sesión inválida");
-window.location.href="/login.html";
+  alert("Sesión inválida");
+  window.location.href="/login.html";
 }
 
 document.getElementById("saldo").innerText = usuario.saldo || 0;
-document.getElementById("userid").innerText = usuario.userId || "Sin ID";
+document.getElementById("dias").innerText = usuario.dias || 0;
 document.getElementById("nequi").innerText = usuario.nequi || "No registrado";
+document.getElementById("prestamoEstado").innerText = usuario.saldo > 0 ? "Sí" : "No";
 
+/* ====================== Solicitar préstamo ====================== */
+async function solicitarPrestamo(){
+  const monto = document.getElementById("monto").value;
+
+  if(!monto || monto < 50000){
+    alert("Monto mínimo 50.000");
+    return;
+  }
+
+  if(monto > 500000){
+    alert("Monto máximo 500.000");
+    return;
+  }
+
+  const res = await fetch("/api/solicitar-prestamo",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ email:usuario.email, monto:monto })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+  location.reload();
+}
+
+/* ====================== Registrar Nequi ====================== */
+async function agregarNequi(){
+  const numero = prompt("Ingresa tu número de Nequi:");
+
+  if(!numero)return;
+
+  const res = await fetch("/api/nequi",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ email:usuario.email, nequi:numero })
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+
+  usuario.nequi = numero;
+  localStorage.setItem("usuario",JSON.stringify(usuario));
+  location.reload();
+}
+
+/* ====================== Historial ====================== */
+async function historial(){
+  const res = await fetch("/api/historial-prestamos/"+usuario.email);
+  const data = await res.json();
+
+  const cont = document.getElementById("historial");
+
+  if(data.length === 0){
+    cont.innerHTML = "Sin abonos todavía.";
+    return;
+  }
+
+  cont.innerHTML = "";
+
+  data.forEach(h=>{
+    cont.innerHTML += `
+      <div class="historial-item">
+        ${h.fecha} — Abono: $${h.monto}
+      </div>
+    `;
+  });
+}
+
+historial();
+
+/* ====================== Salir ====================== */
 function salir(){
-localStorage.clear();
-window.location.href="/";
+  localStorage.clear();
+  window.location.href="/";
 }
-
-function pagarNequi(){
-
-const numero="3226314209";
-
-navigator.clipboard.writeText(numero);
-
-alert(
-"Recargar cuenta\n\n"+
-"Envía el dinero al Nequi:\n\n"+
-numero+
-"\n\nLuego envía el comprobante al WhatsApp de soporte."
-);
-
-}
-
-async function invertir(){
-
-const monto=document.getElementById("monto").value;
-
-if(!monto || monto<=0){
-alert("Ingresa un monto válido");
-return;
-}
-
-const res=await fetch("/api/invertir",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:usuario.email,
-monto:monto
-})
-});
-
-const data=await res.json();
-
-alert("⏳ Inversión en espera por confirmar.\n\nEnvía el comprobante al WhatsApp de soporte.");
-
-const numero="573226314209";
-
-const mensaje=
-"Hola, acabo de realizar una inversión en BITUSDT.\n\n"+
-"Usuario: "+usuario.email+"\n"+
-"Monto: "+monto+" USDT\n\n"+
-"Adjunto comprobante.";
-
-const url="https://wa.me/"+numero+"?text="+encodeURIComponent(mensaje);
-
-window.open(url,"_blank");
-
-location.reload();
-
-}
-
-async function retirar(){
-
-const monto=document.getElementById("monto").value;
-
-if(!monto){
-alert("Ingresa un monto");
-return;
-}
-
-if(monto<20){
-alert("Retiro mínimo 20 USDT");
-return;
-}
-
-const res=await fetch("/api/retirar",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:usuario.email,
-monto:monto
-})
-});
-
-const data=await res.json();
-
-alert(data.msg);
-
-location.reload();
-
-}
-
-async function agregarCuenta(){
-
-const nequi=prompt("Ingresa tu número de Nequi");
-
-if(!nequi)return;
-
-const res=await fetch("/api/wallet",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:usuario.email,
-nequi:nequi
-})
-});
-
-const data=await res.json();
-
-alert(data.msg);
-
-usuario.nequi=nequi;
-
-localStorage.setItem("usuario",JSON.stringify(usuario));
-
-location.reload();
-
-}
-
-function compartirWhatsApp(){
-
-const link=window.location.origin+"/register.html?ref="+usuario.email;
-
-const mensaje="Gana dinero invirtiendo desde casa\n\nRegístrate aquí:\n"+link;
-
-window.open("https://api.whatsapp.com/send?text="+encodeURIComponent(mensaje));
-
-}
-
-async function cargarHistorial(){
-
-const res=await fetch("/api/historial/"+usuario.email);
-
-const datos=await res.json();
-
-const cont=document.getElementById("historial");
-
-if(!datos.length){
-cont.innerHTML="Sin movimientos";
-return;
-}
-
-cont.innerHTML="";
-
-datos.forEach(m=>{
-
-cont.innerHTML+=`
-<div class="historial-item">
-${m.tipo} - ${m.monto} USDT - ${m.estado}
-</div>
-`;
-
-});
-
-}
-
-cargarHistorial();
-
 </script>
 
 </body>
