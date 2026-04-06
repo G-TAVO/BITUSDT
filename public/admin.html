@@ -1,331 +1,250 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Préstamos TAVO - Admin</title>
 
 <style>
 body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#000428,#004e92);
-color:white;
-padding:20px;
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#000428,#004e92);
+    color:white;
+    padding:20px;
 }
-
 .container{
-max-width:1100px;
-margin:auto;
-overflow-x:auto;
+    max-width:900px;
+    margin:auto;
 }
-
-.header{
-text-align:center;
-margin-bottom:20px;
+h1,h2{
+    text-align:center;
+    color:#00ffcc;
 }
-
-.header h1{
-color:#00ffcc;
-margin:0;
+.card{
+    background:#111827;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
 }
-
-.sub{
-opacity:.8;
-font-size:14px;
+label{ display:block; margin-top:10px; }
+input, select{
+    width:100%;
+    padding:8px;
+    border-radius:6px;
+    border:none;
+    margin-top:5px;
 }
-
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-bottom:20px;
-}
-
-.stat-card{
-background:#111827;
-padding:15px;
-border-radius:10px;
-text-align:center;
-}
-
-.stat-card h3{
-margin:5px 0;
-color:#00ffcc;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-background:#111827;
-border-radius:10px;
-overflow:hidden;
-display:block;
-overflow-x:auto;
-white-space:nowrap;
-}
-
-th, td{
-padding:10px;
-text-align:center;
-border-bottom:1px solid #333;
-}
-
-th{
-background:#1f2937;
-}
-
 button{
-padding:6px 10px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-color:white;
+    margin-top:15px;
+    padding:10px;
+    width:100%;
+    border:none;
+    border-radius:6px;
+    background:#00ffcc;
+    color:black;
+    font-size:16px;
+    cursor:pointer;
 }
-
-.btn-ok{ background:#22c55e; }
-.btn-no{ background:#ef4444; }
-.btn-edit{ background:#3b82f6; }
-
-.btn-red{
-background:#ef4444;
-margin-top:20px;
-width:100%;
-padding:12px;
-font-size:16px;
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#111827;
+    margin-top:10px;
 }
+th,td{
+    padding:10px;
+    border-bottom:1px solid #333;
+    text-align:center;
+}
+.btn-mini{
+    padding:5px 10px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+.btn-pago{ background:#22c55e; color:white; }
+.btn-cerrar{ background:#ef4444; color:white; }
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="header">
 <h1>PRÉSTAMOS TAVO - ADMIN</h1>
-<div class="sub">Panel de control</div>
+
+<!-- ================= REGISTRAR PRÉSTAMO ================= -->
+<div class="card">
+<h2>Registrar nuevo préstamo</h2>
+
+<label>Nombre del cliente</label>
+<input type="text" id="nombre">
+
+<label>Monto</label>
+<select id="monto">
+    <option value="50000">50.000</option>
+    <option value="100000">100.000</option>
+    <option value="150000">150.000</option>
+    <option value="200000">200.000</option>
+    <option value="300000">300.000</option>
+    <option value="400000">400.000</option>
+    <option value="500000">500.000</option>
+</select>
+
+<button onclick="crearPrestamo()">Crear préstamo</button>
 </div>
 
-<div class="stats">
 
-<div class="stat-card">
-<h3 id="totalUsuarios">0</h3>
-Usuarios registrados
-</div>
-
-<div class="stat-card">
-<h3 id="totalSolicitudes">0</h3>
-Solicitudes pendientes
-</div>
-
-</div>
-
-<h2>Solicitudes</h2>
+<!-- ================= PRÉSTAMOS ACTIVOS ================= -->
+<div class="card">
+<h2>Préstamos activos</h2>
 
 <table>
 <thead>
 <tr>
-<th>Email</th>
-<th>Tipo</th>
+<th>Cliente</th>
 <th>Monto</th>
-<th>Nequi</th>
+<th>Saldo</th>
+<th>Días</th>
 <th>Acción</th>
 </tr>
 </thead>
-<tbody id="tablaSolicitudes"></tbody>
+<tbody id="listaPrestamos"></tbody>
 </table>
+</div>
 
-<h2>Usuarios</h2>
 
-<table>
-<thead>
-<tr>
-<th>Email</th>
-<th>Deuda</th>
-<th>Días restantes</th>
-<th>Nequi</th>
-<th>Acción</th>
-</tr>
-</thead>
-<tbody id="tablaUsuarios"></tbody>
-</table>
+<!-- ================= CAMBIAR CONTRASEÑA ================= -->
+<div class="card">
+<h2>Cambiar contraseña admin</h2>
 
-<button class="btn-red" onclick="salir()">Cerrar sesión</button>
+<label>Nueva contraseña</label>
+<input type="password" id="newPass">
+
+<button onclick="cambiarPass()">Guardar</button>
+</div>
+
+
+<button style="background:#ef4444;color:white;" onclick="salir()">Cerrar sesión</button>
 
 </div>
 
 <script>
-
+/* ========= PROTECCIÓN DE ADMIN ========= */
 const usuario = JSON.parse(localStorage.getItem("usuario"));
-
 if(!usuario || usuario.rol !== "admin"){
-window.location.href="/";
+    window.location.href="/";
 }
 
-const ADMIN_KEY="ADMIN123";
+/* ========= OBTENER PRÉSTAMOS ========= */
+async function cargarPrestamos(){
+    const res = await fetch("/api/prestamos");
+    const data = await res.json();
 
+    const tabla = document.getElementById("listaPrestamos");
+    tabla.innerHTML = "";
 
-/* ================== CARGAR SOLICITUDES ================== */
-async function cargarSolicitudes(){
+    if(data.length === 0){
+        tabla.innerHTML = `<tr><td colspan="5">Sin préstamos activos</td></tr>`;
+        return;
+    }
 
-const res = await fetch("/api/solicitudes");
-const data = await res.json();
-
-document.getElementById("totalSolicitudes").innerText = data.length;
-
-const tabla = document.getElementById("tablaSolicitudes");
-tabla.innerHTML="";
-
-if(data.length===0){
-tabla.innerHTML=`
-<tr><td colspan="5">No hay solicitudes pendientes</td></tr>
-`;
-return;
+    data.forEach(p=>{
+        tabla.innerHTML += `
+        <tr>
+            <td>${p.nombre}</td>
+            <td>$${p.monto}</td>
+            <td>$${p.saldo}</td>
+            <td>${p.dias}</td>
+            <td>
+                <button class="btn-mini btn-pago" onclick="abonar('${p._id}')">Abonar</button>
+                <button class="btn-mini btn-cerrar" onclick="cerrar('${p._id}')">Cerrar</button>
+            </td>
+        </tr>
+        `;
+    });
 }
 
-data.forEach(s=>{
-tabla.innerHTML += `
-<tr>
-<td>${s.email}</td>
-<td>${s.tipo === "prestamo" ? "Préstamo" : s.tipo}</td>
-<td>$${s.monto}</td>
-<td>${s.nequi || "No registrado"}</td>
-<td>
-<button class="btn-ok" onclick="aprobar('${s._id}')">Aprobar</button>
-<button class="btn-no" onclick="rechazar('${s._id}')">Rechazar</button>
-</td>
-</tr>
-`;
-});
+/* ========= CREAR PRÉSTAMO ========= */
+async function crearPrestamo(){
+    const nombre = document.getElementById("nombre").value;
+    const monto = document.getElementById("monto").value;
 
+    if(nombre.trim()===""){
+        alert("Escriba un nombre");
+        return;
+    }
+
+    const res = await fetch("/api/prestamo-nuevo",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ nombre, monto })
+    });
+
+    const data = await res.json();
+    alert(data.msg);
+    cargarPrestamos();
 }
 
+/* ========= ABONAR ========= */
+async function abonar(id){
+    const valor = prompt("¿Cuánto abonó?");
+    if(!valor) return;
 
-/* ================== CARGAR USUARIOS ================== */
-async function cargarUsuarios(){
+    const res = await fetch("/api/abonar",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ id, valor })
+    });
 
-const res = await fetch("/api/usuarios");
-const data = await res.json();
-
-document.getElementById("totalUsuarios").innerText = data.length;
-
-const tabla=document.getElementById("tablaUsuarios");
-tabla.innerHTML="";
-
-data.forEach(u=>{
-tabla.innerHTML += `
-<tr>
-<td>${u.email}</td>
-<td>$${u.saldo}</td>
-<td>${u.dias || 0}</td>
-<td>${u.nequi || "No registrado"}</td>
-<td>
-<button class="btn-edit" onclick="editarSaldo('${u.email}')">Editar deuda</button>
-<button class="btn-no" onclick="eliminarUsuario('${u.email}')">Eliminar</button>
-</td>
-</tr>
-`;
-});
-
+    const data = await res.json();
+    alert(data.msg);
+    cargarPrestamos();
 }
 
+/* ========= CERRAR PRÉSTAMO ========= */
+async function cerrar(id){
+    if(!confirm("¿Seguro de cerrar este préstamo?")) return;
 
-/* ================== EDITAR DEUDA ================== */
-async function editarSaldo(email){
+    const res = await fetch("/api/cerrar",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ id })
+    });
 
-const nuevo = prompt("Nueva deuda para " + email);
-
-if(nuevo===null) return;
-
-const res = await fetch("/api/modificar-saldo",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:email,
-monto:nuevo
-})
-});
-
-const data = await res.json();
-
-alert(data.msg);
-
-cargarUsuarios();
-
+    const data = await res.json();
+    alert(data.msg);
+    cargarPrestamos();
 }
 
+/* ========= CAMBIAR CONTRASEÑA ========= */
+async function cambiarPass(){
+    const newPass = document.getElementById("newPass").value;
 
-/* ================== ELIMINAR USUARIO ================== */
-function eliminarUsuario(email){
+    if(newPass.length < 4){
+        alert("La contraseña debe tener mínimo 4 caracteres");
+        return;
+    }
 
-if(!confirm("¿Seguro que deseas eliminar este usuario?")){
-return;
+    const res = await fetch("/api/cambiar-pass",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ newPass })
+    });
+
+    const data = await res.json();
+    alert(data.msg);
+    localStorage.setItem("usuario", JSON.stringify({ rol:"admin" }));
 }
 
-fetch("/api/eliminar-usuario",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ email:email })
-})
-.then(r=>r.json())
-.then(d=>{
-alert(d.msg);
-if(d.ok) cargarUsuarios();
-});
-
-}
-
-
-/* ================== APROBAR ================== */
-async function aprobar(id){
-
-const res = await fetch("/api/aprobar",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ id:id, adminKey:ADMIN_KEY })
-});
-
-const data = await res.json();
-
-alert(data.msg);
-
-cargarSolicitudes();
-cargarUsuarios();
-
-}
-
-
-/* ================== RECHAZAR ================== */
-async function rechazar(id){
-
-const res = await fetch("/api/rechazar",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ id:id, adminKey:ADMIN_KEY })
-});
-
-const data = await res.json();
-
-alert(data.msg);
-
-cargarSolicitudes();
-
-}
-
-
-/* ================== SALIR ================== */
+/* ========= SALIR ========= */
 function salir(){
-localStorage.clear();
-window.location.href="/";
+    localStorage.clear();
+    window.location.href="/";
 }
 
-cargarSolicitudes();
-cargarUsuarios();
-
+cargarPrestamos();
 </script>
 
 </body>
