@@ -3,68 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Préstamos TAVO - Admin</title>
+<title>Admin - Préstamos Tavo</title>
 
 <style>
 body{
-    margin:0;
-    font-family:Arial;
-    background:linear-gradient(135deg,#000428,#004e92);
-    color:white;
-    padding:20px;
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#000428,#004e92);
+  color:white;
+  padding:20px;
 }
 .container{
-    max-width:900px;
-    margin:auto;
+  max-width:900px;
+  margin:auto;
 }
 h1,h2{
-    text-align:center;
-    color:#00ffcc;
+  text-align:center;
+  color:#00ffcc;
 }
 .card{
-    background:#111827;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:20px;
-}
-label{ display:block; margin-top:10px; }
-input, select{
-    width:100%;
-    padding:8px;
-    border-radius:6px;
-    border:none;
-    margin-top:5px;
-}
-button{
-    margin-top:15px;
-    padding:10px;
-    width:100%;
-    border:none;
-    border-radius:6px;
-    background:#00ffcc;
-    color:black;
-    font-size:16px;
-    cursor:pointer;
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:20px;
 }
 table{
-    width:100%;
-    border-collapse:collapse;
-    background:#111827;
-    margin-top:10px;
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
 }
 th,td{
-    padding:10px;
-    border-bottom:1px solid #333;
-    text-align:center;
+  padding:10px;
+  border-bottom:1px solid #333;
+  text-align:center;
 }
-.btn-mini{
-    padding:5px 10px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
+.btn{
+  padding:6px 10px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
 }
-.btn-pago{ background:#22c55e; color:white; }
-.btn-cerrar{ background:#ef4444; color:white; }
+.aprobar{ background:#22c55e; color:white; }
+.rechazar{ background:#ef4444; color:white; }
 </style>
 </head>
 
@@ -72,179 +52,101 @@ th,td{
 
 <div class="container">
 
-<h1>PRÉSTAMOS TAVO - ADMIN</h1>
+<h1>PANEL ADMIN</h1>
 
-<!-- ================= REGISTRAR PRÉSTAMO ================= -->
 <div class="card">
-<h2>Registrar nuevo préstamo</h2>
-
-<label>Nombre del cliente</label>
-<input type="text" id="nombre">
-
-<label>Monto</label>
-<select id="monto">
-    <option value="50000">50.000</option>
-    <option value="100000">100.000</option>
-    <option value="150000">150.000</option>
-    <option value="200000">200.000</option>
-    <option value="300000">300.000</option>
-    <option value="400000">400.000</option>
-    <option value="500000">500.000</option>
-</select>
-
-<button onclick="crearPrestamo()">Crear préstamo</button>
-</div>
-
-
-<!-- ================= PRÉSTAMOS ACTIVOS ================= -->
-<div class="card">
-<h2>Préstamos activos</h2>
+<h2>Solicitudes de préstamo</h2>
 
 <table>
 <thead>
 <tr>
-<th>Cliente</th>
+<th>Nombre</th>
+<th>Email</th>
 <th>Monto</th>
-<th>Saldo</th>
-<th>Días</th>
 <th>Acción</th>
 </tr>
 </thead>
-<tbody id="listaPrestamos"></tbody>
+<tbody id="tabla"></tbody>
 </table>
+
 </div>
 
-
-<!-- ================= CAMBIAR CONTRASEÑA ================= -->
-<div class="card">
-<h2>Cambiar contraseña admin</h2>
-
-<label>Nueva contraseña</label>
-<input type="password" id="newPass">
-
-<button onclick="cambiarPass()">Guardar</button>
-</div>
-
-
-<button style="background:#ef4444;color:white;" onclick="salir()">Cerrar sesión</button>
+<button onclick="salir()" style="background:red;width:100%;padding:10px;border:none;color:white;">Cerrar sesión</button>
 
 </div>
 
 <script>
-/* ========= PROTECCIÓN DE ADMIN ========= */
+
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 if(!usuario || usuario.rol !== "admin"){
-    window.location.href="/";
+  window.location.href="/";
 }
 
-/* ========= OBTENER PRÉSTAMOS ========= */
-async function cargarPrestamos(){
-    const res = await fetch("/api/prestamos");
-    const data = await res.json();
+/* CARGAR SOLICITUDES */
+async function cargar(){
 
-    const tabla = document.getElementById("listaPrestamos");
-    tabla.innerHTML = "";
+  const res = await fetch("/api/solicitudes");
+  const data = await res.json();
 
-    if(data.length === 0){
-        tabla.innerHTML = `<tr><td colspan="5">Sin préstamos activos</td></tr>`;
-        return;
-    }
+  const tabla = document.getElementById("tabla");
+  tabla.innerHTML = "";
 
-    data.forEach(p=>{
-        tabla.innerHTML += `
-        <tr>
-            <td>${p.nombre}</td>
-            <td>$${p.monto}</td>
-            <td>$${p.saldo}</td>
-            <td>${p.dias}</td>
-            <td>
-                <button class="btn-mini btn-pago" onclick="abonar('${p._id}')">Abonar</button>
-                <button class="btn-mini btn-cerrar" onclick="cerrar('${p._id}')">Cerrar</button>
-            </td>
-        </tr>
-        `;
-    });
+  if(data.length === 0){
+    tabla.innerHTML = "<tr><td colspan='4'>Sin solicitudes</td></tr>";
+    return;
+  }
+
+  data.forEach(s=>{
+    tabla.innerHTML += `
+      <tr>
+        <td>${s.nombre}</td>
+        <td>${s.email}</td>
+        <td>$${s.monto}</td>
+        <td>
+          <button class="btn aprobar" onclick="aprobar('${s._id}')">Aprobar</button>
+          <button class="btn rechazar" onclick="rechazar('${s._id}')">Rechazar</button>
+        </td>
+      </tr>
+    `;
+  });
 }
 
-/* ========= CREAR PRÉSTAMO ========= */
-async function crearPrestamo(){
-    const nombre = document.getElementById("nombre").value;
-    const monto = document.getElementById("monto").value;
+/* APROBAR */
+async function aprobar(id){
 
-    if(nombre.trim()===""){
-        alert("Escriba un nombre");
-        return;
-    }
+  const res = await fetch("/api/aprobar",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ id })
+  });
 
-    const res = await fetch("/api/prestamo-nuevo",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ nombre, monto })
-    });
-
-    const data = await res.json();
-    alert(data.msg);
-    cargarPrestamos();
+  const data = await res.json();
+  alert(data.msg);
+  cargar();
 }
 
-/* ========= ABONAR ========= */
-async function abonar(id){
-    const valor = prompt("¿Cuánto abonó?");
-    if(!valor) return;
+/* RECHAZAR */
+async function rechazar(id){
 
-    const res = await fetch("/api/abonar",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ id, valor })
-    });
+  const res = await fetch("/api/rechazar",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ id })
+  });
 
-    const data = await res.json();
-    alert(data.msg);
-    cargarPrestamos();
+  const data = await res.json();
+  alert(data.msg);
+  cargar();
 }
 
-/* ========= CERRAR PRÉSTAMO ========= */
-async function cerrar(id){
-    if(!confirm("¿Seguro de cerrar este préstamo?")) return;
-
-    const res = await fetch("/api/cerrar",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ id })
-    });
-
-    const data = await res.json();
-    alert(data.msg);
-    cargarPrestamos();
-}
-
-/* ========= CAMBIAR CONTRASEÑA ========= */
-async function cambiarPass(){
-    const newPass = document.getElementById("newPass").value;
-
-    if(newPass.length < 4){
-        alert("La contraseña debe tener mínimo 4 caracteres");
-        return;
-    }
-
-    const res = await fetch("/api/cambiar-pass",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ newPass })
-    });
-
-    const data = await res.json();
-    alert(data.msg);
-    localStorage.setItem("usuario", JSON.stringify({ rol:"admin" }));
-}
-
-/* ========= SALIR ========= */
+/* SALIR */
 function salir(){
-    localStorage.clear();
-    window.location.href="/";
+  localStorage.clear();
+  window.location.href="/";
 }
 
-cargarPrestamos();
+cargar();
+
 </script>
 
 </body>
