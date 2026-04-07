@@ -9,53 +9,94 @@
 body{
   margin:0;
   font-family:Arial;
-  background:linear-gradient(135deg,#000428,#004e92);
+  background:linear-gradient(135deg,#020617,#0f172a);
   color:white;
-  padding:20px;
 }
+
+header{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+  font-size:22px;
+  color:#00ffcc;
+  font-weight:bold;
+}
+
 .container{
   max-width:900px;
   margin:auto;
+  padding:20px;
 }
-h1,h2{
+
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  margin-top:20px;
+  box-shadow:0 0 10px rgba(0,0,0,0.5);
+}
+
+h2{
   text-align:center;
   color:#00ffcc;
 }
-.card{
-  background:#111827;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:20px;
-}
+
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
+  margin-top:15px;
 }
+
 th,td{
   padding:10px;
   border-bottom:1px solid #333;
   text-align:center;
 }
-.btn{
-  padding:6px 10px;
+
+button{
+  padding:8px 12px;
   border:none;
-  border-radius:5px;
+  border-radius:8px;
   cursor:pointer;
+  font-weight:bold;
 }
-.aprobar{ background:#22c55e; color:white; }
-.rechazar{ background:#ef4444; color:white; }
+
+.btn-aprobar{
+  background:#22c55e;
+  color:white;
+}
+
+.btn-rechazar{
+  background:#ef4444;
+  color:white;
+}
+
+.btn-salir{
+  width:100%;
+  margin-top:20px;
+  background:#ef4444;
+  color:white;
+}
+
+.estado{
+  text-align:center;
+  margin-top:10px;
+  font-size:14px;
+  color:#ccc;
+}
 </style>
 </head>
 
 <body>
 
+<header>👑 PANEL ADMIN - PRÉSTAMOS TAVO</header>
+
 <div class="container">
 
-<h1>PANEL ADMIN</h1>
-
 <div class="card">
-<h2>Solicitudes de préstamo</h2>
+<h2>Solicitudes pendientes</h2>
+
+<div class="estado" id="estado">Cargando...</div>
 
 <table>
 <thead>
@@ -63,7 +104,7 @@ th,td{
 <th>Nombre</th>
 <th>Email</th>
 <th>Monto</th>
-<th>Acción</th>
+<th>Acciones</th>
 </tr>
 </thead>
 <tbody id="tabla"></tbody>
@@ -71,48 +112,62 @@ th,td{
 
 </div>
 
-<button onclick="salir()" style="background:red;width:100%;padding:10px;border:none;color:white;">Cerrar sesión</button>
+<button class="btn-salir" onclick="salir()">Cerrar sesión</button>
 
 </div>
 
 <script>
 
+/* 🔒 PROTECCIÓN ADMIN */
 const usuario = JSON.parse(localStorage.getItem("usuario"));
+
 if(!usuario || usuario.rol !== "admin"){
-  window.location.href="/";
+  alert("Debes iniciar sesión como admin");
+  window.location.href = "/";
 }
 
-/* CARGAR SOLICITUDES */
+/* 📥 CARGAR SOLICITUDES */
 async function cargar(){
 
-  const res = await fetch("/api/solicitudes");
-  const data = await res.json();
+  try{
+    const res = await fetch("/api/solicitudes");
+    const data = await res.json();
 
-  const tabla = document.getElementById("tabla");
-  tabla.innerHTML = "";
+    const tabla = document.getElementById("tabla");
+    const estado = document.getElementById("estado");
 
-  if(data.length === 0){
-    tabla.innerHTML = "<tr><td colspan='4'>Sin solicitudes</td></tr>";
-    return;
+    tabla.innerHTML = "";
+
+    if(data.length === 0){
+      estado.innerText = "No hay solicitudes pendientes";
+      return;
+    }
+
+    estado.innerText = "Solicitudes encontradas: " + data.length;
+
+    data.forEach(s=>{
+      tabla.innerHTML += `
+        <tr>
+          <td>${s.nombre}</td>
+          <td>${s.email}</td>
+          <td>$${s.monto}</td>
+          <td>
+            <button class="btn-aprobar" onclick="aprobar('${s._id}')">✔ Aprobar</button>
+            <button class="btn-rechazar" onclick="rechazar('${s._id}')">✖ Rechazar</button>
+          </td>
+        </tr>
+      `;
+    });
+
+  }catch(err){
+    document.getElementById("estado").innerText = "Error cargando datos";
   }
-
-  data.forEach(s=>{
-    tabla.innerHTML += `
-      <tr>
-        <td>${s.nombre}</td>
-        <td>${s.email}</td>
-        <td>$${s.monto}</td>
-        <td>
-          <button class="btn aprobar" onclick="aprobar('${s._id}')">Aprobar</button>
-          <button class="btn rechazar" onclick="rechazar('${s._id}')">Rechazar</button>
-        </td>
-      </tr>
-    `;
-  });
 }
 
-/* APROBAR */
+/* ✅ APROBAR */
 async function aprobar(id){
+
+  if(!confirm("¿Aprobar este préstamo?")) return;
 
   const res = await fetch("/api/aprobar",{
     method:"POST",
@@ -122,11 +177,14 @@ async function aprobar(id){
 
   const data = await res.json();
   alert(data.msg);
+
   cargar();
 }
 
-/* RECHAZAR */
+/* ❌ RECHAZAR */
 async function rechazar(id){
+
+  if(!confirm("¿Rechazar solicitud?")) return;
 
   const res = await fetch("/api/rechazar",{
     method:"POST",
@@ -136,15 +194,17 @@ async function rechazar(id){
 
   const data = await res.json();
   alert(data.msg);
+
   cargar();
 }
 
-/* SALIR */
+/* 🚪 SALIR */
 function salir(){
   localStorage.clear();
-  window.location.href="/";
+  window.location.href = "/";
 }
 
+/* 🚀 INICIO */
 cargar();
 
 </script>
