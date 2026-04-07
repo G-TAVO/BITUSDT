@@ -1,159 +1,267 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Préstamos Tavo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f2f2f2;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Préstamos Tavo</title>
 
-        header {
-            background: #1a73e8;
-            padding: 15px;
-            color: #fff;
-            text-align: center;
-            font-size: 20px;
-        }
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+}
 
-        .container {
-            padding: 20px;
-        }
+header{
+  background:#020617;
+  padding:15px;
+  text-align:center;
+  font-size:20px;
+  color:#00ffcc;
+}
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+.container{
+  max-width:400px;
+  margin:auto;
+  padding:20px;
+}
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  margin-top:20px;
+}
 
-        button:hover {
-            opacity: 0.9;
-        }
+input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  margin-top:10px;
+}
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            padding-top: 100px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background: rgba(0,0,0,0.5);
-        }
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-        .modal-content {
-            background: white;
-            margin: auto;
-            padding: 20px;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 8px;
-        }
+.btn{
+  background:#22c55e;
+  color:white;
+}
 
-        .close {
-            float: right;
-            font-size: 25px;
-            cursor: pointer;
-        }
+.btn2{
+  background:#3b82f6;
+  color:white;
+}
 
-        footer {
-            text-align: center;
-            padding: 15px;
-            background: #ddd;
-            margin-top: 20px;
-        }
-    </style>
+.btn3{
+  background:#25D366;
+  color:white;
+}
+
+.switch{
+  text-align:center;
+  margin-top:10px;
+  cursor:pointer;
+  color:#00ffcc;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+}
+
+.modal-content{
+  background:white;
+  color:black;
+  margin:50px auto;
+  padding:20px;
+  width:90%;
+  max-width:400px;
+  border-radius:10px;
+}
+
+.close{
+  float:right;
+  cursor:pointer;
+  font-size:20px;
+}
+</style>
 </head>
+
 <body>
 
-<header>💳 Sistema de Préstamos Tavo</header>
+<header>💳 PRÉSTAMOS TAVO</header>
 
 <div class="container">
 
-    <div class="card">
-        <h2>Solicitar Préstamo</h2>
-        <p>Elige el monto que deseas solicitar:</p>
+  <!-- LOGIN -->
+  <div class="card" id="loginBox">
+    <h2>Iniciar Sesión</h2>
 
-        <select id="monto" style="width:100%;padding:10px;border-radius:8px;font-size:16px;">
-            <option value="50000">$50.000</option>
-            <option value="100000">$100.000</option>
-            <option value="150000">$150.000</option>
-            <option value="200000">$200.000</option>
-            <option value="250000">$250.000</option>
-            <option value="300000">$300.000</option>
-            <option value="350000">$350.000</option>
-            <option value="400000">$400.000</option>
-            <option value="450000">$450.000</option>
-            <option value="500000">$500.000</option>
-        </select>
+    <input type="email" id="loginEmail" placeholder="Correo">
+    <input type="password" id="loginPass" placeholder="Contraseña">
 
-        <button onclick="solicitar()">Solicitar Préstamo</button>
+    <button class="btn2" onclick="login()">Entrar</button>
+
+    <div class="switch" onclick="mostrarRegistro()">
+      ¿No tienes cuenta? Regístrate
     </div>
+  </div>
 
-    <div class="card">
-        <h2>Acerca del Servicio</h2>
-        <p>Préstamos desde $50.000 hasta $500.000 con interés del 10% mensual.</p>
-        <button onclick="abrirModal()">Ver Términos y Condiciones</button>
+  <!-- REGISTRO -->
+  <div class="card" id="registroBox" style="display:none">
+    <h2>Registrarse</h2>
+
+    <input type="email" id="regEmail" placeholder="Correo">
+    <input type="password" id="regPass" placeholder="Contraseña">
+
+    <label style="font-size:13px;">
+      <input type="checkbox" id="terms">
+      Acepto términos y condiciones
+    </label>
+
+    <button onclick="abrirModal()">Ver términos</button>
+
+    <button class="btn" onclick="registro()">Crear cuenta</button>
+
+    <div class="switch" onclick="mostrarLogin()">
+      Ya tengo cuenta
     </div>
+  </div>
+
+  <!-- COMPARTIR -->
+  <div class="card">
+    <h3>Compartir App</h3>
+
+    <button class="btn3" onclick="compartirWhatsApp()">
+      Compartir por WhatsApp
+    </button>
+
+    <button class="btn2" onclick="copiarLink()">
+      Copiar enlace
+    </button>
+  </div>
 
 </div>
 
-<footer>© 2026 • Sistema de Préstamos Tavo</footer>
-
-<!-- MODAL -->
+<!-- MODAL TERMINOS -->
 <div id="modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="cerrarModal()">&times;</span>
-        <h3>Términos y Condiciones</h3>
+  <div class="modal-content">
+    <span class="close" onclick="cerrarModal()">✖</span>
 
-        <p>1. Los préstamos ofrecidos en esta plataforma van desde $50.000 hasta $500.000.</p>
-        <p>2. El interés aplicado es del 10% mensual sobre el valor prestado.</p>
-        <p>3. Los abonos deben realizarse cada 8 días o según el acuerdo del cliente.</p>
-        <p>4. El usuario debe registrar un número de Nequi válido para recibir el préstamo.</p>
-        <p>5. La información ingresada debe ser real y verificable. Datos falsos podrán generar bloqueo permanente.</p>
-        <p>6. En caso de mora superior a 30 días, el usuario acepta que su información pueda ser enviada a verificación y reporte en centrales de riesgo, de acuerdo con la Ley Habeas Data.</p>
-        <p>7. La plataforma puede negar nuevos préstamos si existe una deuda pendiente o retrasada.</p>
-        <p>8. Todos los pagos y abonos deben hacerse únicamente a los números oficiales del administrador.</p>
-        <p>9. En caso de fraude o intento de evadir el pago, se podrá iniciar proceso legal de cobro.</p>
-        <p>10. El usuario acepta que al registrarse y usar esta plataforma, acepta estos términos de manera voluntaria.</p>
+    <h3>Términos y Condiciones</h3>
 
-    </div>
+    <p>Préstamos desde $50.000 hasta $500.000.</p>
+    <p>Interés del 10% mensual.</p>
+    <p>Pagos cada 8 días.</p>
+    <p>Debes registrar datos reales.</p>
+    <p>El incumplimiento puede generar reporte.</p>
+
+  </div>
 </div>
 
 <script>
-    function solicitar() {
-        const monto = document.getElementById("monto").value;
-        alert("Has solicitado un préstamo de: $" + monto);
-    }
 
-    function abrirModal() {
-        document.getElementById("modal").style.display = "block";
-    }
+/* CAMBIAR VISTAS */
+function mostrarRegistro(){
+  loginBox.style.display="none";
+  registroBox.style.display="block";
+}
 
-    function cerrarModal() {
-        document.getElementById("modal").style.display = "none";
-    }
+function mostrarLogin(){
+  loginBox.style.display="block";
+  registroBox.style.display="none";
+}
+
+/* LOGIN */
+async function login(){
+  const email = loginEmail.value;
+  const password = loginPass.value;
+
+  const res = await fetch("/api/login",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({email,password})
+  });
+
+  const data = await res.json();
+
+  if(data.usuario){
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+    window.location.href="/panel.html";
+  }else{
+    alert(data.msg);
+  }
+}
+
+/* REGISTRO */
+async function registro(){
+
+  const email = regEmail.value;
+  const password = regPass.value;
+  const terms = document.getElementById("terms").checked;
+
+  if(!terms){
+    alert("Debes aceptar los términos");
+    return;
+  }
+
+  const res = await fetch("/api/register",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({email,password})
+  });
+
+  const data = await res.json();
+  alert(data.msg);
+
+  if(data.ok){
+    mostrarLogin();
+  }
+}
+
+/* WHATSAPP NORMAL Y BUSINESS */
+function compartirWhatsApp(){
+
+  const link = window.location.origin;
+
+  const mensaje = `💰 Préstamos rápidos desde tu celular\nFácil y seguro 👇\n${link}`;
+
+  const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
+
+  window.open(url, "_blank");
+}
+
+/* COPIAR LINK */
+function copiarLink(){
+  const link = window.location.origin;
+  navigator.clipboard.writeText(link);
+  alert("Link copiado ✅");
+}
+
+/* MODAL */
+function abrirModal(){
+  document.getElementById("modal").style.display="block";
+}
+
+function cerrarModal(){
+  document.getElementById("modal").style.display="none";
+}
+
 </script>
 
 </body>
