@@ -18,8 +18,13 @@ mongoose.connect(process.env.MONGO_URL)
 
 // ========================= MODELOS =========================
 const User = mongoose.model("usuarios", new mongoose.Schema({
+  nombre: String,
+  cedula: String,
+  telefono: String,
+  whatsapp: String,
   email: String,
   password: String,
+
   saldo: { type: Number, default: 0 },
   dias: { type: Number, default: 0 },
   nequi: { type: String, default: "" },
@@ -35,18 +40,30 @@ const Historial = mongoose.model("historial", new mongoose.Schema({
 // ========================= REGISTRO =========================
 app.post("/api/register", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { nombre, cedula, telefono, whatsapp, email, password } = req.body;
+
+    if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
+      return res.json({ ok:false, msg:"Faltan datos" });
+    }
 
     const existe = await User.findOne({ email });
     if (existe) return res.json({ ok: false, msg: "El usuario ya existe" });
 
     const hashed = await bcrypt.hash(password, 10);
 
-    await User.create({ email, password: hashed });
+    await User.create({
+      nombre,
+      cedula,
+      telefono,
+      whatsapp,
+      email,
+      password: hashed
+    });
 
     res.json({ ok: true, msg: "Registro exitoso" });
 
   } catch (err) {
+    console.log(err);
     res.json({ ok: false, msg: "Error en registro" });
   }
 });
@@ -66,7 +83,8 @@ app.post("/api/login", async (req, res) => {
     res.json({
       ok: true,
       msg: "Bienvenido",
-      user: {
+      usuario: {
+        nombre: user.nombre,
         email: user.email,
         saldo: user.saldo,
         dias: user.dias,
@@ -90,7 +108,7 @@ app.post("/api/nequi", async (req, res) => {
     res.json({ ok: true, msg: "Nequi guardado" });
 
   } catch (err) {
-    res.json({ ok: false });
+    res.json({ ok: false, msg: "Error guardando Nequi" });
   }
 });
 
@@ -109,13 +127,13 @@ app.post("/api/solicitar-prestamo", async (req, res) => {
     }
 
     await User.updateOne({ email }, {
-      saldo: monto,
+      saldo: Number(monto),
       dias: 30
     });
 
     await Historial.create({
       email,
-      monto,
+      monto: Number(monto),
       fecha: new Date().toLocaleString()
     });
 
