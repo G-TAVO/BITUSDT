@@ -1,6 +1,3 @@
-// ========================= ACTIVAR ENV =========================
-require("dotenv").config();
-
 // ========================= CONFIG =========================
 const express = require("express");
 const mongoose = require("mongoose");
@@ -14,10 +11,7 @@ app.use(express.static("public"));
 
 
 // ========================= CONEXIÓN MONGO =========================
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URL)
 .then(() => console.log("MongoDB Conectado"))
 .catch(err => console.log("Error DB:", err));
 
@@ -50,10 +44,10 @@ app.post("/api/register", async (req, res) => {
 
     await User.create({ email, password: hashed });
 
-    res.json({ ok: true });
+    res.json({ ok: true, msg: "Registro exitoso" });
 
-  } catch {
-    res.json({ ok: false });
+  } catch (err) {
+    res.json({ ok: false, msg: "Error en registro" });
   }
 });
 
@@ -64,17 +58,38 @@ app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.json({ ok: false });
+    if (!user) return res.json({ ok: false, msg: "Usuario no encontrado" });
 
     const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.json({ ok: false });
+    if (!ok) return res.json({ ok: false, msg: "Contraseña incorrecta" });
 
     res.json({
       ok: true,
-      user
+      msg: "Bienvenido",
+      user: {
+        email: user.email,
+        saldo: user.saldo,
+        dias: user.dias,
+        nequi: user.nequi
+      }
     });
 
-  } catch {
+  } catch (err) {
+    res.json({ ok: false, msg: "Error en login" });
+  }
+});
+
+
+// ========================= GUARDAR NEQUI =========================
+app.post("/api/nequi", async (req, res) => {
+  try {
+    const { email, nequi } = req.body;
+
+    await User.updateOne({ email }, { nequi });
+
+    res.json({ ok: true, msg: "Nequi guardado" });
+
+  } catch (err) {
     res.json({ ok: false });
   }
 });
@@ -87,8 +102,10 @@ app.post("/api/solicitar-prestamo", async (req, res) => {
 
     const user = await User.findOne({ email });
 
+    if (!user) return res.json({ ok: false, msg: "Usuario no existe" });
+
     if (user.saldo > 0) {
-      return res.json({ ok: false, msg: "Ya tienes préstamo" });
+      return res.json({ ok: false, msg: "Ya tienes un préstamo activo" });
     }
 
     await User.updateOne({ email }, {
@@ -102,21 +119,25 @@ app.post("/api/solicitar-prestamo", async (req, res) => {
       fecha: new Date().toLocaleString()
     });
 
-    res.json({ ok: true });
+    res.json({ ok: true, msg: "Préstamo aprobado" });
 
-  } catch {
-    res.json({ ok: false });
+  } catch (err) {
+    res.json({ ok: false, msg: "Error en préstamo" });
   }
 });
 
 
 // ========================= HISTORIAL =========================
 app.get("/api/historial-prestamos/:email", async (req, res) => {
-  const data = await Historial.find({ email: req.params.email }).sort({ _id: -1 });
-  res.json(data);
+  try {
+    const data = await Historial.find({ email: req.params.email }).sort({ _id: -1 });
+    res.json(data);
+  } catch (err) {
+    res.json([]);
+  }
 });
 
 
 // ========================= SERVER =========================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Servidor en puerto", PORT));
+app.listen(PORT, () => console.log("Servidor activo en puerto", PORT));
