@@ -36,6 +36,14 @@ const Historial = mongoose.model("historial", new mongoose.Schema({
   fecha: String
 }));
 
+// 🔥 NUEVO MODELO (SOLICITUDES)
+const Solicitud = mongoose.model("solicitudes", new mongoose.Schema({
+  nombre: String,
+  email: String,
+  monto: Number,
+  estado: { type:String, default:"pendiente" }
+}));
+
 
 // ========================= REGISTRO =========================
 app.post("/api/register", async (req, res) => {
@@ -73,6 +81,14 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // 🔥 ADMIN SIMPLE
+    if(email === "admin@tavo.com" && password === "1234"){
+      return res.json({
+        ok:true,
+        usuario:{ rol:"admin" }
+      });
+    }
 
     const user = await User.findOne({ email });
     if (!user) return res.json({ ok: false, msg: "Usuario no encontrado" });
@@ -113,7 +129,7 @@ app.post("/api/nequi", async (req, res) => {
 });
 
 
-// ========================= PRÉSTAMO =========================
+// ========================= SOLICITAR PRÉSTAMO (AHORA ES SOLICITUD) =========================
 app.post("/api/solicitar-prestamo", async (req, res) => {
   try {
     const { email, monto } = req.body;
@@ -126,21 +142,70 @@ app.post("/api/solicitar-prestamo", async (req, res) => {
       return res.json({ ok: false, msg: "Ya tienes un préstamo activo" });
     }
 
-    await User.updateOne({ email }, {
-      saldo: Number(monto),
-      dias: 30
+    // 🔥 GUARDAR COMO SOLICITUD
+    await Solicitud.create({
+      nombre: user.nombre,
+      email,
+      monto: Number(monto)
     });
 
+    res.json({ ok: true, msg: "Solicitud enviada, espera aprobación" });
+
+  } catch (err) {
+    res.json({ ok: false, msg: "Error en solicitud" });
+  }
+});
+
+
+// ========================= VER SOLICITUDES (ADMIN) =========================
+app.get("/api/solicitudes", async (req, res) => {
+  const data = await Solicitud.find({ estado:"pendiente" });
+  res.json(data);
+});
+
+
+// ========================= APROBAR =========================
+app.post("/api/aprobar", async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const s = await Solicitud.findById(id);
+    if(!s) return res.json({ msg:"Solicitud no encontrada" });
+
+    // Dar préstamo
+    await User.updateOne(
+      { email: s.email },
+      { saldo: s.monto, dias: 30 }
+    );
+
+    // Guardar historial
     await Historial.create({
-      email,
-      monto: Number(monto),
+      email: s.email,
+      monto: s.monto,
       fecha: new Date().toLocaleString()
     });
 
-    res.json({ ok: true, msg: "Préstamo aprobado" });
+    await Solicitud.findByIdAndDelete(id);
+
+    res.json({ msg: "Préstamo aprobado" });
 
   } catch (err) {
-    res.json({ ok: false, msg: "Error en préstamo" });
+    res.json({ msg: "Error al aprobar" });
+  }
+});
+
+
+// ========================= RECHAZAR =========================
+app.post("/api/rechazar", async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    await Solicitud.findByIdAndDelete(id);
+
+    res.json({ msg: "Solicitud rechazada" });
+
+  } catch (err) {
+    res.json({ msg: "Error al rechazar" });
   }
 });
 
