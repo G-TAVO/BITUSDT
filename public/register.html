@@ -1,59 +1,124 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | Préstamos Tavo</title>
+
+    <style>
+        body{
+            margin:0;
+            font-family:Arial;
+            background:#0f172a;
+            color:white;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+        .container{
+            width:90%;
+            max-width:400px;
+            background:#1e293b;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 0 10px rgba(0,0,0,0.3);
+        }
+        h2{
+            text-align:center;
+            color:#00ffcc;
+            margin-bottom:20px;
+        }
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            border:none;
+            border-radius:8px;
+        }
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:15px;
+            background:#3b82f6;
+            border:none;
+            border-radius:8px;
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+            font-size:16px;
+        }
+        button:hover{
+            background:#2563eb;
+        }
+        .link{
+            text-align:center;
+            margin-top:10px;
+        }
+        .link a{
+            color:#00ffcc;
+            text-decoration:none;
+        }
+    </style>
 </head>
 <body>
 
-  <h2>Registro de Usuario</h2>
+<div class="container">
+    <h2>Crear cuenta</h2>
 
-  <form id="formRegister">
+    <input type="text" id="nombre" placeholder="Nombre completo">
+    <input type="text" id="cedula" placeholder="Cédula">
+    <input type="text" id="telefono" placeholder="Teléfono">
+    <input type="text" id="whatsapp" placeholder="WhatsApp">
+    <input type="email" id="email" placeholder="Correo electrónico">
+    <input type="password" id="password" placeholder="Contraseña">
 
-    <input type="text" id="nombre" placeholder="Nombre completo" required><br>
+    <button onclick="registrar()">Registrarme</button>
 
-    <input type="text" id="cedula" placeholder="Cédula" required><br>
+    <div class="link">
+        <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
+    </div>
+</div>
 
-    <input type="text" id="telefono" placeholder="Teléfono" required><br>
+<script>
+async function registrar() {
 
-    <input type="text" id="whatsapp" placeholder="WhatsApp" required><br>
+    const nombre = document.getElementById("nombre").value.trim();
+    const cedula = document.getElementById("cedula").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-    <input type="email" id="email" placeholder="Correo" required><br>
+    if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
+        alert("⚠️ Todos los campos son obligatorios.");
+        return;
+    }
 
-    <input type="password" id="password" placeholder="Contraseña" required><br>
+    const data = { nombre, cedula, telefono, whatsapp, email, password };
 
-    <button type="submit">Registrarme</button>
+    try{
+        const res = await fetch("/api/register", {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify(data)
+        });
 
-  </form>
+        const result = await res.json();
 
-  <p id="msg"></p>
+        if(result.ok){
+            alert("✅ Registro exitoso");
+            window.location.href = "login.html";
+        }else{
+            alert("❌ " + result.msg);
+        }
 
-  <script>
-    const form = document.getElementById("formRegister");
-    const msg = document.getElementById("msg");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const data = {
-        nombre: document.getElementById("nombre").value.trim(),
-        cedula: document.getElementById("cedula").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        whatsapp: document.getElementById("whatsapp").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("password").value.trim()
-      };
-
-      const respuesta = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      const res = await respuesta.json();
-      msg.innerText = res.msg;
-    });
-  </script>
+    }catch(e){
+        alert("❌ Error de conexión con el servidor");
+        console.error(e);
+    }
+}
+</script>
 
 </body>
 </html>
