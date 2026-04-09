@@ -23,9 +23,7 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
         }
-        h2 {
-            text-align: center;
-        }
+        h2 { text-align: center; }
         input {
             width: 100%;
             padding: 10px;
@@ -43,17 +41,9 @@
             cursor: pointer;
             font-size: 16px;
         }
-        button:hover {
-            background: #0056b3;
-        }
-        .link {
-            text-align: center;
-            margin-top: 10px;
-        }
-        .link a {
-            color: #007bff;
-            text-decoration: none;
-        }
+        button:hover { background: #0056b3; }
+        .link { text-align: center; margin-top: 10px; }
+        .link a { color: #007bff; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -61,10 +51,11 @@
 <div class="container">
     <h2>Crear cuenta</h2>
 
-    <input type="text" id="nombreCompleto" placeholder="Nombre completo">
+    <input type="text" id="nombre" placeholder="Nombre completo">
     <input type="text" id="cedula" placeholder="Cédula">
-    <input type="text" id="celular" placeholder="Celular">
-    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="text" id="telefono" placeholder="Teléfono">
+    <input type="text" id="whatsapp" placeholder="WhatsApp">
+    <input type="email" id="email" placeholder="Correo electrónico">
     <input type="password" id="password" placeholder="Contraseña">
 
     <button onclick="registrar()">Registrarme</button>
@@ -76,18 +67,19 @@
 
 <script>
 async function registrar() {
-    const nombreCompleto = document.getElementById("nombreCompleto").value.trim();
+    const nombre = document.getElementById("nombre").value.trim();
     const cedula = document.getElementById("cedula").value.trim();
-    const celular = document.getElementById("celular").value.trim();
-    const usuario = document.getElementById("usuario").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    if (!nombreCompleto || !cedula || !celular || !usuario || !password) {
+    if (!nombre || !cedula || !telefono || !whatsapp || !email || !password) {
         alert("⚠️ Todos los campos son obligatorios.");
         return;
     }
 
-    const data = { nombreCompleto, cedula, celular, usuario, password };
+    const data = { nombre, cedula, telefono, whatsapp, email, password };
 
     try {
         const response = await fetch("/api/register", {
@@ -98,11 +90,11 @@ async function registrar() {
 
         const result = await response.json();
 
-        if (result.success) {
+        if (result.ok) {
             alert("✅ Registro exitoso");
             window.location.href = "login.html";
         } else {
-            alert("❌ " + result.message);
+            alert("❌ " + result.msg);
         }
 
     } catch (error) {
