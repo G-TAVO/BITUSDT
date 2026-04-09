@@ -3,47 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | Préstamos</title>
+    <title>Registro | Préstamos Tavo</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f3f3;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body{
+            margin:0;
+            font-family:Arial;
+            background:#0f172a;
+            color:white;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
         }
-        .container {
-            background: white;
-            width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        .container{
+            width:90%;
+            max-width:400px;
+            background:#1e293b;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 0 10px rgba(0,0,0,0.3);
         }
-        h2 { text-align: center; }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #aaa;
+        h2{
+            text-align:center;
+            color:#00ffcc;
+            margin-bottom:20px;
         }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            border:none;
+            border-radius:8px;
         }
-        button:hover { background: #0056b3; }
-        .link { text-align: center; margin-top: 10px; }
-        .link a { color: #007bff; text-decoration: none; }
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:15px;
+            background:#3b82f6;
+            border:none;
+            border-radius:8px;
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+            font-size:16px;
+        }
+        button:hover{
+            background:#2563eb;
+        }
+        .link{
+            text-align:center;
+            margin-top:10px;
+        }
+        .link a{
+            color:#00ffcc;
+            text-decoration:none;
+        }
     </style>
 </head>
 <body>
@@ -65,8 +80,10 @@
     </div>
 </div>
 
+
 <script>
 async function registrar() {
+
     const nombre = document.getElementById("nombre").value.trim();
     const cedula = document.getElementById("cedula").value.trim();
     const telefono = document.getElementById("telefono").value.trim();
@@ -74,32 +91,32 @@ async function registrar() {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    if (!nombre || !cedula || !telefono || !whatsapp || !email || !password) {
+    if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
         alert("⚠️ Todos los campos son obligatorios.");
         return;
     }
 
     const data = { nombre, cedula, telefono, whatsapp, email, password };
 
-    try {
-        const response = await fetch("/api/register", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(data)
+    try{
+        const res = await fetch("/api/register", {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify(data)
         });
 
-        const result = await response.json();
+        const result = await res.json();
 
-        if (result.ok) {
+        if(result.ok){
             alert("✅ Registro exitoso");
             window.location.href = "login.html";
-        } else {
+        }else{
             alert("❌ " + result.msg);
         }
 
-    } catch (error) {
+    }catch(e){
         alert("❌ Error de conexión con el servidor");
-        console.error(error);
+        console.error(e);
     }
 }
 </script>
