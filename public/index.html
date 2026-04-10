@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Préstamos Tavo</title>
+<title>Registro | Préstamos Tavo</title>
 
 <style>
 body{
@@ -12,28 +12,17 @@ body{
   color:white;
   margin:0;
 }
-
-header{
-  background:#020617;
-  padding:15px;
-  text-align:center;
-  font-size:20px;
-  color:#00ffcc;
-}
-
 .container{
   max-width:400px;
   margin:auto;
   padding:20px;
+  margin-top:20px;
 }
-
 .card{
   background:#1e293b;
   padding:20px;
   border-radius:12px;
-  margin-top:20px;
 }
-
 input{
   width:100%;
   padding:12px;
@@ -41,7 +30,6 @@ input{
   border:none;
   margin-top:10px;
 }
-
 button{
   width:100%;
   padding:12px;
@@ -51,22 +39,14 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
-
 .btn{
   background:#22c55e;
   color:white;
 }
-
 .btn2{
   background:#3b82f6;
   color:white;
 }
-
-.btn3{
-  background:#25D366;
-  color:white;
-}
-
 .switch{
   text-align:center;
   margin-top:10px;
@@ -77,8 +57,6 @@ button{
 </head>
 
 <body>
-
-<header>💳 PRÉSTAMOS TAVO</header>
 
 <div class="container">
 
@@ -96,14 +74,14 @@ button{
     </div>
   </div>
 
-  <!-- REGISTRO -->
+  <!-- REGISTRO COMPLETO -->
   <div class="card" id="registroBox" style="display:none">
-    <h2>Registrarse</h2>
+    <h2>Crear Cuenta</h2>
 
     <input type="text" id="regNombre" placeholder="Nombre completo">
     <input type="text" id="regCedula" placeholder="Cédula">
     <input type="text" id="regTelefono" placeholder="Teléfono">
-    <input type="text" id="regWhatsapp" placeholder="WhatsApp">
+    <input type="text" id="regWhats" placeholder="WhatsApp">
     <input type="email" id="regEmail" placeholder="Correo">
     <input type="password" id="regPass" placeholder="Contraseña">
 
@@ -118,6 +96,7 @@ button{
 
 <script>
 
+/* CAMBIAR VISTAS */
 function mostrarRegistro(){
   loginBox.style.display="none";
   registroBox.style.display="block";
@@ -136,7 +115,7 @@ async function login(){
   const res = await fetch("/api/login",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ email, password })
+    body:JSON.stringify({email,password})
   });
 
   const data = await res.json();
@@ -149,28 +128,29 @@ async function login(){
   }
 }
 
-/* REGISTRO */
+/* REGISTRO NUEVO (CON TODOS LOS CAMPOS) */
 async function registro(){
 
   const nombre = regNombre.value.trim();
   const cedula = regCedula.value.trim();
   const telefono = regTelefono.value.trim();
-  const whatsapp = regWhatsapp.value.trim();
+  const whatsapp = regWhats.value.trim();
   const email = regEmail.value.trim();
   const password = regPass.value.trim();
 
   if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
-    alert("Todos los campos son obligatorios.");
+    alert("Todos los campos son obligatorios");
     return;
   }
 
-  const res = await fetch("/api/register", {
+  const res = await fetch("/api/register",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({ nombre, cedula, telefono, whatsapp, email, password })
   });
 
   const data = await res.json();
+
   alert(data.msg);
 
   if(data.ok){
