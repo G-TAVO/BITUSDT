@@ -126,6 +126,11 @@ button{
   <div class="card" id="registroBox" style="display:none">
     <h2>Registrarse</h2>
 
+    <input type="text" id="regNombre" placeholder="Nombre completo">
+    <input type="text" id="regCedula" placeholder="Cédula">
+    <input type="text" id="regTelefono" placeholder="Teléfono">
+    <input type="text" id="regWhatsapp" placeholder="WhatsApp">
+
     <input type="email" id="regEmail" placeholder="Correo">
     <input type="password" id="regPass" placeholder="Contraseña">
 
@@ -211,8 +216,13 @@ async function login(){
 /* REGISTRO */
 async function registro(){
 
+  const nombre = regNombre.value;
+  const cedula = regCedula.value;
+  const telefono = regTelefono.value;
+  const whatsapp = regWhatsapp.value;
   const email = regEmail.value;
   const password = regPass.value;
+
   const terms = document.getElementById("terms").checked;
 
   if(!terms){
@@ -220,10 +230,15 @@ async function registro(){
     return;
   }
 
+  if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
+    alert("Todos los campos son obligatorios");
+    return;
+  }
+
   const res = await fetch("/api/register",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({email,password})
+    body:JSON.stringify({ nombre, cedula, telefono, whatsapp, email, password })
   });
 
   const data = await res.json();
@@ -234,7 +249,7 @@ async function registro(){
   }
 }
 
-/* WHATSAPP NORMAL Y BUSINESS */
+/* WHATSAPP */
 function compartirWhatsApp(){
 
   const link = window.location.origin;
