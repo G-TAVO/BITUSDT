@@ -73,32 +73,6 @@ button{
   cursor:pointer;
   color:#00ffcc;
 }
-
-.modal{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-}
-
-.modal-content{
-  background:white;
-  color:black;
-  margin:50px auto;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-  border-radius:10px;
-}
-
-.close{
-  float:right;
-  cursor:pointer;
-  font-size:20px;
-}
 </style>
 </head>
 
@@ -130,16 +104,8 @@ button{
     <input type="text" id="regCedula" placeholder="Cédula">
     <input type="text" id="regTelefono" placeholder="Teléfono">
     <input type="text" id="regWhatsapp" placeholder="WhatsApp">
-
     <input type="email" id="regEmail" placeholder="Correo">
     <input type="password" id="regPass" placeholder="Contraseña">
-
-    <label style="font-size:13px;">
-      <input type="checkbox" id="terms">
-      Acepto términos y condiciones
-    </label>
-
-    <button onclick="abrirModal()">Ver términos</button>
 
     <button class="btn" onclick="registro()">Crear cuenta</button>
 
@@ -148,40 +114,10 @@ button{
     </div>
   </div>
 
-  <!-- COMPARTIR -->
-  <div class="card">
-    <h3>Compartir App</h3>
-
-    <button class="btn3" onclick="compartirWhatsApp()">
-      Compartir por WhatsApp
-    </button>
-
-    <button class="btn2" onclick="copiarLink()">
-      Copiar enlace
-    </button>
-  </div>
-
-</div>
-
-<!-- MODAL TERMINOS -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="cerrarModal()">✖</span>
-
-    <h3>Términos y Condiciones</h3>
-
-    <p>Préstamos desde $50.000 hasta $500.000.</p>
-    <p>Interés del 10% mensual.</p>
-    <p>Pagos cada 8 días.</p>
-    <p>Debes registrar datos reales.</p>
-    <p>El incumplimiento puede generar reporte.</p>
-
-  </div>
 </div>
 
 <script>
 
-/* CAMBIAR VISTAS */
 function mostrarRegistro(){
   loginBox.style.display="none";
   registroBox.style.display="block";
@@ -200,7 +136,7 @@ async function login(){
   const res = await fetch("/api/login",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({email,password})
+    body:JSON.stringify({ email, password })
   });
 
   const data = await res.json();
@@ -216,26 +152,19 @@ async function login(){
 /* REGISTRO */
 async function registro(){
 
-  const nombre = regNombre.value;
-  const cedula = regCedula.value;
-  const telefono = regTelefono.value;
-  const whatsapp = regWhatsapp.value;
-  const email = regEmail.value;
-  const password = regPass.value;
-
-  const terms = document.getElementById("terms").checked;
-
-  if(!terms){
-    alert("Debes aceptar los términos");
-    return;
-  }
+  const nombre = regNombre.value.trim();
+  const cedula = regCedula.value.trim();
+  const telefono = regTelefono.value.trim();
+  const whatsapp = regWhatsapp.value.trim();
+  const email = regEmail.value.trim();
+  const password = regPass.value.trim();
 
   if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
-    alert("Todos los campos son obligatorios");
+    alert("Todos los campos son obligatorios.");
     return;
   }
 
-  const res = await fetch("/api/register",{
+  const res = await fetch("/api/register", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body:JSON.stringify({ nombre, cedula, telefono, whatsapp, email, password })
@@ -247,34 +176,6 @@ async function registro(){
   if(data.ok){
     mostrarLogin();
   }
-}
-
-/* WHATSAPP */
-function compartirWhatsApp(){
-
-  const link = window.location.origin;
-
-  const mensaje = `💰 Préstamos rápidos desde tu celular\nFácil y seguro 👇\n${link}`;
-
-  const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensaje);
-
-  window.open(url, "_blank");
-}
-
-/* COPIAR LINK */
-function copiarLink(){
-  const link = window.location.origin;
-  navigator.clipboard.writeText(link);
-  alert("Link copiado ✅");
-}
-
-/* MODAL */
-function abrirModal(){
-  document.getElementById("modal").style.display="block";
-}
-
-function cerrarModal(){
-  document.getElementById("modal").style.display="none";
 }
 
 </script>
