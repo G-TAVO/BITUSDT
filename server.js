@@ -52,7 +52,7 @@ app.post("/api/register", async (req, res) => {
 
     if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
       return res.json({ ok:false, msg:"Faltan datos" });
-    }
+    };
 
     const existe = await User.findOne({ email });
     if (existe) return res.json({ ok: false, msg: "El usuario ya existe" });
@@ -67,14 +67,20 @@ app.post("/api/register", async (req, res) => {
       email,
       password: hashed
     });
-
+catch (err) {
+  console.log("ERROR:", err);
+  res.json({ ok: false, msg: err.message });
+};
     res.json({ ok: true, msg: "Registro exitoso" });
-
-  } catch (err) {
-    console.log(err);
-    res.json({ ok: false, msg: "Error en registro" });
-  }
-});
+//catch (err) {
+  //console.log("ERROR:", err);
+ // res.json({ ok: false, msg: err.message });
+//}
+ // } catch (err) //{
+    //console.log(err);
+    //res.json({ ok: false, msg: "Error en registro" });
+//  }
+//});
 
 
 // ========================= LOGIN =========================
