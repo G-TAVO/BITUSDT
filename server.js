@@ -13,10 +13,28 @@ app.use(express.static("public"));
 console.log("🚀 Iniciando servidor...");
 
 // ========================= CONEXIÓN MONGO =========================
-mongoose.connect(process.env.MONGO_URL)
-.then(() => console.log("✅ MongoDB Conectado"))
-.catch(err => console.log("❌ Error DB:", err.message));
+//mongoose.connect(process.env.MONGO_URL)
+//.then(() => console.log("✅ MongoDB Conectado"))
+//.catch(err => console.log("❌ Error DB:", err.message));
+mongoose.set("strictQuery", false);
 
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log("✅ MongoDB Conectado");
+
+  // 🚀 ARRANCAR SERVIDOR SOLO CUANDO CONECTE
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log("🚀 Servidor activo en puerto", PORT);
+  });
+
+})
+.catch(err => {
+  console.log("❌ Error DB:", err);
+});
 
 // ========================= MODELOS =========================
 const User = mongoose.model("usuarios", new mongoose.Schema({
