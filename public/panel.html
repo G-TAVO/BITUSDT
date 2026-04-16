@@ -31,7 +31,6 @@ body{
   font-size:14px;
   opacity:.8;
 }
-
 .saldo-card{
   background:linear-gradient(135deg,#2563eb,#1e40af);
   padding:25px;
@@ -71,7 +70,6 @@ button{
 .btn-blue{ background:#3b82f6 }
 .btn-orange{ background:#f97316 }
 .btn-red{ background:#ef4444 }
-
 .menu{
   position:fixed;
   bottom:0;
@@ -94,7 +92,6 @@ button{
   margin:5px 0;
 }
 </style>
-
 </head>
 
 <body>
@@ -108,45 +105,36 @@ button{
 
   <div class="saldo-card">
     <p>Deuda actual</p>
-
     <div class="saldo">
       $<span id="saldo">0</span>
     </div>
-
     <p>Interés: 10% mensual</p>
-
     <p>Días restantes: <span id="dias">0</span></p>
-
     <p>Préstamo activo: <span id="prestamoEstado">No</span></p>
   </div>
 
-  <!-- PRÉSTAMO -->
   <div class="card">
     <h3>Solicitar préstamo</h3>
     <input type="number" id="monto" placeholder="Ej: 150000">
     <button class="btn-green" onclick="solicitarPrestamo()">Solicitar</button>
   </div>
 
-  <!-- NEQUI -->
   <div class="card">
     <h3>Cuenta de retiro</h3>
     <p>Nequi: <span id="nequi">No registrado</span></p>
     <button class="btn-blue" onclick="agregarNequi()">Registrar Nequi</button>
   </div>
 
-  <!-- HISTORIAL -->
   <div class="card">
     <h3>Historial</h3>
     <div id="historial">Cargando...</div>
   </div>
 
-  <!-- COMPARTIR -->
   <div class="card">
     <h3>Invitar</h3>
     <button class="btn-green" onclick="compartir()">Compartir por WhatsApp</button>
   </div>
 
-  <!-- SOPORTE -->
   <div class="card">
     <h3>Soporte</h3>
     <a href="https://wa.me/573012245428" target="_blank">
@@ -165,12 +153,14 @@ button{
 
 <script>
 
-// 🔒 USUARIO
-const usuario = JSON.parse(localStorage.getItem("user"));
+// 🔒 USUARIO (CORREGIDO)
+let usuario = localStorage.getItem("usuario");
 
-if(!usuario || !usuario.email){
+if(!usuario){
   alert("Debes iniciar sesión");
   window.location.href="/";
+}else{
+  usuario = JSON.parse(usuario);
 }
 
 // MOSTRAR DATOS
@@ -204,12 +194,12 @@ async function solicitarPrestamo(){
   const data = await res.json();
 
   if(data.ok){
-    alert("✅ Préstamo aprobado");
+    alert("✅ Solicitud enviada");
 
     usuario.saldo = monto;
     usuario.dias = 30;
 
-    localStorage.setItem("user", JSON.stringify(usuario));
+    localStorage.setItem("usuario", JSON.stringify(usuario));
 
     document.getElementById("saldo").innerText = monto;
     document.getElementById("dias").innerText = 30;
@@ -247,7 +237,7 @@ async function agregarNequi(){
     alert("✅ Guardado");
 
     usuario.nequi = numero;
-    localStorage.setItem("user", JSON.stringify(usuario));
+    localStorage.setItem("usuario", JSON.stringify(usuario));
 
     document.getElementById("nequi").innerText = numero;
 
@@ -282,7 +272,7 @@ historial();
 
 // 🚪 SALIR
 function salir(){
-  localStorage.removeItem("user");
+  localStorage.removeItem("usuario");
   window.location.href="/";
 }
 
