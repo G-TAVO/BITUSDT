@@ -27,10 +27,12 @@ body{
   margin:0;
   color:#00ffcc;
 }
-.subtitulo{
+.nombre{
+  margin-top:5px;
   font-size:14px;
   opacity:.8;
 }
+
 .saldo-card{
   background:linear-gradient(135deg,#2563eb,#1e40af);
   padding:25px;
@@ -42,12 +44,14 @@ body{
   font-weight:bold;
   margin-top:10px;
 }
+
 .card{
   background:#1e293b;
   padding:15px;
   border-radius:12px;
   margin-top:20px;
 }
+
 input{
   width:100%;
   padding:12px;
@@ -55,6 +59,7 @@ input{
   border:none;
   margin-top:10px;
 }
+
 button{
   padding:14px;
   border:none;
@@ -66,10 +71,12 @@ button{
   width:100%;
   margin-top:10px;
 }
+
 .btn-green{ background:#22c55e }
 .btn-blue{ background:#3b82f6 }
 .btn-orange{ background:#f97316 }
 .btn-red{ background:#ef4444 }
+
 .menu{
   position:fixed;
   bottom:0;
@@ -88,10 +95,12 @@ button{
 .menu button:hover{
   color:#00ffcc;
 }
+
 .historial-item{
   margin:5px 0;
 }
 </style>
+
 </head>
 
 <body>
@@ -100,15 +109,16 @@ button{
 
   <div class="header">
     <h1>PRÉSTAMOS TAVO</h1>
-    <div class="subtitulo">Préstamos rápidos y flexibles</div>
+    <div class="nombre" id="nombreUsuario"></div>
   </div>
 
   <div class="saldo-card">
     <p>Deuda actual</p>
+
     <div class="saldo">
       $<span id="saldo">0</span>
     </div>
-    <p>Interés: 10% mensual</p>
+
     <p>Días restantes: <span id="dias">0</span></p>
     <p>Préstamo activo: <span id="prestamoEstado">No</span></p>
   </div>
@@ -131,11 +141,6 @@ button{
   </div>
 
   <div class="card">
-    <h3>Invitar</h3>
-    <button class="btn-green" onclick="compartir()">Compartir por WhatsApp</button>
-  </div>
-
-  <div class="card">
     <h3>Soporte</h3>
     <a href="https://wa.me/573012245428" target="_blank">
       <button class="btn-orange">Contactar</button>
@@ -146,14 +151,12 @@ button{
 
 <div class="menu">
   <button onclick="window.scrollTo(0,0)">Inicio</button>
-  <button onclick="solicitarPrestamo()">Préstamo</button>
-  <button onclick="agregarNequi()">Nequi</button>
   <button onclick="salir()">Salir</button>
 </div>
 
 <script>
 
-// 🔒 USUARIO (CORREGIDO)
+// 🔒 USUARIO
 let usuario = localStorage.getItem("usuario");
 
 if(!usuario){
@@ -163,25 +166,25 @@ if(!usuario){
   usuario = JSON.parse(usuario);
 }
 
+// 👤 MOSTRAR NOMBRE
+document.getElementById("nombreUsuario").innerText =
+  "👤 " + (usuario.nombre || "Usuario");
+
 // MOSTRAR DATOS
 document.getElementById("saldo").innerText = usuario.saldo || 0;
 document.getElementById("dias").innerText = usuario.dias || 0;
 document.getElementById("nequi").innerText = usuario.nequi || "No registrado";
-document.getElementById("prestamoEstado").innerText = usuario.saldo > 0 ? "Sí" : "No";
+document.getElementById("prestamoEstado").innerText =
+  usuario.saldo > 0 ? "Sí" : "No";
 
 
-// 📥 PRÉSTAMO
+// 📥 SOLICITAR PRÉSTAMO
 async function solicitarPrestamo(){
 
   const monto = document.getElementById("monto").value;
 
   if(!monto || monto < 50000){
     alert("Monto mínimo 50.000");
-    return;
-  }
-
-  if(monto > 500000){
-    alert("Monto máximo 500.000");
     return;
   }
 
@@ -194,28 +197,17 @@ async function solicitarPrestamo(){
   const data = await res.json();
 
   if(data.ok){
-    alert("✅ Solicitud enviada");
+    alert("Solicitud enviada");
 
     usuario.saldo = monto;
     usuario.dias = 30;
 
     localStorage.setItem("usuario", JSON.stringify(usuario));
 
-    document.getElementById("saldo").innerText = monto;
-    document.getElementById("dias").innerText = 30;
-    document.getElementById("prestamoEstado").innerText = "Sí";
-
+    location.reload();
   }else{
-    alert("❌ " + data.msg);
+    alert(data.msg);
   }
-}
-
-
-// 📲 WHATSAPP
-function compartir(){
-  const link = window.location.origin;
-  const mensaje = `💰 Te invito a esta app de préstamos:\n${link}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`);
 }
 
 
@@ -234,15 +226,9 @@ async function agregarNequi(){
   const data = await res.json();
 
   if(data.ok){
-    alert("✅ Guardado");
-
     usuario.nequi = numero;
     localStorage.setItem("usuario", JSON.stringify(usuario));
-
-    document.getElementById("nequi").innerText = numero;
-
-  }else{
-    alert("Error");
+    location.reload();
   }
 }
 
