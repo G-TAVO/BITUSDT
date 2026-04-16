@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro | Préstamos Tavo</title>
+<title>Préstamos Tavo</title>
 
 <style>
 body{
@@ -74,7 +74,7 @@ button{
     </div>
   </div>
 
-  <!-- REGISTRO COMPLETO -->
+  <!-- REGISTRO -->
   <div class="card" id="registroBox" style="display:none">
     <h2>Crear Cuenta</h2>
 
@@ -96,50 +96,67 @@ button{
 
 <script>
 
-/* CAMBIAR VISTAS */
+// 🔄 CAMBIAR VISTAS
 function mostrarRegistro(){
-  loginBox.style.display="none";
-  registroBox.style.display="block";
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("registroBox").style.display="block";
 }
 
 function mostrarLogin(){
-  loginBox.style.display="block";
-  registroBox.style.display="none";
+  document.getElementById("loginBox").style.display="block";
+  document.getElementById("registroBox").style.display="none";
 }
 
-/* LOGIN */
+// 🔐 LOGIN
 async function login(){
-  const email = loginEmail.value;
-  const password = loginPass.value;
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPass").value.trim();
+
+  if(!email || !password){
+    alert("⚠️ Llena todos los campos");
+    return;
+  }
 
   const res = await fetch("/api/login",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({email,password})
+    body:JSON.stringify({ email, password })
   });
 
   const data = await res.json();
 
-  if(data.usuario){
-    localStorage.setItem("usuario", JSON.stringify(data.usuario));
-    window.location.href="/panel.html";
+  console.log("LOGIN:", data);
+
+  if(!data.ok){
+    alert("❌ " + data.msg);
+    return;
+  }
+
+  // 💾 GUARDAR
+  localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+  // 👑 ADMIN
+  if(data.usuario.rol === "admin"){
+    window.location.href = "admin.html";
   }else{
-    alert(data.msg);
+    // 👤 USUARIO
+    window.location.href = "panel.html";
   }
 }
 
-/* REGISTRO NUEVO (CON TODOS LOS CAMPOS) */
+// 📝 REGISTRO
 async function registro(){
 
-  const nombre = regNombre.value.trim();
-  const cedula = regCedula.value.trim();
-  const telefono = regTelefono.value.trim();
-  const whatsapp = regWhats.value.trim();
-  const email = regEmail.value.trim();
-  const password = regPass.value.trim();
+  const nombre = document.getElementById("regNombre").value.trim();
+  const cedula = document.getElementById("regCedula").value.trim();
+  const telefono = document.getElementById("regTelefono").value.trim();
+  const whatsapp = document.getElementById("regWhats").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const password = document.getElementById("regPass").value.trim();
 
   if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
-    alert("Todos los campos son obligatorios");
+    alert("⚠️ Todos los campos son obligatorios");
     return;
   }
 
