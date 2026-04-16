@@ -3,171 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Préstamos Tavo</title>
+<title>Admin | Préstamos Tavo</title>
 
 <style>
 body{
-  margin:0;
   font-family:Arial;
-  background:linear-gradient(135deg,#020617,#0f172a);
+  background:#0f172a;
   color:white;
 }
-
-header{
-  background:#020617;
-  padding:15px;
-  text-align:center;
-  font-size:22px;
-  color:#00ffcc;
-  font-weight:bold;
-}
-
 .container{
-  max-width:900px;
+  max-width:600px;
   margin:auto;
   padding:20px;
 }
-
 .card{
   background:#1e293b;
-  padding:20px;
+  padding:15px;
   border-radius:12px;
-  margin-top:20px;
-  box-shadow:0 0 10px rgba(0,0,0,0.5);
-}
-
-h2{
-  text-align:center;
-  color:#00ffcc;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
   margin-top:15px;
 }
-
-th,td{
-  padding:10px;
-  border-bottom:1px solid #333;
-  text-align:center;
-}
-
 button{
-  padding:8px 12px;
+  padding:10px;
   border:none;
   border-radius:8px;
+  margin:5px;
   cursor:pointer;
-  font-weight:bold;
-}
-
-.btn-aprobar{
-  background:#22c55e;
   color:white;
 }
-
-.btn-rechazar{
-  background:#ef4444;
-  color:white;
-}
-
-.btn-salir{
-  width:100%;
-  margin-top:20px;
-  background:#ef4444;
-  color:white;
-}
-
-.estado{
-  text-align:center;
-  margin-top:10px;
-  font-size:14px;
-  color:#ccc;
-}
+.aprobar{ background:#22c55e }
+.rechazar{ background:#ef4444 }
 </style>
 </head>
 
 <body>
 
-<header>👑 PANEL ADMIN - PRÉSTAMOS TAVO</header>
-
 <div class="container">
-
-<div class="card">
-<h2>Solicitudes pendientes</h2>
-
-<div class="estado" id="estado">Cargando...</div>
-
-<table>
-<thead>
-<tr>
-<th>Nombre</th>
-<th>Email</th>
-<th>Monto</th>
-<th>Acciones</th>
-</tr>
-</thead>
-<tbody id="tabla"></tbody>
-</table>
-
-</div>
-
-<button class="btn-salir" onclick="salir()">Cerrar sesión</button>
-
+  <h2>Panel Admin</h2>
+  <div id="lista">Cargando...</div>
 </div>
 
 <script>
 
-/* 🔒 PROTECCIÓN ADMIN */
+// 🔒 VALIDAR ADMIN
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 
 if(!usuario || usuario.rol !== "admin"){
-  alert("Debes iniciar sesión como admin");
-  window.location.href = "/";
+  alert("Acceso denegado");
+  window.location.href="/";
 }
 
-/* 📥 CARGAR SOLICITUDES */
+// 📥 CARGAR SOLICITUDES
 async function cargar(){
 
-  try{
-    const res = await fetch("/api/solicitudes");
-    const data = await res.json();
+  const res = await fetch("/api/solicitudes");
+  const data = await res.json();
 
-    const tabla = document.getElementById("tabla");
-    const estado = document.getElementById("estado");
+  const cont = document.getElementById("lista");
 
-    tabla.innerHTML = "";
-
-    if(data.length === 0){
-      estado.innerText = "No hay solicitudes pendientes";
-      return;
-    }
-
-    estado.innerText = "Solicitudes encontradas: " + data.length;
-
-    data.forEach(s=>{
-      tabla.innerHTML += `
-        <tr>
-          <td>${s.nombre}</td>
-          <td>${s.email}</td>
-          <td>$${s.monto}</td>
-          <td>
-            <button class="btn-aprobar" onclick="aprobar('${s._id}')">✔ Aprobar</button>
-            <button class="btn-rechazar" onclick="rechazar('${s._id}')">✖ Rechazar</button>
-          </td>
-        </tr>
-      `;
-    });
-
-  }catch(err){
-    document.getElementById("estado").innerText = "Error cargando datos";
+  if(data.length === 0){
+    cont.innerHTML = "No hay solicitudes";
+    return;
   }
+
+  cont.innerHTML = "";
+
+  data.forEach(s => {
+
+    cont.innerHTML += `
+      <div class="card">
+        <p><b>Nombre:</b> ${s.nombre}</p>
+        <p><b>Email:</b> ${s.email}</p>
+        <p><b>Monto:</b> $${s.monto}</p>
+
+        <button class="aprobar" onclick="aprobar('${s._id}')">Aprobar</button>
+        <button class="rechazar" onclick="rechazar('${s._id}')">Rechazar</button>
+      </div>
+    `;
+
+  });
+
 }
 
-/* ✅ APROBAR */
-async function aprobar(id){
+cargar();
 
-  if(!confirm("¿Aprobar este préstamo?")) return;
+
+// ✅ APROBAR
+async function aprobar(id){
 
   const res = await fetch("/api/aprobar",{
     method:"POST",
@@ -181,10 +102,9 @@ async function aprobar(id){
   cargar();
 }
 
-/* ❌ RECHAZAR */
-async function rechazar(id){
 
-  if(!confirm("¿Rechazar solicitud?")) return;
+// ❌ RECHAZAR
+async function rechazar(id){
 
   const res = await fetch("/api/rechazar",{
     method:"POST",
@@ -197,15 +117,6 @@ async function rechazar(id){
 
   cargar();
 }
-
-/* 🚪 SALIR */
-function salir(){
-  localStorage.clear();
-  window.location.href = "/";
-}
-
-/* 🚀 INICIO */
-cargar();
 
 </script>
 
