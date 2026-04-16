@@ -1,82 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iniciar Sesión | Préstamos Tavo</title>
-
-<style>
-body{
-    margin:0;
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-.container{
-    background:#1e293b;
-    padding:25px;
-    width:90%;
-    max-width:400px;
-    border-radius:12px;
-    box-shadow:0 0 10px rgba(0,0,0,0.3);
-}
-h2{
-    text-align:center;
-    margin-bottom:20px;
-    color:#00ffcc;
-}
-input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:none;
-}
-button{
-    width:100%;
-    margin-top:15px;
-    background:#3b82f6;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-    font-size:16px;
-}
-button:hover{
-    background:#2563eb;
-}
-.link{
-    text-align:center;
-    margin-top:10px;
-}
-.link a{
-    color:#00ffcc;
-    text-decoration:none;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-    <h2>Iniciar Sesión</h2>
-
-    <input type="email" id="email" placeholder="Correo electrónico">
-    <input type="password" id="password" placeholder="Contraseña">
-
-    <button onclick="login()">Entrar</button>
-
-    <div class="link">
-        <a href="register.html">Crear cuenta nueva</a>
-    </div>
-</div>
-
 <script>
 async function login(){
     const email = document.getElementById("email").value.trim();
@@ -100,17 +21,15 @@ async function login(){
         return;
     }
 
-    // ADMIN
+    // 🔥 GUARDAR SIEMPRE
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+    // 👑 ADMIN
     if(data.usuario.rol === "admin"){
         window.location.href = "admin.html";
-        return;
+    }else{
+        // 👤 USUARIO
+        window.location.href = "panel.html";
     }
-
-    // USUARIO NORMAL
-    localStorage.setItem("user", JSON.stringify(data.usuario));
-    window.location.href = "panel.html";
 }
 </script>
-
-</body>
-</html>
