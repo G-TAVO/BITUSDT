@@ -18,10 +18,12 @@ console.log("🚀 Iniciando servidor...");
 //.catch(err => console.log("❌ Error DB:", err.message));
 //mongoose.set("strictQuery", false);
 
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+//mongoose.connect(process.env.MONGO_URL, {
+ // useNewUrlParser: true,
+ // useUnifiedTopology: true,
+//})mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
+.then(() => console.log("✅ Mongo conectado"))
+.catch(err => console.log("❌ Error Mongo:", err));
 .then(() => {
   console.log("✅ MongoDB Conectado");
 console.log("URL:", process.env.MONGO_URL);
