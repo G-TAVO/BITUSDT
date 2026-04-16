@@ -16,7 +16,7 @@ console.log("🚀 Iniciando servidor...");
 //mongoose.connect(process.env.MONGO_URL)
 //.then(() => console.log("✅ MongoDB Conectado"))
 //.catch(err => console.log("❌ Error DB:", err.message));
-mongoose.set("strictQuery", false);
+//mongoose.set("strictQuery", false);
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
