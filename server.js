@@ -13,21 +13,10 @@ app.use(express.static("public"));
 console.log("🚀 Iniciando servidor...");
 
 // ========================= CONEXIÓN MONGO =========================
-//mongoose.connect(process.env.MONGO_URL)
-//.then(() => console.log("✅ MongoDB Conectado"))
-//.catch(err => console.log("❌ Error DB:", err.message));
-//mongoose.set("strictQuery", false);
-
-//mongoose.connect(process.env.MONGO_URL, {
- // useNewUrlParser: true,
- // useUnifiedTopology: true,
-//})mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
-.then(() => console.log("✅ Mongo conectado"))
-.catch(err => console.log("❌ Error Mongo:", err));
+mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
 .then(() => {
   console.log("✅ MongoDB Conectado");
-console.log("URL:", process.env.MONGO_URL);
-  // 🚀 ARRANCAR SERVIDOR SOLO CUANDO CONECTE
+
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log("🚀 Servidor activo en puerto", PORT);
@@ -35,8 +24,9 @@ console.log("URL:", process.env.MONGO_URL);
 
 })
 .catch(err => {
-  console.log("❌ Error DB:", err);
+  console.log("❌ Error Mongo:", err);
 });
+
 
 // ========================= MODELOS =========================
 const User = mongoose.model("usuarios", new mongoose.Schema({
@@ -104,7 +94,6 @@ app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // ADMIN SIMPLE
     if (email === "admin@tavo.com" && password === "1234") {
       return res.json({
         ok: true,
@@ -247,8 +236,3 @@ app.get("/api/historial-prestamos/:email", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("Servidor funcionando 🚀");
 });
-
-
-// ========================= SERVER =========================
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("✅ Servidor activo en puerto", PORT));
