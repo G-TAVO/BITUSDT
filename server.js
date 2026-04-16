@@ -12,21 +12,7 @@ app.use(express.static("public"));
 
 console.log("🚀 Iniciando servidor...");
 
-// ========================= CONEXIÓN MONGO =========================
-//mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
-//mongoose.connect("mongodb+srv://GustavoDB:Enrique1998@cluster0.vuc3y2t.mongodb.net/prestamos")
-//.then(() => {
-//  console.log("✅ MongoDB Conectado");
-
-//  const PORT = process.env.PORT || 3000;
-//  app.listen(PORT, () => {
- //   console.log("🚀 Servidor activo en puerto", PORT);
-//  });
-
-//})
-//.catch(err => {
-//  console.log("❌ Error Mongo:", err);
-//});
+// ========================= CONEXIÓN =========================
 mongoose.connect("mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/prestamos?retryWrites=true&w=majority")
 .then(() => {
   console.log("✅ MongoDB Conectado");
@@ -52,6 +38,7 @@ const User = mongoose.model("usuarios", new mongoose.Schema({
   saldo: { type: Number, default: 0 },
   dias: { type: Number, default: 0 },
   nequi: { type: String, default: "" },
+  bloqueado: { type: Boolean, default: false } // 🔥 NUEVO
 }));
 
 const Historial = mongoose.model("historial", new mongoose.Schema({
@@ -66,7 +53,6 @@ const Solicitud = mongoose.model("solicitudes", new mongoose.Schema({
   monto: Number,
   estado: { type: String, default: "pendiente" }
 }));
-
 
 // ========================= REGISTRO =========================
 app.post("/api/register", async (req, res) => {
@@ -101,34 +87,42 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-
 // ========================= LOGIN =========================
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // 👑 ADMIN
     if (email === "admin@tavo.com" && password === "1234") {
       return res.json({
         ok: true,
-        usuario: { rol: "admin" }
+        usuario: {
+          nombre: "Administrador",
+          rol: "admin"
+        }
       });
     }
 
     const user = await User.findOne({ email });
     if (!user) return res.json({ ok: false, msg: "Usuario no encontrado" });
 
+    // 🔒 BLOQUEADO
+    if(user.bloqueado){
+      return res.json({ ok:false, msg:"Usuario bloqueado por el administrador" });
+    }
+
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.json({ ok: false, msg: "Contraseña incorrecta" });
 
     res.json({
       ok: true,
-      msg: "Bienvenido",
       usuario: {
         nombre: user.nombre,
         email: user.email,
         saldo: user.saldo,
         dias: user.dias,
-        nequi: user.nequi
+        nequi: user.nequi,
+        rol: "user"
       }
     });
 
@@ -138,33 +132,31 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
-// ========================= GUARDAR NEQUI =========================
+// ========================= NEQUI =========================
 app.post("/api/nequi", async (req, res) => {
   try {
     const { email, nequi } = req.body;
 
     await User.updateOne({ email }, { nequi });
 
-    res.json({ ok: true, msg: "Nequi guardado" });
+    res.json({ ok: true });
 
   } catch (err) {
-    res.json({ ok: false, msg: "Error guardando Nequi" });
+    res.json({ ok: false });
   }
 });
 
-
-// ========================= SOLICITAR PRÉSTAMO =========================
+// ========================= SOLICITAR =========================
 app.post("/api/solicitar-prestamo", async (req, res) => {
   try {
     const { email, monto } = req.body;
 
     const user = await User.findOne({ email });
 
-    if (!user) return res.json({ ok: false, msg: "Usuario no existe" });
+    if (!user) return res.json({ ok: false });
 
     if (user.saldo > 0) {
-      return res.json({ ok: false, msg: "Ya tienes un préstamo activo" });
+      return res.json({ ok: false, msg: "Ya tienes préstamo activo" });
     }
 
     await Solicitud.create({
@@ -173,21 +165,18 @@ app.post("/api/solicitar-prestamo", async (req, res) => {
       monto: Number(monto)
     });
 
-    res.json({ ok: true, msg: "Solicitud enviada, espera aprobación" });
+    res.json({ ok: true });
 
   } catch (err) {
-    console.log("❌ ERROR SOLICITUD:", err);
-    res.json({ ok: false, msg: "Error en solicitud" });
+    res.json({ ok: false });
   }
 });
 
-
 // ========================= VER SOLICITUDES =========================
 app.get("/api/solicitudes", async (req, res) => {
-  const data = await Solicitud.find({ estado: "pendiente" });
+  const data = await Solicitud.find();
   res.json(data);
 });
-
 
 // ========================= APROBAR =========================
 app.post("/api/aprobar", async (req, res) => {
@@ -195,7 +184,7 @@ app.post("/api/aprobar", async (req, res) => {
     const { id } = req.body;
 
     const s = await Solicitud.findById(id);
-    if (!s) return res.json({ msg: "Solicitud no encontrada" });
+    if (!s) return res.json({ msg: "No existe" });
 
     await User.updateOne(
       { email: s.email },
@@ -210,14 +199,12 @@ app.post("/api/aprobar", async (req, res) => {
 
     await Solicitud.findByIdAndDelete(id);
 
-    res.json({ msg: "Préstamo aprobado" });
+    res.json({ msg: "Aprobado" });
 
-  } catch (err) {
-    console.log("❌ ERROR APROBAR:", err);
-    res.json({ msg: "Error al aprobar" });
+  } catch {
+    res.json({ msg: "Error" });
   }
 });
-
 
 // ========================= RECHAZAR =========================
 app.post("/api/rechazar", async (req, res) => {
@@ -226,26 +213,52 @@ app.post("/api/rechazar", async (req, res) => {
 
     await Solicitud.findByIdAndDelete(id);
 
-    res.json({ msg: "Solicitud rechazada" });
+    res.json({ msg: "Rechazado" });
 
-  } catch (err) {
-    res.json({ msg: "Error al rechazar" });
+  } catch {
+    res.json({ msg: "Error" });
   }
 });
 
+// ========================= BLOQUEAR USUARIO =========================
+app.post("/api/bloquear", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    await User.updateOne({ email }, { bloqueado: true });
+
+    res.json({ msg: "Usuario bloqueado" });
+
+  } catch {
+    res.json({ msg: "Error" });
+  }
+});
+
+// ========================= DESBLOQUEAR =========================
+app.post("/api/desbloquear", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    await User.updateOne({ email }, { bloqueado: false });
+
+    res.json({ msg: "Usuario desbloqueado" });
+
+  } catch {
+    res.json({ msg: "Error" });
+  }
+});
 
 // ========================= HISTORIAL =========================
 app.get("/api/historial-prestamos/:email", async (req, res) => {
   try {
     const data = await Historial.find({ email: req.params.email }).sort({ _id: -1 });
     res.json(data);
-  } catch (err) {
+  } catch {
     res.json([]);
   }
 });
 
-
-// ========================= RUTA TEST =========================
+// ========================= TEST =========================
 app.get("/", (req, res) => {
   res.send("Servidor funcionando 🚀");
 });
