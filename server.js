@@ -13,7 +13,8 @@ app.use(express.static("public"));
 console.log("🚀 Iniciando servidor...");
 
 // ========================= CONEXIÓN MONGO =========================
-mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
+//mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
+mongoose.connect("mongodb+srv://GustavoDB:Enrique1998@cluster0.vuc3y2t.mongodb.net/prestamos")
 .then(() => {
   console.log("✅ MongoDB Conectado");
 
