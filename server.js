@@ -14,7 +14,20 @@ console.log("🚀 Iniciando servidor...");
 
 // ========================= CONEXIÓN MONGO =========================
 //mongoose.connect("mongodb+srv://GustavoDB:tavo123@cluster0.vuc3y2t.mongodb.net/prestamos")
-mongoose.connect("mongodb+srv://GustavoDB:Enrique1998@cluster0.vuc3y2t.mongodb.net/prestamos")
+//mongoose.connect("mongodb+srv://GustavoDB:Enrique1998@cluster0.vuc3y2t.mongodb.net/prestamos")
+//.then(() => {
+//  console.log("✅ MongoDB Conectado");
+
+//  const PORT = process.env.PORT || 3000;
+//  app.listen(PORT, () => {
+ //   console.log("🚀 Servidor activo en puerto", PORT);
+//  });
+
+//})
+//.catch(err => {
+//  console.log("❌ Error Mongo:", err);
+//});
+mongoose.connect("mongodb+srv://Tavo:Enrique1998@cluster0.vuc3y2t.mongodb.net/prestamos?retryWrites=true&w=majority")
 .then(() => {
   console.log("✅ MongoDB Conectado");
 
@@ -27,7 +40,6 @@ mongoose.connect("mongodb+srv://GustavoDB:Enrique1998@cluster0.vuc3y2t.mongodb.n
 .catch(err => {
   console.log("❌ Error Mongo:", err);
 });
-
 
 // ========================= MODELOS =========================
 const User = mongoose.model("usuarios", new mongoose.Schema({
