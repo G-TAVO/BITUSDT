@@ -3,105 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>PRÉSTAMOS TAVO</title>
+<title>Panel Usuario | Préstamos Tavo</title>
 
 <style>
 body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
 }
 .container{
-  max-width:500px;
-  margin:auto;
-  padding:20px;
-  padding-bottom:90px;
+max-width:500px;
+margin:auto;
+padding:20px;
+padding-bottom:90px;
 }
 .header{
-  text-align:center;
-  margin-bottom:20px;
+text-align:center;
+margin-bottom:20px;
 }
 .header h1{
-  margin:0;
-  color:#00ffcc;
+margin:0;
+color:#00ffcc;
 }
 .nombre{
-  margin-top:5px;
-  font-size:14px;
-  opacity:.8;
+margin-top:5px;
+font-size:14px;
+opacity:.8;
 }
-
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:12px;
+margin-top:20px;
+}
 .saldo-card{
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-  padding:25px;
-  border-radius:15px;
-  text-align:center;
+background:linear-gradient(135deg,#2563eb,#1e40af);
+padding:25px;
+border-radius:15px;
+text-align:center;
 }
 .saldo{
-  font-size:32px;
-  font-weight:bold;
-  margin-top:10px;
+font-size:32px;
+font-weight:bold;
+margin-top:10px;
 }
-
-.card{
-  background:#1e293b;
-  padding:15px;
-  border-radius:12px;
-  margin-top:20px;
-}
-
 input,select{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin-top:10px;
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+margin-top:10px;
+box-sizing:border-box;
 }
-
 button{
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  cursor:pointer;
-  color:white;
-  font-size:15px;
-  width:100%;
-  margin-top:10px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+color:white;
+margin-top:10px;
 }
-
-.btn-green{ background:#22c55e }
-.btn-blue{ background:#3b82f6 }
-.btn-orange{ background:#f97316 }
-.btn-red{ background:#ef4444 }
-.btn-purple{ background:#8b5cf6 }
-
+.btn-green{background:#22c55e;}
+.btn-purple{background:#8b5cf6;}
+.btn-blue{background:#3b82f6;}
+.btn-orange{background:#f97316;}
 .menu{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#111827;
-  display:flex;
-  justify-content:space-around;
-  padding:10px 0;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#111827;
+display:flex;
+justify-content:space-around;
+padding:10px 0;
 }
 .menu button{
-  background:none;
-  border:none;
-  color:white;
+background:none;
+border:none;
+color:white;
+width:auto;
+margin:0;
 }
-
 .historial-item{
-  margin:5px 0;
-  padding:8px;
-  background:#0f172a;
-  border-radius:8px;
+background:#0f172a;
+padding:8px;
+border-radius:8px;
+margin-top:8px;
 }
 </style>
-
 </head>
 
 <body>
@@ -119,6 +111,7 @@ button{
 <p>Total a pagar: $<span id="totalPagar">0</span></p>
 <p>Días restantes: <span id="dias">0</span></p>
 <p>Préstamo activo: <span id="prestamoEstado">No</span></p>
+<p>Cuotas pagadas: <span id="cuotasInfo">0/0</span></p>
 </div>
 
 <!-- PRESTAMO -->
@@ -139,7 +132,7 @@ button{
 </div>
 
 <!-- PAGAR -->
-<div class="card">
+<div class="card" id="boxPago">
 <h3>Pagar préstamo</h3>
 <p>Cuota actual: $<span id="valorCuota">0</span></p>
 
@@ -178,45 +171,87 @@ Pagar por Nequi
 
 <script>
 
-// ====================== LOGIN ======================
 let usuario = localStorage.getItem("usuario");
 
 if(!usuario){
- alert("Debes iniciar sesión");
- location.href="/";
+alert("Debes iniciar sesión");
+location.href="/";
 }else{
- usuario = JSON.parse(usuario);
+usuario = JSON.parse(usuario);
+recargarDatos();
 }
 
-// ====================== DATOS ======================
+// =======================
+async function recargarDatos(){
+
+const res = await fetch("/api/login",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+password:usuario.passwordPlano
+})
+});
+
+const data = await res.json();
+
+if(!data.ok){
+alert("Sesión vencida");
+salir();
+return;
+}
+
+data.usuario.passwordPlano = usuario.passwordPlano;
+usuario = data.usuario;
+
+localStorage.setItem("usuario",JSON.stringify(usuario));
+
+pintar();
+historial();
+
+}
+
+// =======================
+function pintar(){
+
 document.getElementById("nombreUsuario").innerText =
-"👤 " + (usuario.nombre || "Usuario");
+"👤 " + usuario.nombre;
 
 document.getElementById("saldo").innerText = usuario.saldo || 0;
 document.getElementById("dias").innerText = usuario.dias || 0;
-document.getElementById("nequi").innerText = usuario.nequi || "No registrado";
+document.getElementById("nequi").innerText =
+usuario.nequi || "No registrado";
 
 document.getElementById("prestamoEstado").innerText =
 usuario.saldo > 0 ? "Sí" : "No";
 
+document.getElementById("cuotasInfo").innerText =
+(usuario.cuotasPagadas || 0) + "/" + (usuario.cuotasTotal || 0);
+
 calcularPago();
 
-// ====================== CALCULO ======================
+if((usuario.saldo || 0) <= 0){
+document.getElementById("boxPago").style.display="none";
+}else{
+document.getElementById("boxPago").style.display="block";
+}
+
+}
+
+// =======================
 function calcularPago(){
 
 let deuda = Number(usuario.saldo || 0);
 
 if(deuda <= 0){
- document.getElementById("totalPagar").innerText = 0;
- document.getElementById("valorCuota").innerText = 0;
- return;
+document.getElementById("totalPagar").innerText = 0;
+document.getElementById("valorCuota").innerText = 0;
+return;
 }
 
-// 10% interés bajo
 let total = Math.round(deuda * 1.10);
 
-// cuotas guardadas
-let cuotas = Number(usuario.cuotas || 4);
+let cuotas = Number(usuario.cuotasTotal || 4);
 
 let valor = Math.round(total / cuotas);
 
@@ -225,131 +260,116 @@ document.getElementById("valorCuota").innerText = valor;
 
 }
 
-// ====================== SOLICITAR ======================
+// =======================
 async function solicitarPrestamo(){
 
 let monto = Number(document.getElementById("monto").value);
 let cuotas = Number(document.getElementById("cuotas").value);
 
 if(!monto || monto < 50000){
- alert("Monto mínimo 50.000");
- return;
+alert("Monto mínimo 50.000");
+return;
 }
 
 const res = await fetch("/api/solicitar-prestamo",{
- method:"POST",
- headers:{ "Content-Type":"application/json" },
- body:JSON.stringify({
-   email:usuario.email,
-   monto,
-   cuotas
- })
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+monto,
+cuotas
+})
 });
 
 const data = await res.json();
 
+alert(data.msg);
+
 if(data.ok){
-
- alert("Solicitud enviada al administrador");
-
- usuario.saldo = monto;
- usuario.dias = 30;
- usuario.cuotas = cuotas;
-
- localStorage.setItem("usuario",JSON.stringify(usuario));
-
- location.reload();
-
-}else{
- alert(data.msg);
+recargarDatos();
 }
 
 }
 
-// ====================== PAGAR NEQUI ======================
+// =======================
 function pagarNequi(){
 
-if((usuario.saldo || 0) <= 0){
- alert("No tienes deuda");
- return;
-}
-
-let deuda = Number(usuario.saldo);
-let total = Math.round(deuda * 1.10);
-let cuotas = Number(usuario.cuotas || 4);
-let valor = Math.round(total / cuotas);
-
-let numero = "3012245428";
+let valor =
+document.getElementById("valorCuota").innerText;
 
 let texto =
 "Hola, deseo pagar una cuota de $" + valor +
-" de mi préstamo en PRÉSTAMOS TAVO. Usuario: " +
-usuario.nombre;
+" Usuario: " + usuario.nombre;
 
 window.open(
-"https://wa.me/57"+numero+"?text="+encodeURIComponent(texto),
+"https://wa.me/573012245428?text="+encodeURIComponent(texto),
 "_blank"
 );
 
 }
 
-// ====================== NEQUI ======================
+// =======================
 async function agregarNequi(){
 
-let numero = prompt("Ingresa tu número Nequi:");
+let numero = prompt("Ingresa tu Nequi:");
 
 if(!numero) return;
 
 const res = await fetch("/api/nequi",{
- method:"POST",
- headers:{ "Content-Type":"application/json" },
- body:JSON.stringify({
-   email:usuario.email,
-   nequi:numero
- })
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+nequi:numero
+})
 });
 
 const data = await res.json();
 
 if(data.ok){
- usuario.nequi = numero;
- localStorage.setItem("usuario",JSON.stringify(usuario));
- location.reload();
+recargarDatos();
 }
 
 }
 
-// ====================== HISTORIAL ======================
+// =======================
 async function historial(){
 
-const res = await fetch("/api/historial-prestamos/"+usuario.email);
+const res =
+await fetch("/api/historial-prestamos/"+usuario.email);
+
 const data = await res.json();
 
-const cont = document.getElementById("historial");
+const box = document.getElementById("historial");
 
 if(data.length === 0){
- cont.innerHTML = "Sin movimientos";
- return;
+box.innerHTML = "Sin movimientos";
+return;
 }
 
-cont.innerHTML = "";
+box.innerHTML = "";
 
 data.forEach(h=>{
- cont.innerHTML += `
- <div class="historial-item">
- ${h.fecha} - $${h.monto}
- </div>`;
+
+box.innerHTML += `
+<div class="historial-item">
+${h.fecha}<br>
+${h.detalle} - $${h.monto}
+</div>
+`;
+
 });
 
 }
 
-historial();
-
-// ====================== SALIR ======================
+// =======================
 function salir(){
 localStorage.removeItem("usuario");
 location.href="/";
 }
+
+// auto refresco cada 15 segundos
+setInterval(recargarDatos,15000);
 
 </script>
 
