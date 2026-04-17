@@ -7,14 +7,25 @@
 
 <style>
 body{
+  margin:0;
   font-family:Arial;
   background:#0f172a;
   color:white;
 }
 .container{
-  max-width:600px;
+  max-width:700px;
   margin:auto;
   padding:20px;
+  padding-bottom:80px;
+}
+h1{
+  text-align:center;
+  color:#00ffcc;
+}
+h2{
+  margin-top:30px;
+  font-size:20px;
+  color:#38bdf8;
 }
 .card{
   background:#1e293b;
@@ -29,17 +40,44 @@ button{
   margin:5px;
   cursor:pointer;
   color:white;
+  font-weight:bold;
 }
-.aprobar{ background:#22c55e }
-.rechazar{ background:#ef4444 }
+.aprobar{ background:#22c55e; }
+.rechazar{ background:#ef4444; }
+.bloquear{ background:#f97316; }
+.desbloquear{ background:#3b82f6; }
+.salir{
+  background:#ef4444;
+  width:100%;
+  margin-top:25px;
+  padding:12px;
+}
+small{
+  opacity:.8;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h2>Panel Admin</h2>
-  <div id="lista">Cargando...</div>
+
+<h1>👑 PANEL ADMIN</h1>
+
+<!-- SOLICITUDES -->
+<h2>📥 Solicitudes de Préstamo</h2>
+<div id="solicitudes">Cargando...</div>
+
+<!-- PAGOS -->
+<h2>💰 Pagos Pendientes</h2>
+<div id="pagos">Cargando...</div>
+
+<!-- USUARIOS -->
+<h2>👥 Usuarios Registrados</h2>
+<div id="usuarios">Cargando...</div>
+
+<button class="salir" onclick="salir()">Cerrar sesión</button>
+
 </div>
 
 <script>
@@ -49,73 +87,223 @@ const usuario = JSON.parse(localStorage.getItem("usuario"));
 
 if(!usuario || usuario.rol !== "admin"){
   alert("Acceso denegado");
-  window.location.href="/";
+  location.href="/";
 }
 
-// 📥 CARGAR SOLICITUDES
-async function cargar(){
+// ==========================
+// CARGAR TODO
+// ==========================
+cargarSolicitudes();
+cargarPagos();
+cargarUsuarios();
 
-  const res = await fetch("/api/solicitudes");
-  const data = await res.json();
+// ==========================
+// SOLICITUDES
+// ==========================
+async function cargarSolicitudes(){
 
-  const cont = document.getElementById("lista");
+ const res = await fetch("/api/solicitudes");
+ const data = await res.json();
 
-  if(data.length === 0){
-    cont.innerHTML = "No hay solicitudes";
-    return;
-  }
+ const box = document.getElementById("solicitudes");
 
-  cont.innerHTML = "";
+ if(data.length === 0){
+   box.innerHTML = "No hay solicitudes";
+   return;
+ }
 
-  data.forEach(s => {
+ box.innerHTML = "";
 
-    cont.innerHTML += `
-      <div class="card">
-        <p><b>Nombre:</b> ${s.nombre}</p>
-        <p><b>Email:</b> ${s.email}</p>
-        <p><b>Monto:</b> $${s.monto}</p>
+ data.forEach(s => {
 
-        <button class="aprobar" onclick="aprobar('${s._id}')">Aprobar</button>
-        <button class="rechazar" onclick="rechazar('${s._id}')">Rechazar</button>
-      </div>
-    `;
+ box.innerHTML += `
+ <div class="card">
+   <b>${s.nombre}</b><br>
+   ${s.email}<br>
+   Monto: $${s.monto}<br>
+   Cuotas: ${s.cuotas || 4}<br><br>
 
-  });
+   <button class="aprobar" onclick="aprobarPrestamo('${s._id}')">Aprobar</button>
+   <button class="rechazar" onclick="rechazarPrestamo('${s._id}')">Rechazar</button>
+ </div>
+ `;
+
+ });
 
 }
 
-cargar();
+async function aprobarPrestamo(id){
 
+ const res = await fetch("/api/aprobar",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ id })
+ });
 
-// ✅ APROBAR
-async function aprobar(id){
+ const data = await res.json();
+ alert(data.msg);
 
-  const res = await fetch("/api/aprobar",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ id })
-  });
+ cargarSolicitudes();
+ cargarUsuarios();
 
-  const data = await res.json();
-  alert(data.msg);
-
-  cargar();
 }
 
+async function rechazarPrestamo(id){
 
-// ❌ RECHAZAR
-async function rechazar(id){
+ const res = await fetch("/api/rechazar",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ id })
+ });
 
-  const res = await fetch("/api/rechazar",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ id })
-  });
+ const data = await res.json();
+ alert(data.msg);
 
-  const data = await res.json();
-  alert(data.msg);
+ cargarSolicitudes();
 
-  cargar();
+}
+
+// ==========================
+// PAGOS PENDIENTES
+// ==========================
+async function cargarPagos(){
+
+ const res = await fetch("/api/pagos");
+ const data = await res.json();
+
+ const box = document.getElementById("pagos");
+
+ if(data.length === 0){
+   box.innerHTML = "No hay pagos pendientes";
+   return;
+ }
+
+ box.innerHTML = "";
+
+ data.forEach(p => {
+
+ box.innerHTML += `
+ <div class="card">
+   <b>${p.nombre}</b><br>
+   ${p.email}<br>
+   Valor: $${p.valor}<br>
+   <small>${p.fecha}</small><br><br>
+
+   <button class="aprobar" onclick="aprobarPago('${p._id}')">Confirmar Pago</button>
+   <button class="rechazar" onclick="rechazarPago('${p._id}')">Rechazar</button>
+ </div>
+ `;
+
+ });
+
+}
+
+async function aprobarPago(id){
+
+ const res = await fetch("/api/aprobar-pago",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ id })
+ });
+
+ const data = await res.json();
+ alert(data.msg);
+
+ cargarPagos();
+ cargarUsuarios();
+
+}
+
+async function rechazarPago(id){
+
+ const res = await fetch("/api/rechazar-pago",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ id })
+ });
+
+ const data = await res.json();
+ alert(data.msg);
+
+ cargarPagos();
+
+}
+
+// ==========================
+// USUARIOS
+// ==========================
+async function cargarUsuarios(){
+
+ const res = await fetch("/api/usuarios");
+ const data = await res.json();
+
+ const box = document.getElementById("usuarios");
+
+ if(data.length === 0){
+   box.innerHTML = "No hay usuarios";
+   return;
+ }
+
+ box.innerHTML = "";
+
+ data.forEach(u => {
+
+ box.innerHTML += `
+ <div class="card">
+   <b>${u.nombre}</b><br>
+   ${u.email}<br>
+   Saldo: $${u.saldo}<br>
+   Cuotas: ${u.cuotasPagadas}/${u.cuotasTotal}<br>
+   Estado: ${u.bloqueado ? "🚫 Bloqueado" : "✅ Activo"}<br><br>
+
+   ${
+     u.bloqueado
+     ? `<button class="desbloquear" onclick="desbloquear('${u.email}')">Desbloquear</button>`
+     : `<button class="bloquear" onclick="bloquear('${u.email}')">Bloquear</button>`
+   }
+ </div>
+ `;
+
+ });
+
+}
+
+async function bloquear(email){
+
+ const res = await fetch("/api/bloquear",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ email })
+ });
+
+ const data = await res.json();
+ alert(data.msg);
+
+ cargarUsuarios();
+
+}
+
+async function desbloquear(email){
+
+ const res = await fetch("/api/desbloquear",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ email })
+ });
+
+ const data = await res.json();
+ alert(data.msg);
+
+ cargarUsuarios();
+
+}
+
+// ==========================
+// SALIR
+// ==========================
+function salir(){
+ localStorage.removeItem("usuario");
+ location.href="/";
 }
 
 </script>
