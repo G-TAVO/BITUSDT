@@ -95,12 +95,10 @@ padding:8px;
 border-radius:8px;
 margin-top:8px;
 }
-.numero{
-font-size:24px;
-font-weight:bold;
-color:#22c55e;
-text-align:center;
-margin:10px 0;
+.info{
+font-size:14px;
+opacity:.8;
+margin-top:6px;
 }
 </style>
 </head>
@@ -127,7 +125,18 @@ margin:10px 0;
 <div class="card">
 <h3>Solicitar préstamo</h3>
 
-<input type="number" id="monto" placeholder="Ej: 50000">
+<select id="monto">
+<option value="50000">$50.000</option>
+<option value="100000">$100.000</option>
+<option value="150000">$150.000</option>
+<option value="200000">$200.000</option>
+<option value="250000">$250.000</option>
+<option value="300000">$300.000</option>
+<option value="350000">$350.000</option>
+<option value="400000">$400.000</option>
+<option value="450000">$450.000</option>
+<option value="500000">$500.000</option>
+</select>
 
 <select id="cuotas">
 <option value="2">2 cuotas</option>
@@ -142,53 +151,30 @@ margin:10px 0;
 
 <!-- PAGAR -->
 <div class="card" id="boxPago">
-
 <h3>Pagar préstamo</h3>
-
-<p>Enviar dinero a Nequi:</p>
-<div class="numero">3226314209</div>
-
-<button class="btn-blue" onclick="copiarNequi()">
-Copiar número
-</button>
 
 <p>Cuota sugerida: $<span id="valorCuota">0</span></p>
 
-<input type="number" id="valorPago" placeholder="Escribe valor a pagar">
+<input type="number" id="otroValor" placeholder="O escribe otro valor">
+
+<div class="info">
+Nequi destino: <b>3226314209</b>
+</div>
 
 <button class="btn-purple" onclick="pagarNequi()">
-Abrir WhatsApp
+Pagar por Nequi
 </button>
 
 <button class="btn-green" onclick="reportarPago()">
 Ya realicé mi pago
 </button>
 
-<button class="btn-orange" onclick="pagarTodo()">
-Pagar todo
-</button>
-
-</div>
-
-<!-- NEQUI -->
-<div class="card">
-<h3>Cuenta de retiro</h3>
-<p>Nequi: <span id="nequi">No registrado</span></p>
-<button class="btn-blue" onclick="agregarNequi()">Registrar Nequi</button>
 </div>
 
 <!-- HISTORIAL -->
 <div class="card">
 <h3>Historial</h3>
 <div id="historial">Cargando...</div>
-</div>
-
-<!-- SOPORTE -->
-<div class="card">
-<h3>Soporte</h3>
-<a href="https://wa.me/573012245428" target="_blank">
-<button class="btn-orange">Contactar</button>
-</a>
 </div>
 
 </div>
@@ -200,40 +186,31 @@ Pagar todo
 
 <script>
 
-let usuario = localStorage.getItem("usuario");
+let usuario = JSON.parse(localStorage.getItem("usuario"));
 
-if(!usuario"){
+if(!usuario){
 alert("Debes iniciar sesión");
 location.href="/";
-}else{
-usuario = JSON.parse(usuario);
+}
+
 pintar();
 historial();
-}
 
 function pintar(){
 
-document.getElementById("nombreUsuario").innerText =
-"👤 " + usuario.nombre;
+document.getElementById("nombreUsuario").innerText="👤 "+usuario.nombre;
+document.getElementById("saldo").innerText=usuario.saldo || 0;
+document.getElementById("dias").innerText=usuario.dias || 0;
 
-document.getElementById("saldo").innerText =
-usuario.saldo || 0;
+document.getElementById("prestamoEstado").innerText=
+(usuario.saldo>0) ? "Sí" : "No";
 
-document.getElementById("dias").innerText =
-usuario.dias || 0;
-
-document.getElementById("nequi").innerText =
-usuario.nequi || "No registrado";
-
-document.getElementById("prestamoEstado").innerText =
-(usuario.saldo > 0) ? "Sí" : "No";
-
-document.getElementById("cuotasInfo").innerText =
-(usuario.cuotasPagadas || 0) + "/" + (usuario.cuotasTotal || 0);
+document.getElementById("cuotasInfo").innerText=
+(usuario.cuotasPagadas || 0)+"/"+(usuario.cuotasTotal || 0);
 
 calcularPago();
 
-if((usuario.saldo || 0) <= 0){
+if((usuario.saldo || 0)<=0){
 document.getElementById("boxPago").style.display="none";
 }else{
 document.getElementById("boxPago").style.display="block";
@@ -243,61 +220,63 @@ document.getElementById("boxPago").style.display="block";
 
 function calcularPago(){
 
-let deuda = Number(usuario.saldo || 0);
+let deuda=Number(usuario.saldo || 0);
 
-if(deuda <= 0){
-document.getElementById("totalPagar").innerText = 0;
-document.getElementById("valorCuota").innerText = 0;
+if(deuda<=0){
+document.getElementById("totalPagar").innerText=0;
+document.getElementById("valorCuota").innerText=0;
 return;
 }
 
-let total = Math.round(deuda * 1.10);
-let cuotas = Number(usuario.cuotasTotal || 4);
-let valor = Math.round(total / cuotas);
+let total=Math.round(deuda*1.10);
+let cuotas=Number(usuario.cuotasTotal || 4);
+let valor=Math.round(total/cuotas);
 
-document.getElementById("totalPagar").innerText = total;
-document.getElementById("valorCuota").innerText = valor;
-document.getElementById("valorPago").value = valor;
+document.getElementById("totalPagar").innerText=total;
+document.getElementById("valorCuota").innerText=valor;
 
 }
 
 async function solicitarPrestamo(){
 
-let monto = Number(document.getElementById("monto").value);
-let cuotas = Number(document.getElementById("cuotas").value);
+let monto=Number(document.getElementById("monto").value);
+let cuotas=Number(document.getElementById("cuotas").value);
 
-if(!monto || monto < 50000){
-alert("Monto mínimo 50.000");
-return;
-}
-
-const res = await fetch("/api/solicitar-prestamo",{
+const res=await fetch("/api/solicitar-prestamo",{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({
 email:usuario.email,
-monto,
-cuotas
+monto:monto,
+cuotas:cuotas
 })
 });
 
-const data = await res.json();
+const data=await res.json();
+
 alert(data.msg);
 
 }
 
-function copiarNequi(){
-navigator.clipboard.writeText("3226314209");
-alert("Número copiado");
+function valorSeleccionado(){
+
+let otro=Number(document.getElementById("otroValor").value);
+
+if(otro>0){
+return otro;
+}
+
+return Number(document.getElementById("valorCuota").innerText);
+
 }
 
 function pagarNequi(){
 
-let valor = document.getElementById("valorPago").value || 0;
+let valor=valorSeleccionado();
 
-let texto =
+let texto=
 "Hola, voy a pagar $" + valor +
-" Usuario: " + usuario.nombre;
+" a Nequi 3226314209. Usuario: " + usuario.nombre;
 
 window.open(
 "https://wa.me/573012245428?text="+encodeURIComponent(texto),
@@ -308,16 +287,9 @@ window.open(
 
 async function reportarPago(){
 
-let valor = Number(
-document.getElementById("valorPago").value
-);
+let valor=valorSeleccionado();
 
-if(valor <= 0){
-alert("Ingresa valor válido");
-return;
-}
-
-const res = await fetch("/api/reportar-pago",{
+const res=await fetch("/api/reportar-pago",{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({
@@ -326,59 +298,29 @@ valor:valor
 })
 });
 
-const data = await res.json();
+const data=await res.json();
+
 alert(data.msg);
-
-}
-
-function pagarTodo(){
-
-document.getElementById("valorPago").value =
-usuario.saldo || 0;
-
-}
-
-async function agregarNequi(){
-
-let numero = prompt("Ingresa tu Nequi:");
-if(!numero) return;
-
-const res = await fetch("/api/nequi",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:usuario.email,
-nequi:numero
-})
-});
-
-const data = await res.json();
-
-if(data.ok){
-usuario.nequi = numero;
-localStorage.setItem("usuario",JSON.stringify(usuario));
-pintar();
-}
 
 }
 
 async function historial(){
 
-const res = await fetch("/api/historial-prestamos/"+usuario.email);
-const data = await res.json();
+const res=await fetch("/api/historial-prestamos/"+usuario.email);
+const data=await res.json();
 
-const box = document.getElementById("historial");
+const box=document.getElementById("historial");
 
-if(data.length === 0){
-box.innerHTML = "Sin movimientos";
+if(data.length===0){
+box.innerHTML="Sin movimientos";
 return;
 }
 
-box.innerHTML = "";
+box.innerHTML="";
 
 data.forEach(h=>{
 
-box.innerHTML += `
+box.innerHTML+=`
 <div class="historial-item">
 ${h.fecha}<br>
 ${h.detalle} - $${h.monto}
