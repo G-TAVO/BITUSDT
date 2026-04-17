@@ -7,51 +7,55 @@
 
 <style>
 body{
-  font-family: Arial;
-  background:#0f172a;
-  color:white;
-  margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+margin:0;
 }
 .container{
-  max-width:400px;
-  margin:auto;
-  padding:20px;
-  margin-top:20px;
+max-width:400px;
+margin:auto;
+padding:20px;
+margin-top:30px;
 }
 .card{
-  background:#1e293b;
-  padding:20px;
-  border-radius:12px;
+background:#1e293b;
+padding:20px;
+border-radius:12px;
 }
 input{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin-top:10px;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+box-sizing:border-box;
 }
 button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  margin-top:10px;
-  font-weight:bold;
-  cursor:pointer;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+color:white;
 }
 .btn{
-  background:#22c55e;
-  color:white;
+background:#22c55e;
 }
 .btn2{
-  background:#3b82f6;
-  color:white;
+background:#3b82f6;
 }
 .switch{
-  text-align:center;
-  margin-top:10px;
-  cursor:pointer;
-  color:#00ffcc;
+text-align:center;
+margin-top:12px;
+color:#00ffcc;
+cursor:pointer;
+}
+h2{
+text-align:center;
+margin-top:0;
 }
 </style>
 </head>
@@ -60,119 +64,130 @@ button{
 
 <div class="container">
 
-  <!-- LOGIN -->
-  <div class="card" id="loginBox">
-    <h2>Iniciar Sesión</h2>
+<!-- LOGIN -->
+<div class="card" id="loginBox">
 
-    <input type="email" id="loginEmail" placeholder="Correo">
-    <input type="password" id="loginPass" placeholder="Contraseña">
+<h2>Iniciar Sesión</h2>
 
-    <button class="btn2" onclick="login()">Entrar</button>
+<input type="email" id="loginEmail" placeholder="Correo">
+<input type="password" id="loginPass" placeholder="Contraseña">
 
-    <div class="switch" onclick="mostrarRegistro()">
-      ¿No tienes cuenta? Regístrate
-    </div>
-  </div>
+<button class="btn2" onclick="login()">Entrar</button>
 
-  <!-- REGISTRO -->
-  <div class="card" id="registroBox" style="display:none">
-    <h2>Crear Cuenta</h2>
+<div class="switch" onclick="mostrarRegistro()">
+¿No tienes cuenta? Regístrate
+</div>
 
-    <input type="text" id="regNombre" placeholder="Nombre completo">
-    <input type="text" id="regCedula" placeholder="Cédula">
-    <input type="text" id="regTelefono" placeholder="Teléfono">
-    <input type="text" id="regWhats" placeholder="WhatsApp">
-    <input type="email" id="regEmail" placeholder="Correo">
-    <input type="password" id="regPass" placeholder="Contraseña">
+</div>
 
-    <button class="btn" onclick="registro()">Crear cuenta</button>
+<!-- REGISTRO -->
+<div class="card" id="registroBox" style="display:none;">
 
-    <div class="switch" onclick="mostrarLogin()">
-      Ya tengo cuenta
-    </div>
-  </div>
+<h2>Crear Cuenta</h2>
+
+<input type="text" id="regNombre" placeholder="Nombre completo">
+<input type="text" id="regCedula" placeholder="Cédula">
+<input type="text" id="regTelefono" placeholder="Teléfono">
+<input type="text" id="regWhats" placeholder="WhatsApp">
+<input type="email" id="regEmail" placeholder="Correo">
+<input type="password" id="regPass" placeholder="Contraseña">
+
+<button class="btn" onclick="registro()">Crear cuenta</button>
+
+<div class="switch" onclick="mostrarLogin()">
+Ya tengo cuenta
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-// 🔄 CAMBIAR VISTAS
+// CAMBIAR VISTAS
 function mostrarRegistro(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("registroBox").style.display="block";
+document.getElementById("loginBox").style.display="none";
+document.getElementById("registroBox").style.display="block";
 }
 
 function mostrarLogin(){
-  document.getElementById("loginBox").style.display="block";
-  document.getElementById("registroBox").style.display="none";
+document.getElementById("loginBox").style.display="block";
+document.getElementById("registroBox").style.display="none";
 }
 
-// 🔐 LOGIN
+// LOGIN
 async function login(){
 
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPass").value.trim();
+const email = document.getElementById("loginEmail").value.trim();
+const password = document.getElementById("loginPass").value.trim();
 
-  if(!email || !password){
-    alert("⚠️ Llena todos los campos");
-    return;
-  }
-
-  const res = await fetch("/api/login",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ email, password })
-  });
-
-  const data = await res.json();
-
-  console.log("LOGIN:", data);
-
-  if(!data.ok){
-    alert("❌ " + data.msg);
-    return;
-  }
-
-  // 💾 GUARDAR
-  localStorage.setItem("usuario", JSON.stringify(data.usuario));
-
-  // 👑 ADMIN
-  if(data.usuario.rol === "admin"){
-    window.location.href = "admin.html";
-  }else{
-    // 👤 USUARIO
-    window.location.href = "panel.html";
-  }
+if(!email || !password){
+alert("Completa todos los campos");
+return;
 }
 
-// 📝 REGISTRO
+const res = await fetch("/api/login",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({ email,password })
+});
+
+const data = await res.json();
+
+if(!data.ok){
+alert(data.msg);
+return;
+}
+
+// guardar usuario + clave temporal
+data.usuario.passwordPlano = password;
+
+localStorage.setItem("usuario",JSON.stringify(data.usuario));
+
+if(data.usuario.rol === "admin"){
+location.href="admin.html";
+}else{
+location.href="panel.html";
+}
+
+}
+
+// REGISTRO
 async function registro(){
 
-  const nombre = document.getElementById("regNombre").value.trim();
-  const cedula = document.getElementById("regCedula").value.trim();
-  const telefono = document.getElementById("regTelefono").value.trim();
-  const whatsapp = document.getElementById("regWhats").value.trim();
-  const email = document.getElementById("regEmail").value.trim();
-  const password = document.getElementById("regPass").value.trim();
+const nombre = document.getElementById("regNombre").value.trim();
+const cedula = document.getElementById("regCedula").value.trim();
+const telefono = document.getElementById("regTelefono").value.trim();
+const whatsapp = document.getElementById("regWhats").value.trim();
+const email = document.getElementById("regEmail").value.trim();
+const password = document.getElementById("regPass").value.trim();
 
-  if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
-    alert("⚠️ Todos los campos son obligatorios");
-    return;
-  }
+if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
+alert("Completa todos los campos");
+return;
+}
 
-  const res = await fetch("/api/register",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ nombre, cedula, telefono, whatsapp, email, password })
-  });
+const res = await fetch("/api/register",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+nombre,
+cedula,
+telefono,
+whatsapp,
+email,
+password
+})
+});
 
-  const data = await res.json();
+const data = await res.json();
 
-  alert(data.msg);
+alert(data.msg);
 
-  if(data.ok){
-    mostrarLogin();
-  }
+if(data.ok){
+mostrarLogin();
+}
+
 }
 
 </script>
