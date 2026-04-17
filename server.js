@@ -23,17 +23,17 @@ mongoose.connect(
 )
 .then(() => {
 
-  console.log("✅ MongoDB Conectado");
+console.log("✅ MongoDB Conectado");
 
-  const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-  app.listen(PORT, () => {
-    console.log("🚀 Servidor activo puerto " + PORT);
-  });
+app.listen(PORT, () => {
+console.log("🚀 Servidor activo puerto " + PORT);
+});
 
 })
 .catch(err => {
-  console.log("❌ Error Mongo:", err);
+console.log("❌ Error Mongo:", err);
 });
 
 // ===============================
@@ -41,51 +41,51 @@ mongoose.connect(
 // ===============================
 const User = mongoose.model("usuarios", new mongoose.Schema({
 
-  nombre:String,
-  cedula:String,
-  telefono:String,
-  whatsapp:String,
-  email:String,
-  password:String,
+nombre:String,
+cedula:String,
+telefono:String,
+whatsapp:String,
+email:String,
+password:String,
 
-  saldo:{ type:Number, default:0 },
-  dias:{ type:Number, default:0 },
-  nequi:{ type:String, default:"" },
+saldo:{ type:Number, default:0 },
+dias:{ type:Number, default:0 },
+nequi:{ type:String, default:"" },
 
-  cuotasTotal:{ type:Number, default:0 },
-  cuotasPagadas:{ type:Number, default:0 },
+cuotasTotal:{ type:Number, default:0 },
+cuotasPagadas:{ type:Number, default:0 },
 
-  bloqueado:{ type:Boolean, default:false }
+bloqueado:{ type:Boolean, default:false }
 
 }));
 
 const Solicitud = mongoose.model("solicitudes", new mongoose.Schema({
 
-  nombre:String,
-  email:String,
-  monto:Number,
-  cuotas:Number,
-  fecha:String
+nombre:String,
+email:String,
+monto:Number,
+cuotas:Number,
+fecha:String
 
 }));
 
 const Historial = mongoose.model("historial", new mongoose.Schema({
 
-  email:String,
-  tipo:String,
-  monto:Number,
-  detalle:String,
-  fecha:String
+email:String,
+tipo:String,
+monto:Number,
+detalle:String,
+fecha:String
 
 }));
 
 const Pago = mongoose.model("pagos", new mongoose.Schema({
 
-  nombre:String,
-  email:String,
-  valor:Number,
-  estado:{ type:String, default:"pendiente" },
-  fecha:String
+nombre:String,
+email:String,
+valor:Number,
+estado:{ type:String, default:"pendiente" },
+fecha:String
 
 }));
 
@@ -93,11 +93,7 @@ const Pago = mongoose.model("pagos", new mongoose.Schema({
 // FUNCIONES
 // ===============================
 function fecha(){
-  return new Date().toLocaleString();
-}
-
-function totalConInteres(valor){
-  return Math.round(valor * 1.10); // 10%
+return new Date().toLocaleString();
 }
 
 // ===============================
@@ -110,31 +106,31 @@ try{
 const { nombre, cedula, telefono, whatsapp, email, password } = req.body;
 
 if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
- return res.json({ ok:false, msg:"Faltan datos" });
+return res.json({ ok:false, msg:"Faltan datos" });
 }
 
 const existe = await User.findOne({ email });
 
 if(existe){
- return res.json({ ok:false, msg:"Usuario ya existe" });
+return res.json({ ok:false, msg:"Usuario ya existe" });
 }
 
 const hash = await bcrypt.hash(password,10);
 
 await User.create({
- nombre,
- cedula,
- telefono,
- whatsapp,
- email,
- password:hash
+nombre,
+cedula,
+telefono,
+whatsapp,
+email,
+password:hash
 });
 
 res.json({ ok:true, msg:"Registro exitoso" });
 
 }catch(err){
- console.log(err);
- res.json({ ok:false, msg:"Error registro" });
+console.log(err);
+res.json({ ok:false, msg:"Error registro" });
 }
 
 });
@@ -150,47 +146,47 @@ const { email, password } = req.body;
 
 // ADMIN
 if(email === "admin@tavo.com" && password === "1234"){
- return res.json({
-  ok:true,
-  usuario:{
-   nombre:"Administrador",
-   rol:"admin"
-  }
- });
+return res.json({
+ok:true,
+usuario:{
+nombre:"Administrador",
+rol:"admin"
+}
+});
 }
 
 const user = await User.findOne({ email });
 
 if(!user){
- return res.json({ ok:false, msg:"Usuario no encontrado" });
+return res.json({ ok:false, msg:"Usuario no encontrado" });
 }
 
 if(user.bloqueado){
- return res.json({ ok:false, msg:"Usuario bloqueado" });
+return res.json({ ok:false, msg:"Usuario bloqueado" });
 }
 
 const ok = await bcrypt.compare(password, user.password);
 
 if(!ok){
- return res.json({ ok:false, msg:"Contraseña incorrecta" });
+return res.json({ ok:false, msg:"Contraseña incorrecta" });
 }
 
 res.json({
- ok:true,
- usuario:{
-  nombre:user.nombre,
-  email:user.email,
-  saldo:user.saldo,
-  dias:user.dias,
-  nequi:user.nequi,
-  cuotasTotal:user.cuotasTotal,
-  cuotasPagadas:user.cuotasPagadas,
-  rol:"user"
- }
+ok:true,
+usuario:{
+nombre:user.nombre,
+email:user.email,
+saldo:user.saldo,
+dias:user.dias,
+nequi:user.nequi,
+cuotasTotal:user.cuotasTotal,
+cuotasPagadas:user.cuotasPagadas,
+rol:"user"
+}
 });
 
 }catch(err){
- res.json({ ok:false, msg:"Error login" });
+res.json({ ok:false, msg:"Error login" });
 }
 
 });
@@ -226,29 +222,25 @@ const { email, monto, cuotas } = req.body;
 const user = await User.findOne({ email });
 
 if(!user){
- return res.json({ ok:false, msg:"No existe usuario" });
+return res.json({ ok:false, msg:"No existe usuario" });
 }
 
 if(user.saldo > 0){
- return res.json({ ok:false, msg:"Ya tienes préstamo activo" });
+return res.json({ ok:false, msg:"Ya tienes préstamo activo" });
 }
 
 await Solicitud.create({
-
- nombre:user.nombre,
- email,
- monto:Number(monto),
- cuotas:Number(cuotas || 4),
- fecha:fecha()
-
+nombre:user.nombre,
+email,
+monto:Number(monto),
+cuotas:Number(cuotas || 4),
+fecha:fecha()
 });
 
 res.json({ ok:true, msg:"Solicitud enviada" });
 
 }catch(err){
-
 res.json({ ok:false, msg:"Error solicitud" });
-
 }
 
 });
@@ -276,25 +268,25 @@ const { id } = req.body;
 const s = await Solicitud.findById(id);
 
 if(!s){
- return res.json({ msg:"Solicitud no encontrada" });
+return res.json({ msg:"Solicitud no encontrada" });
 }
 
 await User.updateOne(
- { email:s.email },
- {
-  saldo:s.monto,
-  dias:30,
-  cuotasTotal:s.cuotas,
-  cuotasPagadas:0
- }
+{ email:s.email },
+{
+saldo:s.monto,
+dias:30,
+cuotasTotal:s.cuotas,
+cuotasPagadas:0
+}
 );
 
 await Historial.create({
- email:s.email,
- tipo:"prestamo",
- monto:s.monto,
- detalle:"Préstamo aprobado",
- fecha:fecha()
+email:s.email,
+tipo:"prestamo",
+monto:s.monto,
+detalle:"Préstamo aprobado",
+fecha:fecha()
 });
 
 await Solicitud.findByIdAndDelete(id);
@@ -302,9 +294,7 @@ await Solicitud.findByIdAndDelete(id);
 res.json({ msg:"Préstamo aprobado" });
 
 }catch(err){
-
 res.json({ msg:"Error al aprobar" });
-
 }
 
 });
@@ -338,19 +328,19 @@ const { email, valor } = req.body;
 const user = await User.findOne({ email });
 
 if(!user){
- return res.json({ ok:false });
+return res.json({ ok:false });
 }
 
 await Pago.create({
- nombre:user.nombre,
- email,
- valor:Number(valor),
- fecha:fecha()
+nombre:user.nombre,
+email,
+valor:Number(valor),
+fecha:fecha()
 });
 
 res.json({
- ok:true,
- msg:"Pago enviado al administrador"
+ok:true,
+msg:"Pago enviado al administrador"
 });
 
 }catch{
@@ -360,7 +350,7 @@ res.json({ ok:false });
 });
 
 // ===============================
-// VER PAGOS PENDIENTES
+// VER PAGOS
 // ===============================
 app.get("/api/pagos", async(req,res)=>{
 
@@ -371,7 +361,7 @@ res.json(data);
 });
 
 // ===============================
-// APROBAR CUOTA
+// APROBAR PAGO (ARREGLADO)
 // ===============================
 app.post("/api/aprobar-pago", async(req,res)=>{
 
@@ -382,45 +372,51 @@ const { id } = req.body;
 const pago = await Pago.findById(id);
 
 if(!pago){
- return res.json({ msg:"Pago no encontrado" });
+return res.json({ msg:"Pago no encontrado" });
 }
 
 const user = await User.findOne({ email:pago.email });
 
 if(!user){
- return res.json({ msg:"Usuario no existe" });
+return res.json({ msg:"Usuario no existe" });
 }
 
-let nuevoSaldo = user.saldo - pago.valor;
+let saldoActual = Number(user.saldo || 0);
+let valorPago = Number(pago.valor || 0);
+let nuevoSaldo = saldoActual - valorPago;
 
-if(nuevoSaldo < 0) nuevoSaldo = 0;
+if(nuevoSaldo < 0){
+nuevoSaldo = 0;
+}
 
-let nuevasCuotas = user.cuotasPagadas + 1;
+let cuotasTotal = Number(user.cuotasTotal || 4);
+let cuotasPagadas = Number(user.cuotasPagadas || 0);
 
-await User.updateOne(
- { email:pago.email },
- {
-  saldo:nuevoSaldo,
-  cuotasPagadas:nuevasCuotas,
-  dias:30
- }
-);
+let valorCuota = Math.round((saldoActual * 1.10) / cuotasTotal);
+
+if(valorPago >= valorCuota && cuotasPagadas < cuotasTotal){
+cuotasPagadas++;
+}
 
 if(nuevoSaldo === 0){
- await User.updateOne(
- { email:pago.email },
- {
-  cuotasTotal:0,
-  cuotasPagadas:0
- });
+cuotasPagadas = cuotasTotal;
 }
 
+await User.updateOne(
+{ email:pago.email },
+{
+saldo:nuevoSaldo,
+cuotasPagadas:cuotasPagadas,
+dias:30
+}
+);
+
 await Historial.create({
- email:pago.email,
- tipo:"pago",
- monto:pago.valor,
- detalle:"Cuota aprobada",
- fecha:fecha()
+email:pago.email,
+tipo:"pago",
+monto:valorPago,
+detalle:"Pago aprobado por admin",
+fecha:fecha()
 });
 
 await Pago.findByIdAndDelete(id);
@@ -428,9 +424,8 @@ await Pago.findByIdAndDelete(id);
 res.json({ msg:"Pago aprobado correctamente" });
 
 }catch(err){
-
+console.log(err);
 res.json({ msg:"Error aprobando pago" });
-
 }
 
 });
@@ -447,9 +442,7 @@ await Pago.findByIdAndDelete(req.body.id);
 res.json({ msg:"Pago rechazado" });
 
 }catch{
-
 res.json({ msg:"Error" });
-
 }
 
 });
@@ -460,8 +453,8 @@ res.json({ msg:"Error" });
 app.post("/api/bloquear", async(req,res)=>{
 
 await User.updateOne(
- { email:req.body.email },
- { bloqueado:true }
+{ email:req.body.email },
+{ bloqueado:true }
 );
 
 res.json({ msg:"Usuario bloqueado" });
@@ -474,8 +467,8 @@ res.json({ msg:"Usuario bloqueado" });
 app.post("/api/desbloquear", async(req,res)=>{
 
 await User.updateOne(
- { email:req.body.email },
- { bloqueado:false }
+{ email:req.body.email },
+{ bloqueado:false }
 );
 
 res.json({ msg:"Usuario desbloqueado" });
@@ -488,7 +481,7 @@ res.json({ msg:"Usuario desbloqueado" });
 app.get("/api/usuarios", async(req,res)=>{
 
 const data = await User.find({},{
- password:0
+password:0
 }).sort({ _id:-1 });
 
 res.json(data);
@@ -503,7 +496,7 @@ app.get("/api/historial-prestamos/:email", async(req,res)=>{
 try{
 
 const data = await Historial.find({
- email:req.params.email
+email:req.params.email
 }).sort({ _id:-1 });
 
 res.json(data);
