@@ -322,7 +322,21 @@ if(data.length===0){
 box.innerHTML="Sin movimientos";
 return;
 }
+function toggleHistorial(){
 
+const box = document.getElementById("historialBox");
+const btn = document.getElementById("btnHistorial");
+
+if(box.style.display === "none"){
+box.style.display = "block";
+btn.innerText = "Cerrar historial";
+historial();
+}else{
+box.style.display = "none";
+btn.innerText = "Ver historial";
+}
+
+}
 box.innerHTML="";
 
 data.forEach(h=>{
