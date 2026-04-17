@@ -218,7 +218,12 @@ app.post("/api/solicitar-prestamo", async(req,res)=>{
 try{
 
 const { email, monto, cuotas } = req.body;
-
+if(Number(cuotas) > 4){
+return res.json({
+ok:false,
+msg:"Máximo 4 cuotas"
+});
+}
 const user = await User.findOne({ email });
 
 if(!user){
