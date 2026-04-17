@@ -110,6 +110,7 @@ margin-top:6px;
 <div class="nombre" id="nombreUsuario"></div>
 </div>
 
+<!-- SALDO -->
 <div class="saldo-card">
 <p>Deuda actual</p>
 <div class="saldo">$<span id="saldo">0</span></div>
@@ -117,6 +118,55 @@ margin-top:6px;
 <p>Días restantes: <span id="dias">0</span></p>
 <p>Préstamo activo: <span id="prestamoEstado">No</span></p>
 <p>Cuotas pagadas: <span id="cuotasInfo">0/0</span></p>
+</div>
+
+<!-- SOLICITAR -->
+<div class="card">
+<h3>Solicitar préstamo</h3>
+
+<select id="monto">
+<option value="50000">$50.000</option>
+<option value="100000">$100.000</option>
+<option value="150000">$150.000</option>
+<option value="200000">$200.000</option>
+<option value="250000">$250.000</option>
+<option value="300000">$300.000</option>
+<option value="350000">$350.000</option>
+<option value="400000">$400.000</option>
+<option value="450000">$450.000</option>
+<option value="500000">$500.000</option>
+</select>
+
+<select id="cuotas">
+<option value="1">1 cuota</option>
+<option value="2">2 cuotas</option>
+<option value="3">3 cuotas</option>
+<option value="4" selected>4 cuotas</option>
+</select>
+
+<button class="btn-green" onclick="solicitarPrestamo()">Solicitar</button>
+</div>
+
+<!-- PAGAR -->
+<div class="card" id="boxPago">
+<h3>Pagar préstamo</h3>
+
+<p>Cuota sugerida: $<span id="valorCuota">0</span></p>
+
+<input type="number" id="otroValor" placeholder="Escribe otro valor">
+
+<div class="info">
+Nequi destino: <b>3226314209</b>
+</div>
+
+<button class="btn-purple" onclick="pagarNequi()">
+Pagar por Nequi
+</button>
+
+<button class="btn-green" onclick="reportarPago()">
+Ya realicé mi pago
+</button>
+
 </div>
 
 <!-- HISTORIAL -->
@@ -163,6 +213,99 @@ document.getElementById("prestamoEstado").innerText=
 document.getElementById("cuotasInfo").innerText=
 (usuario.cuotasPagadas || 0)+"/"+(usuario.cuotasTotal || 0);
 
+calcularPago();
+
+if((usuario.saldo || 0)<=0){
+document.getElementById("boxPago").style.display="none";
+}else{
+document.getElementById("boxPago").style.display="block";
+}
+
+}
+
+function calcularPago(){
+
+let deuda = Number(usuario.saldo || 0);
+
+if(deuda<=0){
+document.getElementById("valorCuota").innerText=0;
+document.getElementById("totalPagar").innerText=0;
+return;
+}
+
+let total = Math.round(deuda * 1.10);
+let cuotas = Number(usuario.cuotasTotal || 4);
+let cuota = Math.round(total / cuotas);
+
+document.getElementById("valorCuota").innerText=cuota;
+document.getElementById("totalPagar").innerText=total;
+
+}
+
+async function solicitarPrestamo(){
+
+let monto = Number(document.getElementById("monto").value);
+let cuotas = Number(document.getElementById("cuotas").value);
+
+const res = await fetch("/api/solicitar-prestamo",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+monto,
+cuotas
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+
+}
+
+function valorSeleccionado(){
+
+let otro = Number(document.getElementById("otroValor").value);
+
+if(otro>0){
+return otro;
+}
+
+return Number(document.getElementById("valorCuota").innerText);
+
+}
+
+function pagarNequi(){
+
+let valor = valorSeleccionado();
+
+let texto =
+"Hola, voy a pagar $" + valor +
+" al Nequi 3226314209 Usuario: " +
+usuario.nombre;
+
+window.open(
+"https://wa.me/573012245428?text="+encodeURIComponent(texto),
+"_blank"
+);
+
+}
+
+async function reportarPago(){
+
+let valor = valorSeleccionado();
+
+const res = await fetch("/api/reportar-pago",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+email:usuario.email,
+valor
+})
+});
+
+const data = await res.json();
+alert(data.msg);
+
 }
 
 function toggleHistorial(){
@@ -170,20 +313,22 @@ function toggleHistorial(){
 const box = document.getElementById("historialBox");
 const btn = document.getElementById("btnHistorial");
 
-if(box.style.display === "none"){
-box.style.display = "block";
-btn.innerText = "Cerrar historial";
+if(box.style.display=="none"){
+box.style.display="block";
+btn.innerText="Cerrar historial";
 historial();
 }else{
-box.style.display = "none";
-btn.innerText = "Ver historial";
+box.style.display="none";
+btn.innerText="Ver historial";
 }
 
 }
 
 async function historial(){
 
-const res = await fetch("/api/historial-prestamos/"+usuario.email);
+const res =
+await fetch("/api/historial-prestamos/"+usuario.email);
+
 const data = await res.json();
 
 const box = document.getElementById("historial");
