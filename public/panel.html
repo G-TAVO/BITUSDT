@@ -52,7 +52,7 @@ body{
   margin-top:20px;
 }
 
-input{
+input,select{
   width:100%;
   padding:12px;
   border-radius:8px;
@@ -76,6 +76,7 @@ button{
 .btn-blue{ background:#3b82f6 }
 .btn-orange{ background:#f97316 }
 .btn-red{ background:#ef4444 }
+.btn-purple{ background:#8b5cf6 }
 
 .menu{
   position:fixed;
@@ -92,12 +93,12 @@ button{
   border:none;
   color:white;
 }
-.menu button:hover{
-  color:#00ffcc;
-}
 
 .historial-item{
   margin:5px 0;
+  padding:8px;
+  background:#0f172a;
+  border-radius:8px;
 }
 </style>
 
@@ -107,159 +108,247 @@ button{
 
 <div class="container">
 
-  <div class="header">
-    <h1>PRÉSTAMOS TAVO</h1>
-    <div class="nombre" id="nombreUsuario"></div>
-  </div>
+<div class="header">
+<h1>PRÉSTAMOS TAVO</h1>
+<div class="nombre" id="nombreUsuario"></div>
+</div>
 
-  <div class="saldo-card">
-    <p>Deuda actual</p>
+<div class="saldo-card">
+<p>Deuda actual</p>
+<div class="saldo">$<span id="saldo">0</span></div>
+<p>Total a pagar: $<span id="totalPagar">0</span></p>
+<p>Días restantes: <span id="dias">0</span></p>
+<p>Préstamo activo: <span id="prestamoEstado">No</span></p>
+</div>
 
-    <div class="saldo">
-      $<span id="saldo">0</span>
-    </div>
+<!-- PRESTAMO -->
+<div class="card">
+<h3>Solicitar préstamo</h3>
 
-    <p>Días restantes: <span id="dias">0</span></p>
-    <p>Préstamo activo: <span id="prestamoEstado">No</span></p>
-  </div>
+<input type="number" id="monto" placeholder="Ej: 50000">
 
-  <div class="card">
-    <h3>Solicitar préstamo</h3>
-    <input type="number" id="monto" placeholder="Ej: 150000">
-    <button class="btn-green" onclick="solicitarPrestamo()">Solicitar</button>
-  </div>
+<select id="cuotas">
+<option value="2">2 cuotas</option>
+<option value="3">3 cuotas</option>
+<option value="4" selected>4 cuotas</option>
+<option value="5">5 cuotas</option>
+<option value="6">6 cuotas</option>
+</select>
 
-  <div class="card">
-    <h3>Cuenta de retiro</h3>
-    <p>Nequi: <span id="nequi">No registrado</span></p>
-    <button class="btn-blue" onclick="agregarNequi()">Registrar Nequi</button>
-  </div>
+<button class="btn-green" onclick="solicitarPrestamo()">Solicitar</button>
+</div>
 
-  <div class="card">
-    <h3>Historial</h3>
-    <div id="historial">Cargando...</div>
-  </div>
+<!-- PAGAR -->
+<div class="card">
+<h3>Pagar préstamo</h3>
+<p>Cuota actual: $<span id="valorCuota">0</span></p>
 
-  <div class="card">
-    <h3>Soporte</h3>
-    <a href="https://wa.me/573012245428" target="_blank">
-      <button class="btn-orange">Contactar</button>
-    </a>
-  </div>
+<button class="btn-purple" onclick="pagarNequi()">
+Pagar por Nequi
+</button>
+</div>
+
+<!-- NEQUI -->
+<div class="card">
+<h3>Cuenta de retiro</h3>
+<p>Nequi: <span id="nequi">No registrado</span></p>
+<button class="btn-blue" onclick="agregarNequi()">Registrar Nequi</button>
+</div>
+
+<!-- HISTORIAL -->
+<div class="card">
+<h3>Historial</h3>
+<div id="historial">Cargando...</div>
+</div>
+
+<!-- SOPORTE -->
+<div class="card">
+<h3>Soporte</h3>
+<a href="https://wa.me/573012245428" target="_blank">
+<button class="btn-orange">Contactar</button>
+</a>
+</div>
 
 </div>
 
 <div class="menu">
-  <button onclick="window.scrollTo(0,0)">Inicio</button>
-  <button onclick="salir()">Salir</button>
+<button onclick="window.scrollTo(0,0)">Inicio</button>
+<button onclick="salir()">Salir</button>
 </div>
 
 <script>
 
-// 🔒 USUARIO
+// ====================== LOGIN ======================
 let usuario = localStorage.getItem("usuario");
 
 if(!usuario){
-  alert("Debes iniciar sesión");
-  window.location.href="/";
+ alert("Debes iniciar sesión");
+ location.href="/";
 }else{
-  usuario = JSON.parse(usuario);
+ usuario = JSON.parse(usuario);
 }
 
-// 👤 MOSTRAR NOMBRE
+// ====================== DATOS ======================
 document.getElementById("nombreUsuario").innerText =
-  "👤 " + (usuario.nombre || "Usuario");
+"👤 " + (usuario.nombre || "Usuario");
 
-// MOSTRAR DATOS
 document.getElementById("saldo").innerText = usuario.saldo || 0;
 document.getElementById("dias").innerText = usuario.dias || 0;
 document.getElementById("nequi").innerText = usuario.nequi || "No registrado";
+
 document.getElementById("prestamoEstado").innerText =
-  usuario.saldo > 0 ? "Sí" : "No";
+usuario.saldo > 0 ? "Sí" : "No";
 
+calcularPago();
 
-// 📥 SOLICITAR PRÉSTAMO
+// ====================== CALCULO ======================
+function calcularPago(){
+
+let deuda = Number(usuario.saldo || 0);
+
+if(deuda <= 0){
+ document.getElementById("totalPagar").innerText = 0;
+ document.getElementById("valorCuota").innerText = 0;
+ return;
+}
+
+// 10% interés bajo
+let total = Math.round(deuda * 1.10);
+
+// cuotas guardadas
+let cuotas = Number(usuario.cuotas || 4);
+
+let valor = Math.round(total / cuotas);
+
+document.getElementById("totalPagar").innerText = total;
+document.getElementById("valorCuota").innerText = valor;
+
+}
+
+// ====================== SOLICITAR ======================
 async function solicitarPrestamo(){
 
-  const monto = document.getElementById("monto").value;
+let monto = Number(document.getElementById("monto").value);
+let cuotas = Number(document.getElementById("cuotas").value);
 
-  if(!monto || monto < 50000){
-    alert("Monto mínimo 50.000");
-    return;
-  }
-
-  const res = await fetch("/api/solicitar-prestamo",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ email:usuario.email, monto })
-  });
-
-  const data = await res.json();
-
-  if(data.ok){
-    alert("Solicitud enviada");
-
-    usuario.saldo = monto;
-    usuario.dias = 30;
-
-    localStorage.setItem("usuario", JSON.stringify(usuario));
-
-    location.reload();
-  }else{
-    alert(data.msg);
-  }
+if(!monto || monto < 50000){
+ alert("Monto mínimo 50.000");
+ return;
 }
 
+const res = await fetch("/api/solicitar-prestamo",{
+ method:"POST",
+ headers:{ "Content-Type":"application/json" },
+ body:JSON.stringify({
+   email:usuario.email,
+   monto,
+   cuotas
+ })
+});
 
-// 💳 NEQUI
+const data = await res.json();
+
+if(data.ok){
+
+ alert("Solicitud enviada al administrador");
+
+ usuario.saldo = monto;
+ usuario.dias = 30;
+ usuario.cuotas = cuotas;
+
+ localStorage.setItem("usuario",JSON.stringify(usuario));
+
+ location.reload();
+
+}else{
+ alert(data.msg);
+}
+
+}
+
+// ====================== PAGAR NEQUI ======================
+function pagarNequi(){
+
+if((usuario.saldo || 0) <= 0){
+ alert("No tienes deuda");
+ return;
+}
+
+let deuda = Number(usuario.saldo);
+let total = Math.round(deuda * 1.10);
+let cuotas = Number(usuario.cuotas || 4);
+let valor = Math.round(total / cuotas);
+
+let numero = "3012245428";
+
+let texto =
+"Hola, deseo pagar una cuota de $" + valor +
+" de mi préstamo en PRÉSTAMOS TAVO. Usuario: " +
+usuario.nombre;
+
+window.open(
+"https://wa.me/57"+numero+"?text="+encodeURIComponent(texto),
+"_blank"
+);
+
+}
+
+// ====================== NEQUI ======================
 async function agregarNequi(){
 
-  const numero = prompt("Ingresa tu Nequi:");
-  if(!numero) return;
+let numero = prompt("Ingresa tu número Nequi:");
 
-  const res = await fetch("/api/nequi",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ email:usuario.email, nequi:numero })
-  });
+if(!numero) return;
 
-  const data = await res.json();
+const res = await fetch("/api/nequi",{
+ method:"POST",
+ headers:{ "Content-Type":"application/json" },
+ body:JSON.stringify({
+   email:usuario.email,
+   nequi:numero
+ })
+});
 
-  if(data.ok){
-    usuario.nequi = numero;
-    localStorage.setItem("usuario", JSON.stringify(usuario));
-    location.reload();
-  }
+const data = await res.json();
+
+if(data.ok){
+ usuario.nequi = numero;
+ localStorage.setItem("usuario",JSON.stringify(usuario));
+ location.reload();
 }
 
+}
 
-// 📊 HISTORIAL
+// ====================== HISTORIAL ======================
 async function historial(){
 
-  const res = await fetch("/api/historial-prestamos/"+usuario.email);
-  const data = await res.json();
+const res = await fetch("/api/historial-prestamos/"+usuario.email);
+const data = await res.json();
 
-  const cont = document.getElementById("historial");
+const cont = document.getElementById("historial");
 
-  if(data.length === 0){
-    cont.innerHTML = "Sin movimientos";
-    return;
-  }
+if(data.length === 0){
+ cont.innerHTML = "Sin movimientos";
+ return;
+}
 
-  cont.innerHTML = "";
+cont.innerHTML = "";
 
-  data.forEach(h=>{
-    cont.innerHTML += `<div class="historial-item">${h.fecha} — $${h.monto}</div>`;
-  });
+data.forEach(h=>{
+ cont.innerHTML += `
+ <div class="historial-item">
+ ${h.fecha} - $${h.monto}
+ </div>`;
+});
+
 }
 
 historial();
 
-
-// 🚪 SALIR
+// ====================== SALIR ======================
 function salir(){
-  localStorage.removeItem("usuario");
-  window.location.href="/";
+localStorage.removeItem("usuario");
+location.href="/";
 }
 
 </script>
