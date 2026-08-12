@@ -3,66 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin | Préstamos Tavo</title>
+
+<title>Admin | Juego Demo</title>
 
 <style>
+
+*{
+box-sizing:border-box;
+}
+
 body{
 margin:0;
-font-family:Arial;
+font-family:Arial,Helvetica,sans-serif;
 background:#0f172a;
 color:white;
 }
+
 .container{
-max-width:700px;
+max-width:900px;
 margin:auto;
 padding:20px;
 padding-bottom:80px;
 }
+
 h1{
 text-align:center;
 color:#00ffcc;
-margin-top:0;
+margin:0 0 10px;
 }
+
 h2{
 margin-top:30px;
 font-size:20px;
 color:#38bdf8;
 }
+
+.top{
+background:#111827;
+padding:18px;
+border-radius:14px;
+margin-bottom:20px;
+text-align:center;
+border:1px solid #334155;
+}
+
+.demo{
+font-size:18px;
+font-weight:bold;
+color:#facc15;
+margin-top:8px;
+}
+
 .card{
 background:#1e293b;
-padding:15px;
-border-radius:12px;
+padding:18px;
+border-radius:14px;
 margin-top:15px;
+border:1px solid #334155;
 }
+
+.card b{
+font-size:17px;
+}
+
+.info{
+line-height:1.7;
+margin-top:8px;
+}
+
+.saldo{
+font-size:20px;
+font-weight:bold;
+color:#22c55e;
+}
+
+.estado{
+font-weight:bold;
+}
+
+.pendiente{
+color:#facc15;
+}
+
+.aprobado{
+color:#22c55e;
+}
+
+.rechazado{
+color:#ef4444;
+}
+
 button{
-padding:10px;
+padding:11px 14px;
 border:none;
 border-radius:8px;
-margin:5px;
+margin:5px 3px;
 cursor:pointer;
 color:white;
 font-weight:bold;
+font-size:14px;
 }
-.aprobar{background:#22c55e;}
-.rechazar{background:#ef4444;}
-.bloquear{background:#f97316;}
-.desbloquear{background:#3b82f6;}
+
+button:active{
+transform:scale(.97);
+}
+
+.aprobar{
+background:#22c55e;
+}
+
+.rechazar{
+background:#ef4444;
+}
+
+.recargar{
+background:#8b5cf6;
+}
+
+.bloquear{
+background:#f97316;
+}
+
+.desbloquear{
+background:#3b82f6;
+}
+
+.historial{
+background:#475569;
+}
+
 .salir{
 background:#ef4444;
 width:100%;
-padding:12px;
-margin-top:25px;
+padding:13px;
+margin-top:30px;
+font-size:16px;
 }
-small{
+
+.vacio{
+background:#1e293b;
+padding:15px;
+border-radius:10px;
 opacity:.8;
+text-align:center;
 }
-.top{
+
+.separador{
+height:1px;
+background:#334155;
+margin:12px 0;
+}
+
+.input-demo{
+width:140px;
+padding:10px;
+border:none;
+border-radius:7px;
+margin:5px;
+font-size:15px;
+}
+
+.modal{
+display:none;
+position:fixed;
+z-index:1000;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.75);
+padding:20px;
+}
+
+.modal-content{
+background:#1e293b;
+max-width:420px;
+margin:80px auto;
+padding:22px;
+border-radius:15px;
+border:1px solid #475569;
+}
+
+.modal-content h3{
+margin-top:0;
+color:#38bdf8;
+}
+
+.modal-content input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+font-size:16px;
+}
+
+.cerrar-modal{
+background:#64748b;
+}
+
+.confirmar{
+background:#8b5cf6;
+width:100%;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+margin-top:15px;
+}
+
+.stat{
 background:#111827;
 padding:15px;
 border-radius:12px;
-margin-bottom:20px;
 text-align:center;
+border:1px solid #334155;
 }
+
+.stat-numero{
+font-size:24px;
+font-weight:bold;
+color:#38bdf8;
+margin-top:5px;
+}
+
+@media(max-width:600px){
+
+.container{
+padding:15px;
+}
+
+.stats{
+grid-template-columns:1fr 1fr;
+}
+
+button{
+width:auto;
+}
+
+}
+
 </style>
 </head>
 
@@ -73,201 +255,624 @@ text-align:center;
 <h1>👑 PANEL ADMIN</h1>
 
 <div class="top">
-Sistema activo • Auto actualización cada 10 segundos
+
+<div>
+🎰 SISTEMA DE JUEGO DEMO
 </div>
 
-<!-- SOLICITUDES -->
-<h2>📥 Solicitudes de Préstamo</h2>
-<div id="solicitudes">Cargando...</div>
+<div class="demo">
+⚠️ TODO EL DINERO ES FICTICIO
+</div>
 
-<!-- PAGOS -->
-<h2>💰 Pagos Pendientes</h2>
-<div id="pagos">Cargando...</div>
+<small>
+Panel administrativo de pruebas
+</small>
 
+</div>
+
+
+<!-- ========================= -->
+<!-- ESTADÍSTICAS -->
+<!-- ========================= -->
+
+<h2>📊 Estadísticas</h2>
+
+<div class="stats">
+
+<div class="stat">
+Usuarios
+<div class="stat-numero" id="totalUsuarios">
+0
+</div>
+</div>
+
+<div class="stat">
+Partidas
+<div class="stat-numero" id="totalPartidas">
+0
+</div>
+</div>
+
+<div class="stat">
+Dinero Demo
+<div class="stat-numero" id="totalDinero">
+$0
+</div>
+</div>
+
+<div class="stat">
+Retiros pendientes
+<div class="stat-numero" id="totalRetiros">
+0
+</div>
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- RECARGAS DEMO PENDIENTES -->
+<!-- ========================= -->
+
+<h2>📥 Recargas de Dinero Demo</h2>
+
+<div id="recargas">
+Cargando...
+</div>
+
+
+<!-- ========================= -->
+<!-- RETIROS DEMO -->
+<!-- ========================= -->
+
+<h2>💸 Retiros de Dinero Demo</h2>
+
+<div id="retiros">
+Cargando...
+</div>
+
+
+<!-- ========================= -->
 <!-- USUARIOS -->
-<h2>👥 Usuarios Registrados</h2>
-<div id="usuarios">Cargando...</div>
+<!-- ========================= -->
 
-<button class="salir" onclick="salir()">Cerrar sesión</button>
+<h2>👥 Usuarios Registrados</h2>
+
+<div id="usuarios">
+Cargando...
+</div>
+
+
+<!-- ========================= -->
+<!-- PARTIDAS -->
+<!-- ========================= -->
+
+<h2>🎰 Últimas Partidas</h2>
+
+<div id="partidas">
+Cargando...
+</div>
+
+
+<!-- ========================= -->
+<!-- BOTÓN SALIR -->
+<!-- ========================= -->
+
+<button class="salir" onclick="salir()">
+Cerrar sesión
+</button>
 
 </div>
+
+
+<!-- ========================= -->
+<!-- MODAL RECARGA DEMO -->
+<!-- ========================= -->
+
+<div class="modal" id="modalRecarga">
+
+<div class="modal-content">
+
+<h3>💵 Recargar Dinero Demo</h3>
+
+<div id="nombreUsuarioModal"></div>
+
+<input
+type="number"
+id="montoRecarga"
+placeholder="Monto de Dinero Demo"
+min="1"
+>
+
+<input
+type="text"
+id="motivoRecarga"
+placeholder="Motivo de la recarga"
+>
+
+<button
+class="confirmar"
+onclick="confirmarRecarga()"
+>
+Confirmar Recarga Demo
+</button>
+
+<button
+class="cerrar-modal"
+onclick="cerrarModal()"
+>
+Cancelar
+</button>
+
+</div>
+
+</div>
+
 
 <script>
 
-// ========================
-// VALIDAR ADMIN
-// ========================
-const usuario = JSON.parse(localStorage.getItem("usuario"));
+/* =====================================================
+   VALIDAR ADMIN
+===================================================== */
+
+const usuario = JSON.parse(
+localStorage.getItem("usuario")
+);
 
 if(!usuario || usuario.rol !== "admin"){
+
 alert("Acceso denegado");
+
 location.href="/";
+
 }
 
-// ========================
+
+/* =====================================================
+   VARIABLE USUARIO SELECCIONADO
+===================================================== */
+
+let usuarioSeleccionado = null;
+
+
+/* =====================================================
+   FORMATO DINERO
+===================================================== */
+
+function dinero(valor){
+
+return Number(valor || 0).toLocaleString(
+"es-CO"
+);
+
+}
+
+
+/* =====================================================
+   CARGAR TODO
+===================================================== */
+
 cargarTodo();
 
-function cargarTodo(){
-cargarSolicitudes();
-cargarPagos();
-cargarUsuarios();
+
+async function cargarTodo(){
+
+await cargarRecargas();
+
+await cargarRetiros();
+
+await cargarUsuarios();
+
+await cargarPartidas();
+
+await cargarEstadisticas();
+
 }
 
-// ========================
-// SOLICITUDES
-// ========================
-async function cargarSolicitudes(){
 
-const res = await fetch("/api/solicitudes");
+/* =====================================================
+   RECARGAS DEMO
+===================================================== */
+
+async function cargarRecargas(){
+
+try{
+
+const res = await fetch("/api/recargas");
+
 const data = await res.json();
 
-const box = document.getElementById("solicitudes");
+const box = document.getElementById("recargas");
 
-if(data.length === 0){
-box.innerHTML = "No hay solicitudes";
+if(!Array.isArray(data) || data.length === 0){
+
+box.innerHTML =
+`
+<div class="vacio">
+No hay recargas de Dinero Demo pendientes.
+</div>
+`;
+
 return;
+
 }
 
 box.innerHTML = "";
 
-data.forEach(s=>{
+data.forEach(r=>{
 
 box.innerHTML += `
-<div class="card">
-<b>${s.nombre}</b><br>
-${s.email}<br>
-Monto: $${s.monto}<br>
-Cuotas: ${s.cuotas || 4}<br><br>
 
-<button class="aprobar" onclick="aprobarPrestamo('${s._id}')">Aprobar</button>
-<button class="rechazar" onclick="rechazarPrestamo('${s._id}')">Rechazar</button>
+<div class="card">
+
+<b>👤 ${r.nombre || "Usuario"}</b>
+
+<div class="info">
+
+Correo:
+${r.email || ""}
+
+<br>
+
+Valor:
+<span class="saldo">
+$${dinero(r.valor)}
+</span>
+
+<br>
+
+Estado:
+<span class="estado pendiente">
+${r.estado || "pendiente"}
+</span>
+
+<br>
+
+<small>
+${r.fecha || ""}
+</small>
+
 </div>
+
+<div class="separador"></div>
+
+<button
+class="aprobar"
+onclick="aprobarRecarga('${r._id}')"
+>
+✅ Aprobar
+</button>
+
+<button
+class="rechazar"
+onclick="rechazarRecarga('${r._id}')"
+>
+❌ Rechazar
+</button>
+
+</div>
+
 `;
 
 });
 
+}catch(error){
+
+console.log(error);
+
+document.getElementById("recargas").innerHTML =
+`
+<div class="vacio">
+No se pudieron cargar las recargas.
+</div>
+`;
+
 }
 
-async function aprobarPrestamo(id){
+}
 
-if(!confirm("¿Aprobar préstamo?")) return;
 
-const res = await fetch("/api/aprobar",{
+/* =====================================================
+   APROBAR RECARGA
+===================================================== */
+
+async function aprobarRecarga(id){
+
+if(!confirm(
+"¿Aprobar esta recarga de Dinero Demo?"
+)) return;
+
+try{
+
+const res = await fetch(
+"/api/aprobar-recarga",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ id })
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({id})
+}
+);
 
 const data = await res.json();
 
-alert(data.msg);
+alert(
+data.msg || "Operación realizada"
+);
 
 cargarTodo();
 
+}catch(error){
+
+console.log(error);
+
+alert("Error al aprobar recarga");
+
 }
 
-async function rechazarPrestamo(id){
+}
 
-if(!confirm("¿Rechazar solicitud?")) return;
 
-const res = await fetch("/api/rechazar",{
+/* =====================================================
+   RECHAZAR RECARGA
+===================================================== */
+
+async function rechazarRecarga(id){
+
+if(!confirm(
+"¿Rechazar esta recarga de Dinero Demo?"
+)) return;
+
+try{
+
+const res = await fetch(
+"/api/rechazar-recarga",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ id })
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({id})
+}
+);
 
 const data = await res.json();
 
-alert(data.msg);
+alert(
+data.msg || "Recarga rechazada"
+);
 
-cargarSolicitudes();
+cargarRecargas();
+
+}catch(error){
+
+console.log(error);
+
+alert("Error al rechazar recarga");
 
 }
 
-// ========================
-// PAGOS
-// ========================
-async function cargarPagos(){
+}
 
-const res = await fetch("/api/pagos");
+
+/* =====================================================
+   RETIROS DEMO
+===================================================== */
+
+async function cargarRetiros(){
+
+try{
+
+const res = await fetch("/api/retiros");
+
 const data = await res.json();
 
-const box = document.getElementById("pagos");
+const box = document.getElementById("retiros");
 
-if(data.length === 0){
-box.innerHTML = "No hay pagos pendientes";
+if(!Array.isArray(data) || data.length === 0){
+
+box.innerHTML =
+`
+<div class="vacio">
+No hay retiros de Dinero Demo pendientes.
+</div>
+`;
+
 return;
+
 }
 
 box.innerHTML = "";
 
-data.forEach(p=>{
+data.forEach(r=>{
 
 box.innerHTML += `
-<div class="card">
-<b>${p.nombre}</b><br>
-${p.email}<br>
-Valor: $${p.valor}<br>
-<small>${p.fecha}</small><br><br>
 
-<button class="aprobar" onclick="aprobarPago('${p._id}')">Confirmar Pago</button>
-<button class="rechazar" onclick="rechazarPago('${p._id}')">Rechazar</button>
+<div class="card">
+
+<b>👤 ${r.nombre || "Usuario"}</b>
+
+<div class="info">
+
+Correo:
+${r.email || ""}
+
+<br>
+
+Valor solicitado:
+
+<span class="saldo">
+$${dinero(r.valor)}
+</span>
+
+<br>
+
+Nequi Demo:
+${r.nequi || "No registrado"}
+
+<br>
+
+Estado:
+<span class="estado pendiente">
+${r.estado || "pendiente"}
+</span>
+
+<br>
+
+<small>
+${r.fechaSolicitud || r.fecha || ""}
+</small>
+
 </div>
+
+<div class="separador"></div>
+
+<button
+class="aprobar"
+onclick="aprobarRetiro('${r._id}')"
+>
+✅ Aprobar retiro
+</button>
+
+<button
+class="rechazar"
+onclick="rechazarRetiro('${r._id}')"
+>
+❌ Rechazar retiro
+</button>
+
+</div>
+
 `;
 
 });
 
+}catch(error){
+
+console.log(error);
+
+document.getElementById("retiros").innerHTML =
+`
+<div class="vacio">
+No se pudieron cargar los retiros.
+</div>
+`;
+
 }
 
-async function aprobarPago(id){
+}
 
-if(!confirm("¿Confirmar pago recibido?")) return;
 
-const res = await fetch("/api/aprobar-pago",{
+/* =====================================================
+   APROBAR RETIRO
+===================================================== */
+
+async function aprobarRetiro(id){
+
+if(!confirm(
+"¿Aprobar este retiro de Dinero Demo?"
+)) return;
+
+try{
+
+const res = await fetch(
+"/api/aprobar-retiro",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ id })
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({id})
+}
+);
 
 const data = await res.json();
 
-alert(data.msg);
+alert(
+data.msg || "Retiro aprobado"
+);
 
 cargarTodo();
 
+}catch(error){
+
+console.log(error);
+
+alert("Error al aprobar retiro");
+
 }
 
-async function rechazarPago(id){
+}
 
-if(!confirm("¿Rechazar este pago?")) return;
 
-const res = await fetch("/api/rechazar-pago",{
+/* =====================================================
+   RECHAZAR RETIRO
+===================================================== */
+
+async function rechazarRetiro(id){
+
+if(!confirm(
+"¿Rechazar este retiro de Dinero Demo?"
+)) return;
+
+try{
+
+const res = await fetch(
+"/api/rechazar-retiro",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ id })
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({id})
+}
+);
 
 const data = await res.json();
 
-alert(data.msg);
+alert(
+data.msg || "Retiro rechazado"
+);
 
-cargarPagos();
+cargarTodo();
+
+}catch(error){
+
+console.log(error);
+
+alert("Error al rechazar retiro");
 
 }
 
-// ========================
-// USUARIOS
-// ========================
+}
+
+
+/* =====================================================
+   USUARIOS
+===================================================== */
+
 async function cargarUsuarios(){
 
+try{
+
 const res = await fetch("/api/usuarios");
+
 const data = await res.json();
 
 const box = document.getElementById("usuarios");
 
-if(data.length === 0){
-box.innerHTML = "No hay usuarios";
+if(!Array.isArray(data) || data.length === 0){
+
+box.innerHTML =
+`
+<div class="vacio">
+No hay usuarios registrados.
+</div>
+`;
+
 return;
+
 }
 
 box.innerHTML = "";
@@ -275,76 +880,568 @@ box.innerHTML = "";
 data.forEach(u=>{
 
 box.innerHTML += `
+
 <div class="card">
-<b>${u.nombre}</b><br>
-${u.email}<br>
 
-Saldo:
-<span style="color:${u.saldo>0?'#f87171':'#22c55e'}">
-$${u.saldo}
-</span><br>
+<b>👤 ${u.nombre}</b>
 
-Cuotas: ${u.cuotasPagadas}/${u.cuotasTotal}<br>
+<div class="info">
+
+📧 ${u.email}
+
+<br>
+
+📱 ${u.telefono || "Sin teléfono"}
+
+<br>
+
+💵 Dinero Demo:
+
+<span class="saldo">
+$${dinero(u.saldo)}
+</span>
+
+<br>
 
 Estado:
-${u.bloqueado ? "🚫 Bloqueado" : "✅ Activo"}
-<br><br>
 
 ${
 u.bloqueado
+
 ?
-`<button class="desbloquear" onclick="desbloquear('${u.email}')">Desbloquear</button>`
+
+`<span class="estado rechazado">
+🚫 Bloqueado
+</span>`
+
 :
-`<button class="bloquear" onclick="bloquear('${u.email}')">Bloquear</button>`
+
+`<span class="estado aprobado">
+✅ Activo
+</span>`
 }
 
 </div>
+
+<div class="separador"></div>
+
+<button
+class="recargar"
+onclick="abrirRecarga(
+'${u._id}',
+'${escapeHtml(u.nombre)}',
+'${u.email}'
+)"
+>
+💵 Recargar Demo
+</button>
+
+${
+u.bloqueado
+
+?
+
+`
+
+<button
+class="desbloquear"
+onclick="desbloquear('${u.email}')"
+>
+🔓 Desbloquear
+</button>
+
+`
+
+:
+
+`
+
+<button
+class="bloquear"
+onclick="bloquear('${u.email}')"
+>
+🚫 Bloquear
+</button>
+
+`
+}
+
+</div>
+
 `;
 
 });
 
+}catch(error){
+
+console.log(error);
+
+document.getElementById("usuarios").innerHTML =
+`
+<div class="vacio">
+No se pudieron cargar los usuarios.
+</div>
+`;
+
 }
+
+}
+
+
+/* =====================================================
+   ESCAPAR TEXTO
+===================================================== */
+
+function escapeHtml(text){
+
+return String(text || "")
+.replace(/'/g,"\\'")
+.replace(/"/g,"&quot;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;");
+
+}
+
+
+/* =====================================================
+   ABRIR MODAL RECARGA
+===================================================== */
+
+function abrirRecarga(id,nombre,email){
+
+usuarioSeleccionado = {
+id,
+nombre,
+email
+};
+
+document.getElementById(
+"nombreUsuarioModal"
+).innerHTML = `
+
+<p>
+Usuario:
+<b>${nombre}</b>
+</p>
+
+<p>
+${email}
+</p>
+
+`;
+
+document.getElementById(
+"montoRecarga"
+).value = "";
+
+document.getElementById(
+"motivoRecarga"
+).value = "";
+
+document.getElementById(
+"modalRecarga"
+).style.display = "block";
+
+}
+
+
+/* =====================================================
+   CERRAR MODAL
+===================================================== */
+
+function cerrarModal(){
+
+document.getElementById(
+"modalRecarga"
+).style.display = "none";
+
+usuarioSeleccionado = null;
+
+}
+
+
+/* =====================================================
+   CONFIRMAR RECARGA DIRECTA DEL ADMIN
+===================================================== */
+
+async function confirmarRecarga(){
+
+if(!usuarioSeleccionado){
+
+alert("Usuario no seleccionado");
+
+return;
+
+}
+
+const monto = Number(
+document.getElementById(
+"montoRecarga"
+).value
+);
+
+const motivo =
+document.getElementById(
+"motivoRecarga"
+).value.trim();
+
+
+if(!monto || monto <= 0){
+
+alert(
+"Introduce un monto válido"
+);
+
+return;
+
+}
+
+
+if(!confirm(
+`¿Agregar $${dinero(monto)} de Dinero Demo a ${usuarioSeleccionado.nombre}?`
+)) return;
+
+
+try{
+
+const res = await fetch(
+"/api/admin-recargar-demo",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+
+email:usuarioSeleccionado.email,
+
+monto:monto,
+
+motivo:
+motivo || "Recarga manual del administrador"
+
+})
+}
+);
+
+const data = await res.json();
+
+alert(
+data.msg || "Recarga realizada"
+);
+
+cerrarModal();
+
+cargarTodo();
+
+}catch(error){
+
+console.log(error);
+
+alert(
+"Error realizando la recarga"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   BLOQUEAR
+===================================================== */
 
 async function bloquear(email){
 
-const res = await fetch("/api/bloquear",{
+if(!confirm(
+"¿Bloquear este usuario?"
+)) return;
+
+try{
+
+const res = await fetch(
+"/api/bloquear",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ email })
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email})
+}
+);
 
 const data = await res.json();
 
-alert(data.msg);
+alert(
+data.msg || "Usuario bloqueado"
+);
 
 cargarUsuarios();
 
+}catch(error){
+
+console.log(error);
+
+alert(
+"Error al bloquear usuario"
+);
+
 }
+
+}
+
+
+/* =====================================================
+   DESBLOQUEAR
+===================================================== */
 
 async function desbloquear(email){
 
-const res = await fetch("/api/desbloquear",{
+if(!confirm(
+"¿Desbloquear este usuario?"
+)) return;
+
+try{
+
+const res = await fetch(
+"/api/desbloquear",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ email })
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email})
+}
+);
 
 const data = await res.json();
 
-alert(data.msg);
+alert(
+data.msg || "Usuario desbloqueado"
+);
 
 cargarUsuarios();
 
+}catch(error){
+
+console.log(error);
+
+alert(
+"Error al desbloquear usuario"
+);
+
 }
 
-// ========================
+}
+
+
+/* =====================================================
+   PARTIDAS
+===================================================== */
+
+async function cargarPartidas(){
+
+try{
+
+const res = await fetch(
+"/api/partidas"
+);
+
+const data = await res.json();
+
+const box = document.getElementById(
+"partidas"
+);
+
+if(!Array.isArray(data) || data.length === 0){
+
+box.innerHTML =
+`
+<div class="vacio">
+Todavía no hay partidas.
+</div>
+`;
+
+return;
+
+}
+
+box.innerHTML = "";
+
+data.slice(0,20).forEach(p=>{
+
+const resultado =
+p.gano
+
+?
+
+`
+<span class="estado aprobado">
+🎉 GANÓ
+</span>
+`
+
+:
+
+`
+<span class="estado rechazado">
+❌ PERDIÓ
+</span>
+`;
+
+box.innerHTML += `
+
+<div class="card">
+
+<b>
+👤 ${p.nombre || p.email}
+</b>
+
+<div class="info">
+
+Número elegido:
+<b>${p.numeroElegido}</b>
+
+<br>
+
+Resultado:
+<b>${p.resultado}</b>
+
+<br>
+
+Apuesta:
+$${dinero(p.apuesta)}
+
+<br>
+
+Premio:
+$${dinero(p.premio)}
+
+<br>
+
+Resultado:
+${resultado}
+
+<br>
+
+<small>
+${p.fecha || ""}
+</small>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}catch(error){
+
+console.log(error);
+
+document.getElementById(
+"partidas"
+).innerHTML =
+`
+<div class="vacio">
+No se pudieron cargar las partidas.
+</div>
+`;
+
+}
+
+}
+
+
+/* =====================================================
+   ESTADÍSTICAS
+===================================================== */
+
+async function cargarEstadisticas(){
+
+try{
+
+const res = await fetch(
+"/api/estadisticas"
+);
+
+const data = await res.json();
+
+document.getElementById(
+"totalUsuarios"
+).textContent =
+data.usuarios || 0;
+
+document.getElementById(
+"totalPartidas"
+).textContent =
+data.partidas || 0;
+
+document.getElementById(
+"totalDinero"
+).textContent =
+"$" + dinero(data.dineroDemo || 0);
+
+document.getElementById(
+"totalRetiros"
+).textContent =
+data.retirosPendientes || 0;
+
+}catch(error){
+
+console.log(
+"Estadísticas todavía no disponibles"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   CERRAR SESIÓN
+===================================================== */
+
 function salir(){
-localStorage.removeItem("usuario");
+
+localStorage.removeItem(
+"usuario"
+);
+
 location.href="/";
+
 }
 
-// AUTO REFRESCO
-setInterval(cargarTodo,10000);
+
+/* =====================================================
+   CERRAR MODAL AL HACER CLICK AFUERA
+===================================================== */
+
+window.onclick = function(event){
+
+const modal =
+document.getElementById(
+"modalRecarga"
+);
+
+if(event.target === modal){
+
+cerrarModal();
+
+}
+
+};
+
+
+/* =====================================================
+   ACTUALIZACIÓN AUTOMÁTICA
+===================================================== */
+
+setInterval(
+cargarTodo,
+10000
+);
 
 </script>
 
