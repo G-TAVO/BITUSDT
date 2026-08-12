@@ -1,364 +1,2256 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Usuario | Préstamos Tavo</title>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>Juego Demo | Tavo</title>
 
 <style>
-body{
+
+/* =====================================================
+   GENERAL
+===================================================== */
+
+*{
 margin:0;
-font-family:Arial;
-background:#0f172a;
-color:white;
-}
-.container{
-max-width:500px;
-margin:auto;
-padding:20px;
-padding-bottom:90px;
-}
-.header{
-text-align:center;
-margin-bottom:20px;
-}
-.header h1{
-margin:0;
-color:#00ffcc;
-}
-.nombre{
-margin-top:5px;
-font-size:14px;
-opacity:.8;
-}
-.card{
-background:#1e293b;
-padding:15px;
-border-radius:12px;
-margin-top:20px;
-}
-.saldo-card{
-background:linear-gradient(135deg,#2563eb,#1e40af);
-padding:25px;
-border-radius:15px;
-text-align:center;
-}
-.saldo{
-font-size:32px;
-font-weight:bold;
-margin-top:10px;
-}
-input,select{
-width:100%;
-padding:12px;
-border:none;
-border-radius:8px;
-margin-top:10px;
+padding:0;
 box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
 }
-button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
+
+body{
+
+margin:0;
+
+background:
+radial-gradient(
+circle at top,
+#164e63 0%,
+#0f2027 45%,
+#020617 100%
+);
+
 color:white;
-margin-top:10px;
+
+min-height:100vh;
+
+padding-bottom:90px;
+
 }
-.btn-green{background:#22c55e;}
-.btn-purple{background:#8b5cf6;}
-.btn-blue{background:#3b82f6;}
+
+.container{
+
+max-width:500px;
+
+margin:auto;
+
+padding:20px;
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header{
+
+text-align:center;
+
+margin-bottom:20px;
+
+}
+
+.header h1{
+
+margin:0;
+
+color:#00ffcc;
+
+font-size:27px;
+
+}
+
+.nombre{
+
+margin-top:6px;
+
+font-size:14px;
+
+opacity:.85;
+
+}
+
+
+/* =====================================================
+   AVISO DEMO
+===================================================== */
+
+.demo-aviso{
+
+background:#422006;
+
+border:1px solid #f59e0b;
+
+color:#facc15;
+
+padding:11px;
+
+border-radius:10px;
+
+text-align:center;
+
+font-size:13px;
+
+font-weight:bold;
+
+margin-bottom:15px;
+
+}
+
+
+/* =====================================================
+   TARJETAS
+===================================================== */
+
+.card{
+
+background:#1e293b;
+
+padding:16px;
+
+border-radius:14px;
+
+margin-top:18px;
+
+border:1px solid #334155;
+
+box-shadow:
+0 8px 20px rgba(0,0,0,.25);
+
+}
+
+.card h3{
+
+color:#38bdf8;
+
+margin-bottom:12px;
+
+}
+
+
+/* =====================================================
+   SALDO
+===================================================== */
+
+.saldo-card{
+
+background:
+linear-gradient(
+135deg,
+#064e3b,
+#047857
+);
+
+padding:24px;
+
+border-radius:16px;
+
+text-align:center;
+
+border:1px solid #10b981;
+
+box-shadow:
+0 8px 25px rgba(0,0,0,.3);
+
+}
+
+.saldo-titulo{
+
+font-size:14px;
+
+color:#a7f3d0;
+
+font-weight:bold;
+
+}
+
+.saldo{
+
+font-size:36px;
+
+font-weight:bold;
+
+margin-top:8px;
+
+}
+
+.saldo-demo{
+
+font-size:12px;
+
+color:#6ee7b7;
+
+margin-top:6px;
+
+}
+
+
+/* =====================================================
+   ESTADISTICAS
+===================================================== */
+
+.stats{
+
+display:grid;
+
+grid-template-columns:
+1fr 1fr;
+
+gap:10px;
+
+margin-top:15px;
+
+}
+
+.stat{
+
+background:#111827;
+
+padding:12px;
+
+border-radius:10px;
+
+text-align:center;
+
+border:1px solid #334155;
+
+}
+
+.stat-titulo{
+
+font-size:12px;
+
+color:#94a3b8;
+
+}
+
+.stat-valor{
+
+font-size:20px;
+
+font-weight:bold;
+
+color:#38bdf8;
+
+margin-top:4px;
+
+}
+
+
+/* =====================================================
+   RULETA
+===================================================== */
+
+.ruleta-area{
+
+text-align:center;
+
+}
+
+
+/* PUNTERO */
+
+.puntero{
+
+width:0;
+
+height:0;
+
+border-left:12px solid transparent;
+
+border-right:12px solid transparent;
+
+border-top:25px solid #facc15;
+
+margin:5px auto -5px auto;
+
+position:relative;
+
+z-index:10;
+
+}
+
+
+/* RUEDA */
+
+.ruleta{
+
+width:230px;
+
+height:230px;
+
+border-radius:50%;
+
+margin:0 auto;
+
+background:
+
+conic-gradient(
+
+#ef4444 0deg 18deg,
+#facc15 18deg 36deg,
+#22c55e 36deg 54deg,
+#38bdf8 54deg 72deg,
+#8b5cf6 72deg 90deg,
+#ec4899 90deg 108deg,
+#f97316 108deg 126deg,
+#14b8a6 126deg 144deg,
+#ef4444 144deg 162deg,
+#facc15 162deg 180deg,
+#22c55e 180deg 198deg,
+#38bdf8 198deg 216deg,
+#8b5cf6 216deg 234deg,
+#ec4899 234deg 252deg,
+#f97316 252deg 270deg,
+#14b8a6 270deg 288deg,
+#ef4444 288deg 306deg,
+#facc15 306deg 324deg,
+#22c55e 324deg 342deg,
+#38bdf8 342deg 360deg
+
+);
+
+border:8px solid #e2e8f0;
+
+box-shadow:
+
+0 0 0 5px #334155,
+
+0 10px 30px rgba(0,0,0,.6);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+transition:
+transform 4s
+cubic-bezier(.15,.75,.25,1);
+
+}
+
+
+/* CENTRO */
+
+.ruleta-centro{
+
+width:75px;
+
+height:75px;
+
+border-radius:50%;
+
+background:#0f172a;
+
+border:4px solid #e2e8f0;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:20px;
+
+font-weight:bold;
+
+color:#facc15;
+
+}
+
+
+/* =====================================================
+   NUMERO ELEGIDO
+===================================================== */
+
+.numero-box{
+
+background:#111827;
+
+padding:15px;
+
+border-radius:12px;
+
+margin-top:18px;
+
+text-align:center;
+
+}
+
+.numero-box label{
+
+display:block;
+
+font-size:14px;
+
+color:#94a3b8;
+
+margin-bottom:5px;
+
+}
+
+.numero-elegido{
+
+font-size:40px;
+
+font-weight:bold;
+
+color:#facc15;
+
+}
+
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+input,
+select{
+
+width:100%;
+
+padding:13px;
+
+margin-top:10px;
+
+border:none;
+
+border-radius:9px;
+
+background:#0f172a;
+
+color:white;
+
+border:1px solid #334155;
+
+font-size:15px;
+
+outline:none;
+
+}
+
+input:focus,
+select:focus{
+
+border-color:#00ffcc;
+
+}
+
+
+/* =====================================================
+   BOTONES
+===================================================== */
+
+button{
+
+width:100%;
+
+padding:13px;
+
+border:none;
+
+border-radius:10px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+color:white;
+
+margin-top:10px;
+
+font-size:15px;
+
+transition:.2s;
+
+}
+
+button:hover{
+
+transform:translateY(-1px);
+
+}
+
+button:active{
+
+transform:scale(.98);
+
+}
+
+
+/* BOTON JUGAR */
+
+.btn-jugar{
+
+background:
+linear-gradient(
+135deg,
+#00c896,
+#059669
+);
+
+font-size:18px;
+
+padding:15px;
+
+}
+
+
+/* RECARGAR */
+
+.btn-recargar{
+
+background:#2563eb;
+
+}
+
+
+/* RETIRAR */
+
+.btn-retirar{
+
+background:#8b5cf6;
+
+}
+
+
+/* HISTORIAL */
+
+.btn-historial{
+
+background:#3b82f6;
+
+}
+
+
+/* SALIR */
+
+.btn-salir{
+
+background:#ef4444;
+
+}
+
+
+/* =====================================================
+   CANTIDAD DE JUEGO
+===================================================== */
+
+.apuesta-info{
+
+margin-top:12px;
+
+background:#0f172a;
+
+padding:12px;
+
+border-radius:9px;
+
+font-size:13px;
+
+color:#94a3b8;
+
+text-align:center;
+
+}
+
+
+/* =====================================================
+   RESULTADO
+===================================================== */
+
+.resultado{
+
+display:none;
+
+background:#0f172a;
+
+padding:18px;
+
+border-radius:12px;
+
+margin-top:18px;
+
+text-align:center;
+
+border:1px solid #334155;
+
+}
+
+.resultado-titulo{
+
+font-size:14px;
+
+color:#94a3b8;
+
+}
+
+.resultado-numero{
+
+font-size:46px;
+
+font-weight:bold;
+
+color:#38bdf8;
+
+margin:5px 0;
+
+}
+
+.resultado-gano{
+
+color:#22c55e;
+
+font-size:24px;
+
+font-weight:bold;
+
+}
+
+.resultado-perdio{
+
+color:#ef4444;
+
+font-size:24px;
+
+font-weight:bold;
+
+}
+
+.premio{
+
+margin-top:8px;
+
+font-size:18px;
+
+font-weight:bold;
+
+color:#facc15;
+
+}
+
+
+/* =====================================================
+   REGLAS
+===================================================== */
+
+.reglas{
+
+background:#111827;
+
+padding:13px;
+
+border-radius:10px;
+
+margin-top:12px;
+
+font-size:13px;
+
+color:#cbd5e1;
+
+}
+
+.reglas p{
+
+margin:6px 0;
+
+}
+
+
+/* =====================================================
+   RECARGA / RETIRO
+===================================================== */
+
+.operacion{
+
+background:#111827;
+
+padding:15px;
+
+border-radius:11px;
+
+margin-top:10px;
+
+}
+
+.operacion h4{
+
+color:#38bdf8;
+
+margin-bottom:8px;
+
+}
+
+.info{
+
+font-size:13px;
+
+opacity:.8;
+
+margin-top:7px;
+
+line-height:1.5;
+
+}
+
+
+/* =====================================================
+   HISTORIAL
+===================================================== */
+
+.historial-box{
+
+display:none;
+
+margin-top:12px;
+
+}
+
+.historial-item{
+
+background:#0f172a;
+
+padding:11px;
+
+border-radius:9px;
+
+margin-top:8px;
+
+border-left:4px solid #38bdf8;
+
+font-size:13px;
+
+line-height:1.5;
+
+}
+
+.historial-item.ganado{
+
+border-left-color:#22c55e;
+
+}
+
+.historial-item.perdido{
+
+border-left-color:#ef4444;
+
+}
+
+.historial-item.recarga{
+
+border-left-color:#3b82f6;
+
+}
+
+.historial-item.retiro{
+
+border-left-color:#8b5cf6;
+
+}
+
+
+/* =====================================================
+   MENSAJES
+===================================================== */
+
+.mensaje{
+
+display:none;
+
+padding:11px;
+
+border-radius:9px;
+
+margin-top:10px;
+
+text-align:center;
+
+font-size:14px;
+
+}
+
+.mensaje-error{
+
+background:#450a0a;
+
+border:1px solid #ef4444;
+
+color:#fecaca;
+
+}
+
+.mensaje-ok{
+
+background:#052e16;
+
+border:1px solid #22c55e;
+
+color:#bbf7d0;
+
+}
+
+
+/* =====================================================
+   MENU INFERIOR
+===================================================== */
 
 .menu{
+
 position:fixed;
+
 bottom:0;
+
 left:0;
+
 right:0;
+
 background:#111827;
+
 display:flex;
+
 justify-content:space-around;
-padding:10px 0;
+
+padding:8px 5px;
+
+border-top:1px solid #334155;
+
+z-index:100;
+
 }
+
 .menu button{
+
 background:none;
+
 border:none;
-color:white;
+
+color:#cbd5e1;
+
 width:auto;
+
 margin:0;
-}
-.historial-item{
-background:#0f172a;
+
 padding:8px;
-border-radius:8px;
-margin-top:8px;
+
+font-size:12px;
+
 }
-.info{
-font-size:14px;
-opacity:.8;
-margin-top:6px;
+
+.menu button:hover{
+
+color:#00ffcc;
+
+transform:none;
+
 }
+
+
+/* =====================================================
+   OCULTO
+===================================================== */
+
+.oculto{
+
+display:none !important;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:450px){
+
+.container{
+
+padding:15px;
+
+}
+
+.ruleta{
+
+width:200px;
+
+height:200px;
+
+}
+
+.saldo{
+
+font-size:31px;
+
+}
+
+.header h1{
+
+font-size:24px;
+
+}
+
+}
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
+
+<!-- =================================================
+     CABECERA
+================================================= -->
+
 <div class="header">
-<h1>PRÉSTAMOS TAVO</h1>
-<div class="nombre" id="nombreUsuario"></div>
+
+<h1>🎰 JUEGO DEMO TAVO</h1>
+
+<div
+class="nombre"
+id="nombreUsuario"
+>
+Cargando usuario...
 </div>
 
-<!-- SALDO -->
+</div>
+
+
+<!-- =================================================
+     AVISO
+================================================= -->
+
+<div class="demo-aviso">
+
+🧪 DINERO DEMO
+
+<br>
+
+Todo el saldo mostrado en esta aplicación
+es ficticio y no representa dinero real.
+
+</div>
+
+
+<!-- =================================================
+     SALDO
+================================================= -->
+
 <div class="saldo-card">
-<p>Deuda actual</p>
-<div class="saldo">$<span id="saldo">0</span></div>
-<p>Total a pagar: $<span id="totalPagar">0</span></p>
-<p>Días restantes: <span id="dias">0</span></p>
-<p>Préstamo activo: <span id="prestamoEstado">No</span></p>
-<p>Cuotas pagadas: <span id="cuotasInfo">0/0</span></p>
+
+<div class="saldo-titulo">
+
+💰 DINERO DEMO DISPONIBLE
+
 </div>
 
-<!-- SOLICITAR -->
-<div class="card">
-<h3>Solicitar préstamo</h3>
+<div class="saldo">
 
-<select id="monto">
-<option value="50000">$50.000</option>
-<option value="100000">$100.000</option>
-<option value="150000">$150.000</option>
-<option value="200000">$200.000</option>
-<option value="250000">$250.000</option>
-<option value="300000">$300.000</option>
-<option value="350000">$350.000</option>
-<option value="400000">$400.000</option>
-<option value="450000">$450.000</option>
-<option value="500000">$500.000</option>
+$<span id="saldo">0</span>
+
+</div>
+
+<div class="saldo-demo">
+
+Saldo ficticio para jugar
+
+</div>
+
+</div>
+
+
+<!-- =================================================
+     ESTADISTICAS
+================================================= -->
+
+<div class="stats">
+
+<div class="stat">
+
+<div class="stat-titulo">
+Partidas
+</div>
+
+<div
+class="stat-valor"
+id="partidas"
+>
+0
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-titulo">
+Ganadas
+</div>
+
+<div
+class="stat-valor"
+id="ganadas"
+>
+0
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =================================================
+     JUEGO
+================================================= -->
+
+<div class="card">
+
+<h3>🎰 Ruleta 0 - 100</h3>
+
+
+<div class="ruleta-area">
+
+
+<div class="puntero"></div>
+
+
+<div
+class="ruleta"
+id="ruleta"
+>
+
+<div class="ruleta-centro">
+0-100
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- NUMERO -->
+
+<div class="numero-box">
+
+<label>
+Elige tu número
+</label>
+
+<input
+type="number"
+id="numeroElegido"
+min="0"
+max="100"
+placeholder="Ejemplo: 57"
+oninput="mostrarNumero()"
+>
+
+<div
+class="numero-elegido"
+id="numeroMostrar"
+>
+-
+</div>
+
+</div>
+
+
+<!-- APUESTA -->
+
+<div style="margin-top:15px;">
+
+<label>
+Cantidad de Dinero Demo
+</label>
+
+<select id="apuesta">
+
+<option value="1000">
+$1.000
+</option>
+
+<option value="2000">
+$2.000
+</option>
+
+<option value="3000">
+$3.000
+</option>
+
+<option value="4000">
+$4.000
+</option>
+
+<option value="5000">
+$5.000
+</option>
+
+<option value="6000">
+$6.000
+</option>
+
+<option value="7000">
+$7.000
+</option>
+
+<option value="8000">
+$8.000
+</option>
+
+<option value="9000">
+$9.000
+</option>
+
+<option value="10000">
+$10.000
+</option>
+
 </select>
 
-<select id="cuotas">
-<option value="1">1 cuota</option>
-<option value="2">2 cuotas</option>
-<option value="3">3 cuotas</option>
-<option value="4" selected>4 cuotas</option>
+</div>
+
+
+<div class="apuesta-info">
+
+Apuesta mínima:
+<b>$1.000 Demo</b>
+
+</div>
+
+
+<button
+class="btn-jugar"
+id="btnJugar"
+onclick="jugar()"
+>
+
+🎰 GIRAR RULETA
+
+</button>
+
+
+<!-- RESULTADO -->
+
+<div
+class="resultado"
+id="resultado"
+>
+
+<div class="resultado-titulo">
+Resultado de la ruleta
+</div>
+
+<div
+class="resultado-numero"
+id="resultadoNumero"
+>
+-
+</div>
+
+<div
+id="resultadoEstado"
+>
+</div>
+
+<div
+class="premio"
+id="premio"
+>
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- =================================================
+     REGLAS
+================================================= -->
+
+<div class="card">
+
+<h3>📋 Reglas Demo</h3>
+
+<div class="reglas">
+
+<p>
+🎯 Elige un número entre <b>0 y 100</b>.
+</p>
+
+<p>
+💵 La apuesta mínima es de <b>$1.000 Demo</b>.
+</p>
+
+<p>
+🎰 La ruleta genera un resultado al jugar.
+</p>
+
+<p>
+💰 Si ganas, recibes el premio Demo correspondiente.
+</p>
+
+<p>
+❌ Si pierdes, se descuenta únicamente la apuesta Demo.
+</p>
+
+<p>
+🧪 Todo el dinero utilizado es ficticio.
+</p>
+
+</div>
+
+</div>
+
+
+<!-- =================================================
+     RECARGAR
+================================================= -->
+
+<div
+class="card"
+id="seccionRecarga"
+>
+
+<h3>💳 Recargar Dinero Demo</h3>
+
+
+<div class="operacion">
+
+<h4>
+Solicitar recarga
+</h4>
+
+<p class="info">
+
+Esta opción solamente simula una
+recarga para pruebas del juego.
+
+</p>
+
+
+<select id="montoRecarga">
+
+<option value="10000">
+$10.000 Demo
+</option>
+
+<option value="20000">
+$20.000 Demo
+</option>
+
+<option value="30000">
+$30.000 Demo
+</option>
+
+<option value="50000">
+$50.000 Demo
+</option>
+
+<option value="100000">
+$100.000 Demo
+</option>
+
 </select>
 
-<button class="btn-green" onclick="solicitarPrestamo()">Solicitar</button>
-</div>
 
-<!-- PAGAR -->
-<div class="card" id="boxPago">
-<h3>Pagar préstamo</h3>
+<button
+class="btn-recargar"
+onclick="solicitarRecarga()"
+>
 
-<p>Cuota sugerida: $<span id="valorCuota">0</span></p>
+💳 Solicitar Recarga Demo
 
-<input type="number" id="otroValor" placeholder="Escribe otro valor">
-
-<div class="info">
-Nequi destino: <b>3226314209</b>
-</div>
-
-<button class="btn-purple" onclick="pagarNequi()">
-Pagar por Nequi
 </button>
 
-<button class="btn-green" onclick="reportarPago()">
-Ya realicé mi pago
-</button>
+
+<div
+id="mensajeRecarga"
+class="mensaje"
+></div>
 
 </div>
 
-<!-- HISTORIAL -->
+</div>
+
+
+<!-- =================================================
+     RETIRO
+================================================= -->
+
+<div
+class="card"
+id="seccionRetiro"
+>
+
+<h3>💸 Retirar Dinero Demo</h3>
+
+
+<div class="operacion">
+
+
+<p class="info">
+
+Retiro mínimo:
+<b>$10.000 Demo</b>
+
+</p>
+
+
+<input
+type="text"
+id="nequi"
+placeholder="Número Nequi"
+>
+
+
+<input
+type="number"
+id="montoRetiro"
+placeholder="Monto a retirar"
+min="10000"
+>
+
+
+<button
+class="btn-retirar"
+onclick="solicitarRetiro()"
+>
+
+💸 Solicitar Retiro Demo
+
+</button>
+
+
+<div
+id="mensajeRetiro"
+class="mensaje"
+></div>
+
+</div>
+
+</div>
+
+
+<!-- =================================================
+     HISTORIAL
+================================================= -->
+
 <div class="card">
-<h3>Historial</h3>
 
-<button class="btn-blue" onclick="toggleHistorial()" id="btnHistorial">
+<h3>📜 Historial</h3>
+
+
+<button
+class="btn-historial"
+id="btnHistorial"
+onclick="toggleHistorial()"
+>
+
 Ver historial
+
 </button>
 
-<div id="historialBox" style="display:none; margin-top:10px;">
-<div id="historial">Cargando...</div>
-</div>
+
+<div
+class="historial-box"
+id="historialBox"
+>
+
+<div
+id="historial"
+>
+
+Cargando...
 
 </div>
 
 </div>
+
+</div>
+
+
+<!-- =================================================
+     CERRAR SESION
+================================================= -->
+
+<div class="card">
+
+<button
+class="btn-salir"
+onclick="salir()"
+>
+
+🚪 Cerrar sesión
+
+</button>
+
+</div>
+
+
+</div>
+
+
+<!-- =================================================
+     MENU
+================================================= -->
 
 <div class="menu">
-<button onclick="window.scrollTo(0,0)">Inicio</button>
-<button onclick="salir()">Salir</button>
+
+<button
+onclick="irInicio()"
+>
+🏠 Inicio
+</button>
+
+
+<button
+onclick="irJuego()"
+>
+🎰 Jugar
+</button>
+
+
+<button
+onclick="irSaldo()"
+>
+💰 Saldo
+</button>
+
+
+<button
+onclick="irHistorial()"
+>
+📜 Historial
+</button>
+
 </div>
+
 
 <script>
 
-let usuario = JSON.parse(localStorage.getItem("usuario"));
+
+/* =====================================================
+   USUARIO
+===================================================== */
+
+let usuario =
+JSON.parse(
+localStorage.getItem("usuario")
+);
+
 
 if(!usuario){
-alert("Debes iniciar sesión");
+
+alert(
+"Debes iniciar sesión"
+);
+
 location.href="/";
+
 }
 
-pintar();
+
+/* =====================================================
+   VARIABLES DEL JUEGO
+===================================================== */
+
+let jugando=false;
+
+let rotacion=0;
+
+
+/* =====================================================
+   FORMATEAR DINERO
+===================================================== */
+
+function dinero(valor){
+
+return Number(valor || 0)
+.toLocaleString("es-CO");
+
+}
+
+
+/* =====================================================
+   PINTAR USUARIO
+===================================================== */
 
 function pintar(){
 
-document.getElementById("nombreUsuario").innerText="👤 "+usuario.nombre;
-document.getElementById("saldo").innerText=usuario.saldo || 0;
-document.getElementById("dias").innerText=usuario.dias || 0;
-
-document.getElementById("prestamoEstado").innerText=
-(usuario.saldo>0) ? "Sí" : "No";
-
-document.getElementById("cuotasInfo").innerText=
-(usuario.cuotasPagadas || 0)+"/"+(usuario.cuotasTotal || 0);
-
-calcularPago();
-
-if((usuario.saldo || 0)<=0){
-document.getElementById("boxPago").style.display="none";
-}else{
-document.getElementById("boxPago").style.display="block";
-}
-
-}
-
-function calcularPago(){
-
-let deuda = Number(usuario.saldo || 0);
-
-if(deuda<=0){
-document.getElementById("valorCuota").innerText=0;
-document.getElementById("totalPagar").innerText=0;
+if(!usuario){
 return;
 }
 
-let total = Math.round(deuda * 1.10);
-let cuotas = Number(usuario.cuotasTotal || 4);
-let cuota = Math.round(total / cuotas);
 
-document.getElementById("valorCuota").innerText=cuota;
-document.getElementById("totalPagar").innerText=total;
+document
+.getElementById("nombreUsuario")
+.innerText=
+"👤 "+usuario.nombre;
 
-}
 
-async function solicitarPrestamo(){
+document
+.getElementById("saldo")
+.innerText=
+dinero(usuario.saldo);
 
-let monto = Number(document.getElementById("monto").value);
-let cuotas = Number(document.getElementById("cuotas").value);
-
-const res = await fetch("/api/solicitar-prestamo",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:usuario.email,
-monto,
-cuotas
-})
-});
-
-const data = await res.json();
-alert(data.msg);
 
 }
 
-function valorSeleccionado(){
 
-let otro = Number(document.getElementById("otroValor").value);
+/* =====================================================
+   MOSTRAR NUMERO
+===================================================== */
 
-if(otro>0){
-return otro;
+function mostrarNumero(){
+
+const input =
+document
+.getElementById("numeroElegido");
+
+
+let numero =
+Number(input.value);
+
+
+const mostrar =
+document
+.getElementById("numeroMostrar");
+
+
+if(
+input.value === ""
+){
+
+mostrar.innerText="-";
+
+return;
+
 }
 
-return Number(document.getElementById("valorCuota").innerText);
+
+if(numero < 0){
+
+numero=0;
+
+input.value=0;
 
 }
 
-function pagarNequi(){
 
-let valor = valorSeleccionado();
+if(numero > 100){
 
-let texto =
-"Hola, voy a pagar $" + valor +
-" al Nequi 3226314209 Usuario: " +
-usuario.nombre;
+numero=100;
 
-window.open(
-"https://wa.me/573012245428?text="+encodeURIComponent(texto),
-"_blank"
+input.value=100;
+
+}
+
+
+mostrar.innerText=numero;
+
+}
+
+
+/* =====================================================
+   JUGAR
+===================================================== */
+
+async function jugar(){
+
+if(jugando){
+
+return;
+
+}
+
+
+const numero =
+Number(
+document
+.getElementById("numeroElegido")
+.value
+);
+
+
+const apuesta =
+Number(
+document
+.getElementById("apuesta")
+.value
+);
+
+
+if(
+isNaN(numero) ||
+numero < 0 ||
+numero > 100
+){
+
+alert(
+"Debes elegir un número entre 0 y 100."
+);
+
+return;
+
+}
+
+
+if(
+apuesta < 1000
+){
+
+alert(
+"La apuesta mínima es de $1.000 Demo."
+);
+
+return;
+
+}
+
+
+if(
+Number(usuario.saldo || 0)
+< apuesta
+){
+
+alert(
+"No tienes suficiente Dinero Demo."
+);
+
+return;
+
+}
+
+
+jugando=true;
+
+
+const boton =
+document
+.getElementById("btnJugar");
+
+
+boton.disabled=true;
+
+boton.innerText=
+"🎰 GIRANDO...";
+
+
+/*
+   MOSTRAR RULETA GIRANDO
+*/
+
+const ruleta =
+document
+.getElementById("ruleta");
+
+
+rotacion +=
+1440 +
+Math.floor(
+Math.random()*720
+);
+
+
+ruleta.style.transform=
+"rotate("+rotacion+"deg)";
+
+
+/*
+   ESTE RESULTADO ES TEMPORAL.
+   DESPUES LO REEMPLAZAREMOS
+   POR EL RESULTADO DEL BACKEND.
+*/
+
+const resultado =
+Math.floor(
+Math.random()*101
+);
+
+
+setTimeout(
+()=>{
+
+mostrarResultado(
+resultado,
+numero,
+apuesta
+);
+
+},
+4100
 );
 
 }
 
-async function reportarPago(){
 
-let valor = valorSeleccionado();
+/* =====================================================
+   MOSTRAR RESULTADO
+===================================================== */
 
-const res = await fetch("/api/reportar-pago",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({
-email:usuario.email,
-valor
-})
-});
+function mostrarResultado(
+resultado,
+numeroElegido,
+apuesta
+){
 
-const data = await res.json();
-alert(data.msg);
+
+document
+.getElementById("resultado")
+.style.display="block";
+
+
+document
+.getElementById("resultadoNumero")
+.innerText=
+resultado;
+
+
+/*
+   TEMPORALMENTE:
+
+   Si coincide exactamente,
+   gana.
+
+   Esto lo cambiaremos en
+   server.js después.
+*/
+
+const gano =
+resultado === numeroElegido;
+
+
+const estado =
+document
+.getElementById("resultadoEstado");
+
+
+const premio =
+document
+.getElementById("premio");
+
+
+if(gano){
+
+estado.innerHTML=
+`
+<div class="resultado-gano">
+🎉 ¡GANASTE!
+</div>
+`;
+
+premio.innerText=
+"Premio Demo: $"+
+dinero(calcularPremio(apuesta));
+
+
+}else{
+
+estado.innerHTML=
+`
+<div class="resultado-perdio">
+❌ PERDISTE
+</div>
+`;
+
+premio.innerText=
+"Perdiste $"+
+dinero(apuesta)+
+" Demo";
 
 }
+
+
+/*
+   POR AHORA NO CAMBIAMOS
+   EL SALDO DESDE EL FRONTEND.
+
+   EL SERVER LO HARÁ.
+*/
+
+jugando=false;
+
+const boton =
+document
+.getElementById("btnJugar");
+
+boton.disabled=false;
+
+boton.innerText=
+"🎰 GIRAR RULETA";
+
+}
+
+
+/* =====================================================
+   PREMIOS
+===================================================== */
+
+function calcularPremio(apuesta){
+
+switch(apuesta){
+
+case 1000:
+return 3000;
+
+case 2000:
+return 5000;
+
+case 3000:
+return 6000;
+
+case 4000:
+return 7000;
+
+case 5000:
+return 8000;
+
+case 6000:
+return 9000;
+
+case 7000:
+return 10000;
+
+case 8000:
+return 11000;
+
+case 9000:
+return 12000;
+
+case 10000:
+return 20000;
+
+default:
+return 0;
+
+}
+
+}
+
+
+/* =====================================================
+   RECARGA DEMO
+===================================================== */
+
+async function solicitarRecarga(){
+
+const monto =
+Number(
+document
+.getElementById("montoRecarga")
+.value
+);
+
+
+const mensaje =
+document
+.getElementById("mensajeRecarga");
+
+
+mensaje.style.display="block";
+
+mensaje.className=
+"mensaje mensaje-ok";
+
+mensaje.innerText=
+"Solicitud de recarga Demo enviada al administrador.";
+
+}
+
+
+/* =====================================================
+   RETIRO DEMO
+===================================================== */
+
+async function solicitarRetiro(){
+
+const nequi =
+document
+.getElementById("nequi")
+.value
+.trim();
+
+
+const monto =
+Number(
+document
+.getElementById("montoRetiro")
+.value
+);
+
+
+const mensaje =
+document
+.getElementById("mensajeRetiro");
+
+
+if(!nequi){
+
+mensaje.style.display="block";
+
+mensaje.className=
+"mensaje mensaje-error";
+
+mensaje.innerText=
+"Escribe el número Nequi.";
+
+return;
+
+}
+
+
+if(
+monto < 10000
+){
+
+mensaje.style.display="block";
+
+mensaje.className=
+"mensaje mensaje-error";
+
+mensaje.innerText=
+"El retiro mínimo es de $10.000 Demo.";
+
+return;
+
+}
+
+
+if(
+monto >
+Number(usuario.saldo || 0)
+){
+
+mensaje.style.display="block";
+
+mensaje.className=
+"mensaje mensaje-error";
+
+mensaje.innerText=
+"No tienes suficiente Dinero Demo.";
+
+return;
+
+}
+
+
+mensaje.style.display="block";
+
+mensaje.className=
+"mensaje mensaje-ok";
+
+mensaje.innerText=
+"Solicitud de retiro Demo enviada.";
+
+}
+
+
+/* =====================================================
+   HISTORIAL
+===================================================== */
 
 function toggleHistorial(){
 
-const box = document.getElementById("historialBox");
-const btn = document.getElementById("btnHistorial");
+const box =
+document
+.getElementById("historialBox");
 
-if(box.style.display=="none"){
+
+const boton =
+document
+.getElementById("btnHistorial");
+
+
+if(
+box.style.display === "none" ||
+box.style.display === ""
+){
+
 box.style.display="block";
-btn.innerText="Cerrar historial";
-historial();
+
+boton.innerText=
+"Ocultar historial";
+
+cargarHistorial();
+
 }else{
+
 box.style.display="none";
-btn.innerText="Ver historial";
-}
+
+boton.innerText=
+"Ver historial";
 
 }
 
-async function historial(){
+}
+
+
+/* =====================================================
+   CARGAR HISTORIAL
+===================================================== */
+
+async function cargarHistorial(){
+
+const box =
+document
+.getElementById("historial");
+
+
+box.innerHTML=
+"Cargando historial...";
+
+
+try{
+
+
+/*
+   ESTE ENDPOINT LO CONECTAREMOS
+   CUANDO MODIFIQUEMOS SERVER.JS
+*/
 
 const res =
-await fetch("/api/historial-prestamos/"+usuario.email);
+await fetch(
+"/api/historial-juego/"
++
+encodeURIComponent(usuario.email)
+);
 
-const data = await res.json();
 
-const box = document.getElementById("historial");
+if(!res.ok){
 
-if(data.length===0){
-box.innerHTML="Sin movimientos";
-return;
+throw new Error(
+"Historial no disponible"
+);
+
 }
+
+
+const data =
+await res.json();
+
+
+if(
+!Array.isArray(data) ||
+data.length === 0
+){
+
+box.innerHTML=
+"Sin movimientos todavía.";
+
+return;
+
+}
+
 
 box.innerHTML="";
 
+
 data.forEach(h=>{
 
-box.innerHTML += `
-<div class="historial-item">
-${h.fecha}<br>
-${h.detalle} - $${h.monto}
+let clase="";
+
+
+if(
+h.tipo === "ganada"
+){
+
+clase="ganado";
+
+}
+
+if(
+h.tipo === "perdida"
+){
+
+clase="perdido";
+
+}
+
+if(
+h.tipo === "recarga"
+){
+
+clase="recarga";
+
+}
+
+if(
+h.tipo === "retiro"
+){
+
+clase="retiro";
+
+}
+
+
+box.innerHTML +=
+`
+
+<div class="historial-item ${clase}">
+
+<b>${h.detalle || "Movimiento"}</b>
+
+<br>
+
+Fecha:
+${h.fecha || ""}
+
+<br>
+
+Monto:
+$${dinero(h.monto || 0)}
+
 </div>
+
 `;
 
 });
 
+
+}catch(error){
+
+console.log(error);
+
+box.innerHTML=
+"El historial estará disponible cuando el servidor sea actualizado.";
+
 }
 
-function salir(){
-localStorage.removeItem("usuario");
-location.href="/";
 }
+
+
+/* =====================================================
+   IR AL INICIO
+===================================================== */
+
+function irInicio(){
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+}
+
+
+/* =====================================================
+   IR AL JUEGO
+===================================================== */
+
+function irJuego(){
+
+document
+.querySelector(".ruleta-area")
+.scrollIntoView({
+
+behavior:"smooth"
+
+});
+
+}
+
+
+/* =====================================================
+   IR AL SALDO
+===================================================== */
+
+function irSaldo(){
+
+document
+.querySelector(".saldo-card")
+.scrollIntoView({
+
+behavior:"smooth"
+
+});
+
+}
+
+
+/* =====================================================
+   IR HISTORIAL
+===================================================== */
+
+function irHistorial(){
+
+const box =
+document
+.getElementById("historialBox");
+
+
+box.style.display="block";
+
+
+document
+.getElementById("btnHistorial")
+.innerText=
+"Ocultar historial";
+
+
+document
+.querySelector(".historial-box")
+.scrollIntoView({
+
+behavior:"smooth"
+
+});
+
+
+cargarHistorial();
+
+}
+
+
+/* =====================================================
+   SALIR
+===================================================== */
+
+function salir(){
+
+localStorage.removeItem(
+"usuario"
+);
+
+location.href="/";
+
+}
+
+
+/* =====================================================
+   INICIAR
+===================================================== */
+
+pintar();
 
 </script>
 
 </body>
-</html>
+
+  </html>
