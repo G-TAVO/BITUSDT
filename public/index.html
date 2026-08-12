@@ -1,196 +1,947 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Préstamos Tavo</title>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>Juego Demo Tavo</title>
 
 <style>
-body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-margin:0;
-}
-.container{
-max-width:400px;
-margin:auto;
-padding:20px;
-margin-top:30px;
-}
-.card{
-background:#1e293b;
-padding:20px;
-border-radius:12px;
-}
-input{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:8px;
+
+/* =========================
+   RESET
+========================= */
+
+*{
 box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:Arial,Helvetica,sans-serif;
 }
-button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
+
+
+/* =========================
+   BODY
+========================= */
+
+body{
+
+min-height:100vh;
+
+background:
+radial-gradient(
+circle at top,
+#164e63 0%,
+#0f2027 45%,
+#020617 100%
+);
+
 color:white;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
 }
-.btn{
-background:#22c55e;
+
+
+/* =========================
+   CONTENEDOR
+========================= */
+
+.container{
+
+width:100%;
+
+max-width:400px;
+
 }
-.btn2{
-background:#3b82f6;
+
+
+/* =========================
+   CARD
+========================= */
+
+.card{
+
+background:#1e293b;
+
+padding:25px;
+
+border-radius:16px;
+
+border:1px solid #334155;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.5);
+
 }
-.switch{
+
+
+/* =========================
+   LOGO / TITULO
+========================= */
+
+.logo{
+
 text-align:center;
-margin-top:12px;
+
+font-size:30px;
+
+font-weight:bold;
+
 color:#00ffcc;
-cursor:pointer;
+
+margin-bottom:5px;
+
 }
-h2{
+
+
+.subtitulo{
+
 text-align:center;
-margin-top:0;
+
+font-size:14px;
+
+color:#94a3b8;
+
+margin-bottom:20px;
+
 }
+
+
+/* =========================
+   AVISO DINERO DEMO
+========================= */
+
+.demo{
+
+background:#422006;
+
+border:1px solid #f59e0b;
+
+color:#facc15;
+
+padding:12px;
+
+border-radius:10px;
+
+text-align:center;
+
+font-weight:bold;
+
+font-size:13px;
+
+margin-bottom:20px;
+
+}
+
+
+/* =========================
+   TITULOS
+========================= */
+
+h2{
+
+text-align:center;
+
+margin-bottom:18px;
+
+color:#38bdf8;
+
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+input{
+
+width:100%;
+
+padding:13px;
+
+margin-top:10px;
+
+border:none;
+
+border-radius:8px;
+
+outline:none;
+
+background:#0f172a;
+
+color:white;
+
+border:1px solid #334155;
+
+font-size:15px;
+
+}
+
+
+input:focus{
+
+border-color:#00ffcc;
+
+}
+
+
+/* =========================
+   BOTONES
+========================= */
+
+button{
+
+width:100%;
+
+padding:13px;
+
+margin-top:12px;
+
+border:none;
+
+border-radius:9px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+color:white;
+
+font-size:15px;
+
+transition:.2s;
+
+}
+
+
+button:hover{
+
+transform:translateY(-1px);
+
+}
+
+
+.btn-login{
+
+background:#2563eb;
+
+}
+
+
+.btn-login:hover{
+
+background:#1d4ed8;
+
+}
+
+
+.btn-registro{
+
+background:#22c55e;
+
+}
+
+
+.btn-registro:hover{
+
+background:#15803d;
+
+}
+
+
+/* =========================
+   CAMBIAR VISTA
+========================= */
+
+.switch{
+
+text-align:center;
+
+margin-top:15px;
+
+color:#00ffcc;
+
+cursor:pointer;
+
+font-size:14px;
+
+}
+
+
+.switch:hover{
+
+text-decoration:underline;
+
+}
+
+
+/* =========================
+   MENSAJES
+========================= */
+
+.mensaje{
+
+margin-top:12px;
+
+padding:10px;
+
+border-radius:8px;
+
+text-align:center;
+
+font-size:14px;
+
+display:none;
+
+}
+
+
+.error{
+
+background:#450a0a;
+
+border:1px solid #ef4444;
+
+color:#fecaca;
+
+}
+
+
+.ok{
+
+background:#052e16;
+
+border:1px solid #22c55e;
+
+color:#bbf7d0;
+
+}
+
+
+/* =========================
+   OCULTO
+========================= */
+
+.oculto{
+
+display:none;
+
+}
+
+
+/* =========================
+   CELULAR
+========================= */
+
+@media(max-width:450px){
+
+body{
+
+padding:12px;
+
+}
+
+.card{
+
+padding:20px;
+
+}
+
+.logo{
+
+font-size:26px;
+
+}
+
+}
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
 
-<h2>Iniciar Sesión</h2>
+<!-- =================================================
+     LOGIN
+================================================= -->
 
-<input type="email" id="loginEmail" placeholder="Correo">
-<input type="password" id="loginPass" placeholder="Contraseña">
+<div
+class="card"
+id="loginBox"
+>
 
-<button class="btn2" onclick="login()">Entrar</button>
-
-<div class="switch" onclick="mostrarRegistro()">
-¿No tienes cuenta? Regístrate
+<div class="logo">
+🎰 JUEGO DEMO
 </div>
 
+<div class="subtitulo">
+Tavo
 </div>
 
-<!-- REGISTRO -->
-<div class="card" id="registroBox" style="display:none;">
 
-<h2>Crear Cuenta</h2>
+<div class="demo">
 
-<input type="text" id="regNombre" placeholder="Nombre completo">
-<input type="text" id="regCedula" placeholder="Cédula">
-<input type="text" id="regTelefono" placeholder="Teléfono">
-<input type="text" id="regWhats" placeholder="WhatsApp">
-<input type="email" id="regEmail" placeholder="Correo">
-<input type="password" id="regPass" placeholder="Contraseña">
+🧪 MODO DEMO
 
-<button class="btn" onclick="registro()">Crear cuenta</button>
+<br>
 
-<div class="switch" onclick="mostrarLogin()">
-Ya tengo cuenta
-</div>
+Todo el dinero utilizado en esta aplicación
+es ficticio.
 
 </div>
 
+
+<h2>
+Iniciar Sesión
+</h2>
+
+
+<input
+type="email"
+id="loginEmail"
+placeholder="Correo electrónico"
+autocomplete="email"
+>
+
+
+<input
+type="password"
+id="loginPass"
+placeholder="Contraseña"
+autocomplete="current-password"
+>
+
+
+<button
+class="btn-login"
+onclick="login()"
+>
+
+🎮 Entrar al juego
+
+</button>
+
+
+<div
+class="switch"
+onclick="mostrarRegistro()"
+>
+
+¿No tienes cuenta?
+<strong>Regístrate</strong>
+
 </div>
+
+
+<div
+id="loginMensaje"
+class="mensaje"
+></div>
+
+
+</div>
+
+
+
+<!-- =================================================
+     REGISTRO
+================================================= -->
+
+<div
+class="card oculto"
+id="registroBox"
+>
+
+
+<div class="logo">
+🎰 JUEGO DEMO
+</div>
+
+<div class="subtitulo">
+Crear nueva cuenta
+</div>
+
+
+<div class="demo">
+
+💵 DINERO DEMO
+
+<br>
+
+El saldo utilizado dentro del juego
+es completamente ficticio.
+
+</div>
+
+
+<h2>
+Crear Cuenta
+</h2>
+
+
+<input
+type="text"
+id="regNombre"
+placeholder="Nombre completo"
+autocomplete="name"
+>
+
+
+<input
+type="text"
+id="regTelefono"
+placeholder="Número de teléfono"
+autocomplete="tel"
+>
+
+
+<input
+type="email"
+id="regEmail"
+placeholder="Correo electrónico"
+autocomplete="email"
+>
+
+
+<input
+type="password"
+id="regPass"
+placeholder="Crear contraseña"
+autocomplete="new-password"
+>
+
+
+<button
+class="btn-registro"
+onclick="registro()"
+>
+
+✅ Crear cuenta
+
+</button>
+
+
+<div
+class="switch"
+onclick="mostrarLogin()"
+>
+
+Ya tengo una cuenta
+
+</div>
+
+
+<div
+id="registroMensaje"
+class="mensaje"
+></div>
+
+
+</div>
+
+
+</div>
+
+
 
 <script>
 
-// CAMBIAR VISTAS
+
+/* =====================================================
+   CAMBIAR A REGISTRO
+===================================================== */
+
 function mostrarRegistro(){
-document.getElementById("loginBox").style.display="none";
-document.getElementById("registroBox").style.display="block";
+
+document
+.getElementById("loginBox")
+.classList.add("oculto");
+
+document
+.getElementById("registroBox")
+.classList.remove("oculto");
+
 }
+
+
+/* =====================================================
+   CAMBIAR A LOGIN
+===================================================== */
 
 function mostrarLogin(){
-document.getElementById("loginBox").style.display="block";
-document.getElementById("registroBox").style.display="none";
+
+document
+.getElementById("registroBox")
+.classList.add("oculto");
+
+document
+.getElementById("loginBox")
+.classList.remove("oculto");
+
 }
 
-// LOGIN
+
+/* =====================================================
+   MENSAJE LOGIN
+===================================================== */
+
+function mensajeLogin(texto,tipo){
+
+const box =
+document.getElementById(
+"loginMensaje"
+);
+
+box.textContent=texto;
+
+box.className=
+"mensaje "+
+tipo;
+
+box.style.display="block";
+
+}
+
+
+/* =====================================================
+   MENSAJE REGISTRO
+===================================================== */
+
+function mensajeRegistro(texto,tipo){
+
+const box =
+document.getElementById(
+"registroMensaje"
+);
+
+box.textContent=texto;
+
+box.className=
+"mensaje "+
+tipo;
+
+box.style.display="block";
+
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
 async function login(){
 
-const email = document.getElementById("loginEmail").value.trim();
-const password = document.getElementById("loginPass").value.trim();
+const email =
+document
+.getElementById("loginEmail")
+.value
+.trim();
+
+const password =
+document
+.getElementById("loginPass")
+.value
+.trim();
+
 
 if(!email || !password){
-alert("Completa todos los campos");
+
+mensajeLogin(
+"Completa el correo y la contraseña.",
+"error"
+);
+
 return;
+
 }
 
-const res = await fetch("/api/login",{
+
+try{
+
+
+const res =
+await fetch(
+"/api/login",
+{
+
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({ email,password })
-});
 
-const data = await res.json();
+headers:{
+"Content-Type":
+"application/json"
+},
 
-if(!data.ok){
-alert(data.msg);
-return;
-}
-
-// guardar usuario + clave temporal
-data.usuario.passwordPlano = password;
-
-localStorage.setItem("usuario",JSON.stringify(data.usuario));
-
-if(data.usuario.rol === "admin"){
-location.href="admin.html";
-}else{
-location.href="panel.html";
-}
-
-}
-
-// REGISTRO
-async function registro(){
-
-const nombre = document.getElementById("regNombre").value.trim();
-const cedula = document.getElementById("regCedula").value.trim();
-const telefono = document.getElementById("regTelefono").value.trim();
-const whatsapp = document.getElementById("regWhats").value.trim();
-const email = document.getElementById("regEmail").value.trim();
-const password = document.getElementById("regPass").value.trim();
-
-if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
-alert("Completa todos los campos");
-return;
-}
-
-const res = await fetch("/api/register",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({
-nombre,
-cedula,
-telefono,
-whatsapp,
+
 email,
 password
+
 })
-});
 
-const data = await res.json();
+}
+);
 
-alert(data.msg);
 
-if(data.ok){
+const data =
+await res.json();
+
+
+if(!data.ok){
+
+mensajeLogin(
+data.msg ||
+"Datos incorrectos.",
+"error"
+);
+
+return;
+
+}
+
+
+/*
+   GUARDAMOS SOLAMENTE
+   LOS DATOS NECESARIOS
+*/
+
+localStorage.setItem(
+"usuario",
+JSON.stringify(
+data.usuario
+)
+);
+
+
+/*
+   ADMIN
+*/
+
+if(
+data.usuario.rol === "admin"
+){
+
+location.href=
+"admin.html";
+
+return;
+
+}
+
+
+/*
+   USUARIO
+*/
+
+location.href=
+"panel.html";
+
+
+}catch(error){
+
+console.log(error);
+
+mensajeLogin(
+"No se pudo conectar con el servidor.",
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   REGISTRO
+===================================================== */
+
+async function registro(){
+
+const nombre =
+document
+.getElementById("regNombre")
+.value
+.trim();
+
+
+const telefono =
+document
+.getElementById("regTelefono")
+.value
+.trim();
+
+
+const email =
+document
+.getElementById("regEmail")
+.value
+.trim();
+
+
+const password =
+document
+.getElementById("regPass")
+.value
+.trim();
+
+
+/*
+   VALIDACIONES
+*/
+
+if(
+!nombre ||
+!telefono ||
+!email ||
+!password
+){
+
+mensajeRegistro(
+"Completa todos los campos.",
+"error"
+);
+
+return;
+
+}
+
+
+if(password.length < 4){
+
+mensajeRegistro(
+"La contraseña debe tener mínimo 4 caracteres.",
+"error"
+);
+
+return;
+
+}
+
+
+try{
+
+
+const res =
+await fetch(
+"/api/register",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+nombre,
+telefono,
+email,
+password
+
+})
+
+}
+);
+
+
+const data =
+await res.json();
+
+
+if(!data.ok){
+
+mensajeRegistro(
+data.msg ||
+"No se pudo crear la cuenta.",
+"error"
+);
+
+return;
+
+}
+
+
+mensajeRegistro(
+"Cuenta creada correctamente. Ahora puedes iniciar sesión.",
+"ok"
+);
+
+
+/*
+   LIMPIAR FORMULARIO
+*/
+
+document
+.getElementById("regNombre")
+.value="";
+
+document
+.getElementById("regTelefono")
+.value="";
+
+document
+.getElementById("regEmail")
+.value="";
+
+document
+.getElementById("regPass")
+.value="";
+
+
+/*
+   VOLVER AL LOGIN
+*/
+
+setTimeout(
+()=>{
+
 mostrarLogin();
+
+document
+.getElementById("loginEmail")
+.value=email;
+
+},
+1200
+);
+
+
+}catch(error){
+
+console.log(error);
+
+mensajeRegistro(
+"No se pudo conectar con el servidor.",
+"error"
+);
+
 }
 
 }
+
 
 </script>
 
+
 </body>
+
 </html>
