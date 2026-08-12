@@ -1,75 +1,233 @@
 <script>
-async function registrar() {
 
-    const nombre = document.getElementById("nombre").value.trim();
-    const cedula = document.getElementById("cedula").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const whatsapp = document.getElementById("whatsapp").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+async function registrar(){
 
-    // ================= VALIDACIONES =================
+    const nombre =
+        document.getElementById("nombre")
+        .value
+        .trim();
 
-    if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
+    const telefono =
+        document.getElementById("telefono")
+        .value
+        .trim();
+
+    const email =
+        document.getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document.getElementById("password")
+        .value
+        .trim();
+
+    const password2 =
+        document.getElementById("password2")
+        .value
+        .trim();
+
+    const terminos =
+        document.getElementById("terminos")
+        .checked;
+
+
+    // ==========================
+    // VALIDACIONES
+    // ==========================
+
+    if(
+        !nombre ||
+        !telefono ||
+        !email ||
+        !password ||
+        !password2
+    ){
+
         alert("⚠️ Todos los campos son obligatorios.");
+
         return;
     }
 
-    if(cedula.length < 5){
-        alert("⚠️ La cédula no es válida.");
+
+    if(nombre.length < 3){
+
+        alert(
+            "⚠️ Ingresa tu nombre completo."
+        );
+
         return;
     }
+
 
     if(telefono.length < 7){
-        alert("⚠️ El teléfono no es válido.");
+
+        alert(
+            "⚠️ El número de teléfono no es válido."
+        );
+
         return;
     }
 
-    if(whatsapp.length < 7){
-        alert("⚠️ El WhatsApp no es válido.");
-        return;
-    }
 
-    const emailRegex = /\S+@\S+\.\S+/;
+    const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
     if(!emailRegex.test(email)){
-        alert("⚠️ Ingresa un correo válido.");
+
+        alert(
+            "⚠️ Ingresa un correo electrónico válido."
+        );
+
         return;
     }
 
-    if(password.length < 4){
-        alert("⚠️ La contraseña debe tener mínimo 4 caracteres.");
+
+    if(password.length < 6){
+
+        alert(
+            "⚠️ La contraseña debe tener mínimo 6 caracteres."
+        );
+
         return;
     }
 
-    // Datos a enviar
-    const data = { 
-        nombre, 
-        cedula, 
-        telefono, 
-        whatsapp, 
-        email, 
-        password 
+
+    if(password !== password2){
+
+        alert(
+            "⚠️ Las contraseñas no coinciden."
+        );
+
+        return;
+    }
+
+
+    if(!terminos){
+
+        alert(
+            "⚠️ Debes aceptar el funcionamiento de la aplicación DEMO."
+        );
+
+        return;
+    }
+
+
+    // ==========================
+    // DATOS
+    // ==========================
+
+    const data = {
+
+        nombre,
+        telefono,
+        email,
+        password
+
     };
 
-    try{
-        const res = await fetch("/api/register", {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body:JSON.stringify(data)
-        });
 
-        const result = await res.json();
+    // ==========================
+    // BOTÓN
+    // ==========================
+
+    const boton =
+        document.getElementById("btnRegistrar");
+
+
+    if(boton){
+
+        boton.disabled = true;
+
+        boton.innerText =
+            "Creando cuenta...";
+    }
+
+
+    // ==========================
+    // ENVIAR AL SERVIDOR
+    // ==========================
+
+    try{
+
+        const res =
+            await fetch(
+                "/api/register",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:
+                    JSON.stringify(data)
+                }
+            );
+
+
+        const result =
+            await res.json();
+
+
+        // ==========================
+        // RESULTADO
+        // ==========================
 
         if(result.ok){
-            alert("✅ Registro exitoso");
-            window.location.href = "login.html";
+
+            alert(
+                "✅ Registro exitoso.\n\n" +
+                "Tu cuenta DEMO fue creada correctamente."
+            );
+
+
+            window.location.href =
+                "login.html";
+
+
         }else{
-            alert("❌ " + result.msg);
+
+            alert(
+                "❌ " +
+                (
+                    result.msg ||
+                    "No se pudo crear la cuenta."
+                )
+            );
+
         }
 
+
     }catch(error){
-        alert("❌ Error de conexión con el servidor");
-        console.error(error);
+
+        console.error(
+            "Error:",
+            error
+        );
+
+
+        alert(
+            "❌ Error de conexión con el servidor."
+        );
+
     }
+
+
+    // ==========================
+    // RESTAURAR BOTÓN
+    // ==========================
+
+    if(boton){
+
+        boton.disabled = false;
+
+        boton.innerText =
+            "🎮 CREAR CUENTA";
+    }
+
 }
+
 </script>
