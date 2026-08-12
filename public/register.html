@@ -3,116 +3,536 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro | Préstamos Tavo</title>
+
+<title>Crear cuenta | Juego Demo Tavo</title>
 
 <style>
-body{
+
+*{
+    box-sizing:border-box;
     margin:0;
-    font-family:Arial;
-    background:#0f172a;
+    padding:0;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at top,#123456 0%,#0f172a 45%,#020617 100%);
     color:white;
+
     display:flex;
     justify-content:center;
     align-items:center;
-    height:100vh;
+
+    padding:20px;
 }
+
 .container{
-    width:90%;
-    max-width:400px;
+    width:100%;
+    max-width:420px;
+
     background:#1e293b;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 0 10px rgba(0,0,0,0.3);
+
+    padding:28px;
+
+    border-radius:18px;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.55);
+
+    border:1px solid #334155;
 }
-h2{
+
+.logo{
+    text-align:center;
+    margin-bottom:8px;
+}
+
+.logo .ruleta{
+    font-size:48px;
+}
+
+h1{
     text-align:center;
     color:#00ffcc;
-    margin-bottom:20px;
+    font-size:25px;
+    margin-top:5px;
 }
+
+.subtitulo{
+    text-align:center;
+    color:#94a3b8;
+    font-size:14px;
+    margin-top:7px;
+    margin-bottom:25px;
+}
+
+.demo{
+    background:#0f172a;
+    border:1px solid #334155;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+    color:#38bdf8;
+    font-size:13px;
+    margin-bottom:18px;
+}
+
+label{
+    display:block;
+    margin-top:13px;
+    margin-bottom:5px;
+    font-size:13px;
+    color:#cbd5e1;
+}
+
 input{
     width:100%;
-    padding:12px;
-    margin-top:10px;
+    padding:13px;
+
     border:none;
-    border-radius:8px;
+    outline:none;
+
+    border-radius:9px;
+
+    background:#0f172a;
+    color:white;
+
+    border:1px solid #334155;
+
+    font-size:15px;
 }
+
+input:focus{
+    border-color:#00ffcc;
+}
+
+input::placeholder{
+    color:#64748b;
+}
+
 button{
     width:100%;
-    padding:12px;
-    margin-top:15px;
-    background:#3b82f6;
+
+    padding:14px;
+
+    margin-top:20px;
+
     border:none;
-    border-radius:8px;
+    border-radius:10px;
+
+    background:linear-gradient(
+        135deg,
+        #00c896,
+        #00a67d
+    );
+
     color:white;
-    font-weight:bold;
-    cursor:pointer;
+
     font-size:16px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
 }
+
 button:hover{
-    background:#2563eb;
+    transform:translateY(-1px);
+
+    box-shadow:
+        0 8px 20px rgba(0,200,150,.25);
 }
-.link{
+
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.terminos{
+    display:flex;
+    align-items:flex-start;
+
+    gap:8px;
+
+    margin-top:15px;
+
+    color:#94a3b8;
+
+    font-size:12px;
+
+    line-height:1.4;
+}
+
+.terminos input{
+    width:auto;
+    margin-top:2px;
+}
+
+.login{
     text-align:center;
-    margin-top:10px;
+
+    margin-top:20px;
+
+    font-size:14px;
+
+    color:#94a3b8;
 }
-.link a{
+
+.login a{
     color:#00ffcc;
     text-decoration:none;
+    font-weight:bold;
 }
+
+.login a:hover{
+    text-decoration:underline;
+}
+
+.aviso{
+    text-align:center;
+
+    margin-top:18px;
+
+    font-size:11px;
+
+    color:#64748b;
+
+    line-height:1.5;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-    <h2>Crear cuenta</h2>
 
-    <input type="text" id="nombre" placeholder="Nombre completo">
-    <input type="text" id="cedula" placeholder="Cédula">
-    <input type="text" id="telefono" placeholder="Teléfono">
-    <input type="text" id="whatsapp" placeholder="WhatsApp">
-    <input type="email" id="email" placeholder="Correo electrónico">
-    <input type="password" id="password" placeholder="Contraseña">
-
-    <button onclick="registrar()">Registrarme</button>
-
-    <div class="link">
-        <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
+    <div class="logo">
+        <div class="ruleta">🎰</div>
     </div>
+
+    <h1>JUEGO DEMO TAVO</h1>
+
+    <div class="subtitulo">
+        Crea tu cuenta para comenzar
+    </div>
+
+    <div class="demo">
+        🟢 MODO DEMO · SALDO FICTICIO
+    </div>
+
+
+    <!-- NOMBRE -->
+
+    <label for="nombre">
+        Nombre completo
+    </label>
+
+    <input
+        type="text"
+        id="nombre"
+        placeholder="Ej: Juan Pérez"
+        autocomplete="name"
+    >
+
+
+    <!-- TELEFONO -->
+
+    <label for="telefono">
+        Número de teléfono
+    </label>
+
+    <input
+        type="tel"
+        id="telefono"
+        placeholder="Ej: 3001234567"
+        autocomplete="tel"
+    >
+
+
+    <!-- CORREO -->
+
+    <label for="email">
+        Correo electrónico
+    </label>
+
+    <input
+        type="email"
+        id="email"
+        placeholder="correo@ejemplo.com"
+        autocomplete="email"
+    >
+
+
+    <!-- CONTRASEÑA -->
+
+    <label for="password">
+        Contraseña
+    </label>
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Mínimo 6 caracteres"
+        autocomplete="new-password"
+    >
+
+
+    <!-- CONFIRMAR -->
+
+    <label for="password2">
+        Confirmar contraseña
+    </label>
+
+    <input
+        type="password"
+        id="password2"
+        placeholder="Repite tu contraseña"
+        autocomplete="new-password"
+    >
+
+
+    <!-- TERMINOS -->
+
+    <div class="terminos">
+
+        <input
+            type="checkbox"
+            id="terminos"
+        >
+
+        <span>
+            Acepto que esta aplicación funciona
+            exclusivamente como una demostración
+            y que el saldo mostrado es dinero ficticio.
+        </span>
+
+    </div>
+
+
+    <!-- REGISTRAR -->
+
+    <button
+        id="btnRegistrar"
+        onclick="registrar()"
+    >
+        🎮 CREAR CUENTA
+    </button>
+
+
+    <!-- LOGIN -->
+
+    <div class="login">
+
+        ¿Ya tienes una cuenta?
+
+        <a href="login.html">
+            Iniciar sesión
+        </a>
+
+    </div>
+
+
+    <div class="aviso">
+
+        Esta versión es una demostración.
+        El saldo mostrado dentro de la aplicación
+        no representa dinero real.
+
+    </div>
+
 </div>
 
+
 <script>
+
+
 async function registrar(){
 
-    const nombre = document.getElementById("nombre").value.trim();
-    const cedula = document.getElementById("cedula").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const whatsapp = document.getElementById("whatsapp").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const btn =
+        document.getElementById("btnRegistrar");
 
-    if(!nombre || !cedula || !telefono || !whatsapp || !email || !password){
-        alert("⚠️ Todos los campos son obligatorios");
+
+    const nombre =
+        document.getElementById("nombre")
+        .value
+        .trim();
+
+
+    const telefono =
+        document.getElementById("telefono")
+        .value
+        .trim();
+
+
+    const email =
+        document.getElementById("email")
+        .value
+        .trim();
+
+
+    const password =
+        document.getElementById("password")
+        .value
+        .trim();
+
+
+    const password2 =
+        document.getElementById("password2")
+        .value
+        .trim();
+
+
+    const terminos =
+        document.getElementById("terminos")
+        .checked;
+
+
+    /* =========================
+       VALIDACIONES
+    ========================= */
+
+
+    if(
+        !nombre ||
+        !telefono ||
+        !email ||
+        !password ||
+        !password2
+    ){
+
+        alert("⚠️ Completa todos los campos");
+
         return;
     }
 
-    const data = { nombre, cedula, telefono, whatsapp, email, password };
 
-    const res = await fetch("/api/register", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify(data)
-    });
+    if(password.length < 6){
 
-    const result = await res.json();
+        alert(
+            "⚠️ La contraseña debe tener mínimo 6 caracteres"
+        );
 
-    if(result.ok){
-        alert("✅ Registro exitoso");
-        window.location.href = "login.html";
-    } else {
-        alert("❌ " + result.msg);
+        return;
     }
+
+
+    if(password !== password2){
+
+        alert(
+            "⚠️ Las contraseñas no coinciden"
+        );
+
+        return;
+    }
+
+
+    if(!terminos){
+
+        alert(
+            "⚠️ Debes aceptar que esta es una aplicación DEMO"
+        );
+
+        return;
+    }
+
+
+    /* =========================
+       DESACTIVAR BOTON
+    ========================= */
+
+    btn.disabled = true;
+
+    btn.innerText = "Creando cuenta...";
+
+
+    try{
+
+        /* =========================
+           ENVIAR AL SERVIDOR
+        ========================= */
+
+        const res = await fetch(
+            "/api/register",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+
+                    nombre,
+
+                    telefono,
+
+                    email,
+
+                    password
+
+                })
+            }
+        );
+
+
+        const result =
+            await res.json();
+
+
+        /* =========================
+           RESPUESTA
+        ========================= */
+
+        if(result.ok){
+
+            alert(
+                "✅ Cuenta creada correctamente.\n\n" +
+                "Ya puedes iniciar sesión y comenzar a jugar en modo DEMO."
+            );
+
+            window.location.href =
+                "login.html";
+
+        }else{
+
+            alert(
+                "❌ " +
+                (result.msg ||
+                "No se pudo crear la cuenta")
+            );
+
+        }
+
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ No se pudo conectar con el servidor."
+        );
+
+    }
+
+
+    /* =========================
+       REACTIVAR
+    ========================= */
+
+    btn.disabled = false;
+
+    btn.innerText =
+        "🎮 CREAR CUENTA";
+
 }
+
+
 </script>
 
 </body>
