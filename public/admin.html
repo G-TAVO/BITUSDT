@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
 <meta charset="UTF-8">
@@ -197,6 +198,9 @@ margin:8px 0;
 border:none;
 border-radius:8px;
 font-size:16px;
+background:#0f172a;
+color:white;
+border:1px solid #475569;
 }
 
 .confirmar{
@@ -207,6 +211,12 @@ background:#22c55e;
 .cancelar{
 width:100%;
 background:#64748b;
+}
+
+.cargando{
+text-align:center;
+padding:20px;
+color:#94a3b8;
 }
 
 @media(max-width:600px){
@@ -257,39 +267,54 @@ Panel administrativo
 <div class="stats">
 
 <div class="stat">
+
 Usuarios
+
 <div
 class="stat-numero"
 id="totalUsuarios">
 0
 </div>
+
 </div>
 
+
 <div class="stat">
+
 Partidas
+
 <div
 class="stat-numero"
 id="totalPartidas">
 0
 </div>
+
 </div>
 
+
 <div class="stat">
+
 Dinero Demo
+
 <div
 class="stat-numero"
 id="totalDinero">
 $0
 </div>
+
 </div>
 
+
 <div class="stat">
+
 Retiros pendientes
+
 <div
 class="stat-numero"
 id="totalRetiros">
 0
 </div>
+
 </div>
 
 </div>
@@ -300,7 +325,11 @@ id="totalRetiros">
 <h2>👥 Usuarios</h2>
 
 <div id="usuarios">
+
+<div class="cargando">
 Cargando usuarios...
+</div>
+
 </div>
 
 
@@ -309,7 +338,11 @@ Cargando usuarios...
 <h2>💸 Retiros Demo</h2>
 
 <div id="retiros">
+
+<div class="cargando">
 Cargando retiros...
+</div>
+
 </div>
 
 
@@ -318,7 +351,11 @@ Cargando retiros...
 <h2>🎰 Últimas Partidas</h2>
 
 <div id="partidas">
+
+<div class="cargando">
 Cargando partidas...
+</div>
+
 </div>
 
 
@@ -327,7 +364,11 @@ Cargando partidas...
 <h2>📥 Recargas Demo</h2>
 
 <div id="recargas">
+
+<div class="cargando">
 Cargando recargas...
+</div>
+
 </div>
 
 
@@ -335,14 +376,16 @@ Cargando recargas...
 class="salir"
 onclick="salir()">
 
-Cerrar sesión
+🚪 Cerrar sesión
 
 </button>
 
 </div>
 
 
-<!-- MODAL SALDO -->
+<!-- =====================================================
+MODAL SALDO
+===================================================== -->
 
 <div
 class="modal"
@@ -361,18 +404,21 @@ type="number"
 id="monto"
 placeholder="Monto"
 min="1"
+step="1"
 >
 
 <input
 type="text"
 id="motivo"
-placeholder="Motivo">
+placeholder="Motivo de la operación"
+>
 
 <button
 class="confirmar"
+id="btnConfirmar"
 onclick="confirmarSaldo()">
 
-Confirmar
+✅ Confirmar
 
 </button>
 
@@ -391,14 +437,25 @@ Cancelar
 
 <script>
 
-/* ==========================================
-VALIDAR ADMIN
-========================================== */
+/* =====================================================
+   VALIDAR ADMIN
+===================================================== */
 
-const usuario =
-JSON.parse(
-localStorage.getItem("usuario")
-);
+const usuarioGuardado =
+localStorage.getItem("usuario");
+
+let usuario = null;
+
+try{
+
+usuario =
+JSON.parse(usuarioGuardado);
+
+}catch(error){
+
+usuario = null;
+
+}
 
 if(
 !usuario ||
@@ -412,18 +469,18 @@ location.href="/";
 }
 
 
-/* ==========================================
-VARIABLES
-========================================== */
+/* =====================================================
+   VARIABLES
+===================================================== */
 
 let usuarioSeleccionado = null;
 
 let operacionSaldo = null;
 
 
-/* ==========================================
-DINERO
-========================================== */
+/* =====================================================
+   FORMATO DINERO
+===================================================== */
 
 function dinero(valor){
 
@@ -433,9 +490,37 @@ return Number(valor || 0)
 }
 
 
-/* ==========================================
-CARGAR TODO
-========================================== */
+/* =====================================================
+   ESCAPAR HTML
+===================================================== */
+
+function escapeHtml(text){
+
+return String(text || "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+   NÚMERO VISUAL
+===================================================== */
+
+function numeroVisual(numero){
+
+return String(numero)
+.padStart(2,"0");
+
+}
+
+
+/* =====================================================
+   CARGAR TODO
+===================================================== */
 
 cargarTodo();
 
@@ -455,9 +540,9 @@ await cargarEstadisticas();
 }
 
 
-/* ==========================================
-USUARIOS
-========================================== */
+/* =====================================================
+   CARGAR USUARIOS
+===================================================== */
 
 async function cargarUsuarios(){
 
@@ -465,8 +550,20 @@ try{
 
 const res =
 await fetch(
-"/api/admin/usuarios"
+"/api/admin/usuarios",
+{
+cache:"no-store"
+}
 );
+
+if(!res.ok){
+
+throw new Error(
+"Servidor respondió HTTP " +
+res.status
+);
+
+}
 
 const data =
 await res.json();
@@ -476,14 +573,28 @@ document.getElementById(
 "usuarios"
 );
 
+
 if(
 !data.ok ||
-!Array.isArray(data.usuarios) ||
+!Array.isArray(data.usuarios)
+){
+
+box.innerHTML=`
+<div class="vacio">
+No se pudieron obtener los usuarios.
+</div>
+`;
+
+return;
+
+}
+
+
+if(
 data.usuarios.length === 0
 ){
 
-box.innerHTML =
-`
+box.innerHTML=`
 <div class="vacio">
 No hay usuarios registrados.
 </div>
@@ -493,18 +604,32 @@ return;
 
 }
 
+
 box.innerHTML="";
 
 
 data.usuarios.forEach(u=>{
+
+const email =
+encodeURIComponent(
+u.email
+);
+
+const nombre =
+escapeHtml(
+u.nombre
+);
 
 box.innerHTML += `
 
 <div class="card">
 
 <div class="nombre">
-👤 ${escapeHtml(u.nombre)}
+
+👤 ${nombre}
+
 </div>
+
 
 <div class="info">
 
@@ -512,14 +637,18 @@ box.innerHTML += `
 
 <br>
 
-📱 ${escapeHtml(u.telefono || "Sin teléfono")}
+📱 ${escapeHtml(
+u.telefono || "Sin teléfono"
+)}
 
 <br>
 
 💵 Saldo Demo:
 
 <span class="saldo">
+
 $${dinero(u.saldo)}
+
 </span>
 
 <br>
@@ -528,18 +657,14 @@ Estado:
 
 ${
 u.bloqueado
-
 ?
-
 "🚫 Bloqueado"
-
 :
-
 "✅ Activo"
-
 }
 
 </div>
+
 
 <div class="separador"></div>
 
@@ -547,8 +672,8 @@ u.bloqueado
 <button
 class="recargar"
 onclick="abrirSaldo(
-'${encodeURIComponent(u.email)}',
-'${escapeHtml(u.nombre)}',
+'${email}',
+'${encodeURIComponent(u.nombre)}',
 'agregar'
 )">
 
@@ -560,8 +685,8 @@ onclick="abrirSaldo(
 <button
 class="quitar"
 onclick="abrirSaldo(
-'${encodeURIComponent(u.email)}',
-'${escapeHtml(u.nombre)}',
+'${email}',
+'${encodeURIComponent(u.nombre)}',
 'quitar'
 )">
 
@@ -580,7 +705,7 @@ u.bloqueado
 <button
 class="desbloquear"
 onclick="cambiarBloqueo(
-'${encodeURIComponent(u.email)}',
+'${email}',
 false
 )">
 
@@ -597,7 +722,7 @@ false
 <button
 class="bloquear"
 onclick="cambiarBloqueo(
-'${encodeURIComponent(u.email)}',
+'${email}',
 true
 )">
 
@@ -615,17 +740,28 @@ true
 
 });
 
+
 }catch(error){
 
-console.error(error);
+console.error(
+"Error usuarios:",
+error
+);
 
 document.getElementById(
 "usuarios"
-).innerHTML =
-`
+).innerHTML=`
+
 <div class="vacio">
-No se pudieron cargar los usuarios.
+
+❌ Error cargando usuarios.
+
+<br><br>
+
+${escapeHtml(error.message)}
+
 </div>
+
 `;
 
 }
@@ -633,9 +769,9 @@ No se pudieron cargar los usuarios.
 }
 
 
-/* ==========================================
-ABRIR SALDO
-========================================== */
+/* =====================================================
+   ABRIR MODAL DE SALDO
+===================================================== */
 
 function abrirSaldo(
 email,
@@ -646,50 +782,71 @@ operacion
 usuarioSeleccionado =
 decodeURIComponent(email);
 
+const nombreReal =
+decodeURIComponent(nombre);
+
 operacionSaldo =
 operacion;
+
 
 document.getElementById(
 "tituloModal"
 ).textContent =
+
 operacion === "agregar"
+
 ?
+
 "💵 Agregar saldo demo"
+
 :
+
 "➖ Quitar saldo demo";
+
 
 document.getElementById(
 "usuarioModal"
-).innerHTML =
-`
-<p>
-Usuario:
-<b>${nombre}</b>
-</p>
+).innerHTML = `
 
 <p>
-${usuarioSeleccionado}
+Usuario:
+<b>
+${escapeHtml(nombreReal)}
+</b>
 </p>
+
+<p style="font-size:13px;color:#94a3b8;">
+${escapeHtml(usuarioSeleccionado)}
+</p>
+
 `;
+
 
 document.getElementById(
 "monto"
 ).value="";
 
+
 document.getElementById(
 "motivo"
 ).value="";
+
 
 document.getElementById(
 "modalSaldo"
 ).style.display="block";
 
+
+document.getElementById(
+"monto"
+).focus();
+
 }
 
 
-/* ==========================================
-CERRAR MODAL
-========================================== */
+/* =====================================================
+   CERRAR MODAL
+===================================================== */
 
 function cerrarModal(){
 
@@ -704,21 +861,22 @@ operacionSaldo=null;
 }
 
 
-/* ==========================================
-CONFIRMAR SALDO
-========================================== */
+/* =====================================================
+   CONFIRMAR SALDO
+===================================================== */
 
 async function confirmarSaldo(){
 
 if(!usuarioSeleccionado){
 
 alert(
-"Usuario no seleccionado"
+"Usuario no seleccionado."
 );
 
 return;
 
 }
+
 
 const monto =
 Number(
@@ -726,6 +884,7 @@ document.getElementById(
 "monto"
 ).value
 );
+
 
 const motivo =
 document.getElementById(
@@ -739,7 +898,7 @@ monto <= 0
 ){
 
 alert(
-"Introduce un monto válido"
+"Introduce un monto válido."
 );
 
 return;
@@ -747,13 +906,21 @@ return;
 }
 
 
+const accionTexto =
+operacionSaldo === "agregar"
+?
+"AGREGAR"
+:
+"QUITAR";
+
+
 if(
 !confirm(
-`¿${
-operacionSaldo === "agregar"
-? "Agregar"
-: "Quitar"
-} $${dinero(monto)} de saldo demo?`
+"¿Deseas " +
+accionTexto +
+" $" +
+dinero(monto) +
+" de saldo demo?"
 )
 ){
 
@@ -762,28 +929,46 @@ return;
 }
 
 
+const boton =
+document.getElementById(
+"btnConfirmar"
+);
+
+
+boton.disabled=true;
+
+boton.textContent=
+"⏳ Procesando...";
+
+
 try{
 
 let url;
-
-let mensaje;
 
 
 if(
 operacionSaldo === "agregar"
 ){
 
-url="/api/admin/recargar";
-
-mensaje="Saldo agregado";
+url =
+"/api/admin/recargar";
 
 }else{
 
-url="/api/admin/quitar-saldo";
-
-mensaje="Saldo descontado";
+url =
+"/api/admin/quitar-saldo";
 
 }
+
+
+console.log(
+"Enviando operación:",
+{
+url,
+email:usuarioSeleccionado,
+monto
+}
+);
 
 
 const res =
@@ -803,7 +988,8 @@ body:JSON.stringify({
 email:
 usuarioSeleccionado,
 
-monto:monto,
+monto:
+monto,
 
 motivo:
 motivo ||
@@ -811,39 +997,125 @@ motivo ||
 
 })
 
-});
+}
+);
 
 
-const data =
-await res.json();
+/*
+   OBTENER RESPUESTA DE FORMA SEGURA
+*/
 
+const texto =
+await res.text();
+
+
+console.log(
+"Respuesta servidor:",
+res.status,
+texto
+);
+
+
+let data;
+
+
+try{
+
+data =
+JSON.parse(texto);
+
+}catch(error){
+
+throw new Error(
+"El servidor no devolvió JSON. HTTP " +
+res.status +
+". Respuesta: " +
+texto.substring(0,200)
+);
+
+}
+
+
+if(!res.ok){
+
+throw new Error(
+data.msg ||
+"El servidor rechazó la operación. HTTP " +
+res.status
+);
+
+}
+
+
+if(!data.ok){
+
+throw new Error(
+data.msg ||
+"La operación no fue realizada."
+);
+
+}
+
+
+/*
+   ÉXITO
+*/
 
 alert(
+"✅ " +
+(
 data.msg ||
-mensaje
+"Saldo modificado correctamente."
+)
++
+"\n\nNuevo saldo: $" +
+dinero(data.saldo)
 );
+
 
 cerrarModal();
 
-cargarTodo();
+
+/*
+   RECARGAR USUARIOS
+*/
+
+await cargarUsuarios();
+
+await cargarEstadisticas();
+
+await cargarRecargas();
 
 
 }catch(error){
 
-console.error(error);
-
-alert(
-"Error modificando saldo"
+console.error(
+"❌ Error modificando saldo:",
+error
 );
 
-}
+
+alert(
+"❌ NO SE PUDO MODIFICAR EL SALDO\n\n" +
+error.message
+);
+
+
+}finally{
+
+boton.disabled=false;
+
+boton.textContent=
+"✅ Confirmar";
 
 }
 
+}
 
-/* ==========================================
-BLOQUEAR / DESBLOQUEAR
-========================================== */
+
+/* =====================================================
+   BLOQUEAR / DESBLOQUEAR
+===================================================== */
 
 async function cambiarBloqueo(
 email,
@@ -895,19 +1167,48 @@ body:JSON.stringify({
 email
 })
 
-});
+}
+);
 
 
-const data =
-await res.json();
+const texto =
+await res.text();
+
+
+let data;
+
+try{
+
+data =
+JSON.parse(texto);
+
+}catch{
+
+throw new Error(
+"Respuesta inválida del servidor: " +
+texto.substring(0,200)
+);
+
+}
+
+
+if(!data.ok){
+
+throw new Error(
+data.msg ||
+"Operación rechazada"
+);
+
+}
 
 
 alert(
-data.msg ||
-"Operación realizada"
+"✅ " +
+data.msg
 );
 
-cargarUsuarios();
+
+await cargarUsuarios();
 
 
 }catch(error){
@@ -915,7 +1216,8 @@ cargarUsuarios();
 console.error(error);
 
 alert(
-"Error realizando operación"
+"❌ Error:\n\n" +
+error.message
 );
 
 }
@@ -923,9 +1225,9 @@ alert(
 }
 
 
-/* ==========================================
-RETIROS
-========================================== */
+/* =====================================================
+   RETIROS
+===================================================== */
 
 async function cargarRetiros(){
 
@@ -933,33 +1235,52 @@ try{
 
 const res =
 await fetch(
-"/api/admin/retiros"
+"/api/admin/retiros",
+{
+cache:"no-store"
+}
 );
+
+
+if(!res.ok){
+
+throw new Error(
+"HTTP " + res.status
+);
+
+}
+
 
 const data =
 await res.json();
+
 
 const box =
 document.getElementById(
 "retiros"
 );
 
+
 if(
 !data.ok ||
-!data.retiros ||
-data.retiros.length===0
+!Array.isArray(data.retiros) ||
+data.retiros.length === 0
 ){
 
-box.innerHTML =
-`
+box.innerHTML=`
+
 <div class="vacio">
+
 No hay retiros.
+
 </div>
+
 `;
 
 return;
 
 }
+
 
 box.innerHTML="";
 
@@ -968,8 +1289,9 @@ data.retiros.forEach(r=>{
 
 let botones="";
 
+
 if(
-r.estado==="pendiente"
+r.estado === "pendiente"
 ){
 
 botones=`
@@ -984,6 +1306,7 @@ onclick="procesarRetiro(
 ✅ Aprobar
 
 </button>
+
 
 <button
 class="rechazar"
@@ -1000,13 +1323,17 @@ onclick="procesarRetiro(
 
 }
 
+
 box.innerHTML += `
 
 <div class="card">
 
 <div class="nombre">
+
 👤 ${escapeHtml(r.nombre)}
+
 </div>
+
 
 <div class="info">
 
@@ -1015,19 +1342,29 @@ box.innerHTML += `
 <br>
 
 💵 Monto:
+
 <span class="saldo">
+
 $${dinero(r.monto)}
+
 </span>
 
 <br>
 
 📱 Nequi Demo:
-${escapeHtml(r.nequi || "No registrado")}
+
+${escapeHtml(
+r.nequi ||
+"No registrado"
+)}
 
 <br>
 
 Estado:
-<b>${r.estado}</b>
+
+<b>
+${escapeHtml(r.estado)}
+</b>
 
 <br>
 
@@ -1037,6 +1374,7 @@ ${escapeHtml(r.fecha || "")}
 
 </div>
 
+
 ${botones}
 
 </div>
@@ -1045,32 +1383,50 @@ ${botones}
 
 });
 
+
 }catch(error){
 
-console.error(error);
+console.error(
+"Error retiros:",
+error
+);
+
+document.getElementById(
+"retiros"
+).innerHTML=`
+
+<div class="vacio">
+
+❌ No se pudieron cargar los retiros.
+
+</div>
+
+`;
 
 }
 
 }
 
 
-/* ==========================================
-PROCESAR RETIRO
-========================================== */
+/* =====================================================
+   PROCESAR RETIRO
+===================================================== */
 
 async function procesarRetiro(
 id,
 accion
 ){
 
-if(
-!confirm(
-accion==="aprobar"
+const pregunta =
+accion === "aprobar"
 ?
 "¿Aprobar retiro demo?"
 :
-"¿Rechazar retiro demo?"
-)
+"¿Rechazar retiro demo?";
+
+
+if(
+!confirm(pregunta)
 ){
 
 return;
@@ -1079,7 +1435,7 @@ return;
 
 
 const url =
-accion==="aprobar"
+accion === "aprobar"
 ?
 "/api/admin/aprobar-retiro"
 :
@@ -1104,19 +1460,47 @@ body:JSON.stringify({
 id
 })
 
-});
+}
+);
 
 
-const data =
-await res.json();
+const texto =
+await res.text();
+
+
+let data;
+
+try{
+
+data =
+JSON.parse(texto);
+
+}catch{
+
+throw new Error(
+"Respuesta inválida del servidor."
+);
+
+}
+
+
+if(!data.ok){
+
+throw new Error(
+data.msg ||
+"Operación rechazada."
+);
+
+}
 
 
 alert(
-data.msg ||
-"Operación realizada"
+"✅ " +
+data.msg
 );
 
-cargarTodo();
+
+await cargarTodo();
 
 
 }catch(error){
@@ -1124,7 +1508,8 @@ cargarTodo();
 console.error(error);
 
 alert(
-"Error procesando retiro"
+"❌ Error procesando retiro:\n\n" +
+error.message
 );
 
 }
@@ -1132,9 +1517,9 @@ alert(
 }
 
 
-/* ==========================================
-PARTIDAS
-========================================== */
+/* =====================================================
+   PARTIDAS
+===================================================== */
 
 async function cargarPartidas(){
 
@@ -1142,33 +1527,43 @@ try{
 
 const res =
 await fetch(
-"/api/admin/partidas"
+"/api/admin/partidas",
+{
+cache:"no-store"
+}
 );
+
 
 const data =
 await res.json();
+
 
 const box =
 document.getElementById(
 "partidas"
 );
 
+
 if(
 !data.ok ||
-!data.partidas ||
-data.partidas.length===0
+!Array.isArray(data.partidas) ||
+data.partidas.length === 0
 ){
 
-box.innerHTML =
-`
+box.innerHTML=`
+
 <div class="vacio">
+
 Todavía no hay partidas.
+
 </div>
+
 `;
 
 return;
 
 }
+
 
 box.innerHTML="";
 
@@ -1182,12 +1577,19 @@ box.innerHTML += `
 <div class="card">
 
 <div class="nombre">
-👤 ${escapeHtml(p.nombre || p.email)}
+
+👤 ${escapeHtml(
+p.nombre ||
+p.email
+)}
+
 </div>
+
 
 <div class="info">
 
 🎯 Número elegido:
+
 <b>
 ${numeroVisual(p.numeroElegido)}
 </b>
@@ -1195,6 +1597,7 @@ ${numeroVisual(p.numeroElegido)}
 <br>
 
 🎰 Número salido:
+
 <b>
 ${numeroVisual(p.numeroRuleta)}
 </b>
@@ -1202,11 +1605,13 @@ ${numeroVisual(p.numeroRuleta)}
 <br>
 
 💵 Apuesta:
+
 $${dinero(p.apuesta)}
 
 <br>
 
 🏆 Premio:
+
 $${dinero(p.premio)}
 
 <br>
@@ -1214,7 +1619,7 @@ $${dinero(p.premio)}
 Resultado:
 
 ${
-p.resultado==="gano"
+p.resultado === "gano"
 ?
 "🎉 GANÓ"
 :
@@ -1235,18 +1640,34 @@ ${escapeHtml(p.fecha || "")}
 
 });
 
+
 }catch(error){
 
-console.error(error);
+console.error(
+"Error partidas:",
+error
+);
+
+document.getElementById(
+"partidas"
+).innerHTML=`
+
+<div class="vacio">
+
+❌ No se pudieron cargar las partidas.
+
+</div>
+
+`;
 
 }
 
 }
 
 
-/* ==========================================
-RECARGAS
-========================================== */
+/* =====================================================
+   RECARGAS
+===================================================== */
 
 async function cargarRecargas(){
 
@@ -1254,33 +1675,43 @@ try{
 
 const res =
 await fetch(
-"/api/admin/recargas"
+"/api/admin/recargas",
+{
+cache:"no-store"
+}
 );
+
 
 const data =
 await res.json();
+
 
 const box =
 document.getElementById(
 "recargas"
 );
 
+
 if(
 !data.ok ||
-!data.recargas ||
-data.recargas.length===0
+!Array.isArray(data.recargas) ||
+data.recargas.length === 0
 ){
 
-box.innerHTML =
-`
+box.innerHTML=`
+
 <div class="vacio">
+
 No hay recargas registradas.
+
 </div>
+
 `;
 
 return;
 
 }
+
 
 box.innerHTML="";
 
@@ -1294,8 +1725,11 @@ box.innerHTML += `
 <div class="card">
 
 <div class="nombre">
+
 👤 ${escapeHtml(r.nombre)}
+
 </div>
+
 
 <div class="info">
 
@@ -1304,13 +1738,18 @@ box.innerHTML += `
 <br>
 
 💵 Recarga:
+
 <span class="saldo">
+
 $${dinero(r.monto)}
+
 </span>
 
 <br>
 
-📝 ${escapeHtml(r.motivo || "")}
+📝 ${escapeHtml(
+r.motivo || ""
+)}
 
 <br>
 
@@ -1326,18 +1765,22 @@ ${escapeHtml(r.fecha || "")}
 
 });
 
+
 }catch(error){
 
-console.error(error);
+console.error(
+"Error recargas:",
+error
+);
 
 }
 
 }
 
 
-/* ==========================================
-ESTADÍSTICAS
-========================================== */
+/* =====================================================
+   ESTADÍSTICAS
+===================================================== */
 
 async function cargarEstadisticas(){
 
@@ -1345,16 +1788,22 @@ try{
 
 const res =
 await fetch(
-"/api/admin/estadisticas"
+"/api/admin/estadisticas",
+{
+cache:"no-store"
+}
 );
+
 
 const data =
 await res.json();
 
 
-if(
-!data.ok
-) return;
+if(!data.ok){
+
+return;
+
+}
 
 
 const e =
@@ -1390,48 +1839,19 @@ e.retirosPendientes || 0;
 
 }catch(error){
 
-console.error(error);
+console.error(
+"Error estadísticas:",
+error
+);
 
 }
 
 }
 
 
-/* ==========================================
-NÚMERO VISUAL
-========================================== */
-
-function numeroVisual(numero){
-
-return String(
-numero
-).padStart(2,"0");
-
-}
-
-
-/* ==========================================
-ESCAPAR HTML
-========================================== */
-
-function escapeHtml(text){
-
-return String(
-text || ""
-)
-
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
-}
-
-
-/* ==========================================
-CERRAR SESIÓN
-========================================== */
+/* =====================================================
+   CERRAR SESIÓN
+===================================================== */
 
 function salir(){
 
@@ -1444,9 +1864,9 @@ location.href="/";
 }
 
 
-/* ==========================================
-CERRAR MODAL AFUERA
-========================================== */
+/* =====================================================
+   CERRAR MODAL AL TOCAR AFUERA
+===================================================== */
 
 window.onclick =
 function(event){
@@ -1455,6 +1875,7 @@ const modal =
 document.getElementById(
 "modalSaldo"
 );
+
 
 if(
 event.target === modal
@@ -1467,16 +1888,37 @@ cerrarModal();
 };
 
 
-/* ==========================================
-ACTUALIZACIÓN AUTOMÁTICA
-========================================== */
+/* =====================================================
+   TECLA ESC
+===================================================== */
+
+document.addEventListener(
+"keydown",
+function(event){
+
+if(
+event.key === "Escape"
+){
+
+cerrarModal();
+
+}
+
+}
+);
+
+
+/* =====================================================
+   ACTUALIZACIÓN AUTOMÁTICA
+===================================================== */
 
 setInterval(
 cargarTodo,
-10000
+15000
 );
 
 </script>
 
 </body>
+
 </html>
