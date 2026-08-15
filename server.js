@@ -23,13 +23,8 @@ console.log("🚀 Iniciando servidor Juego Tavo Demo...");
 // MONGODB
 // ============================================================
 
-// IMPORTANTE:
-// Configura MONGO_URI en Render o en tu entorno local.
-//
-// Ejemplo:
-// mongodb+srv://USUARIO:CONTRASEÑA@cluster.mongodb.net/juegoTavo
-//
-// NO pongas la contraseña directamente aquí.
+// En Render configura:
+// MONGO_URI=mongodb+srv://USUARIO:CONTRASEÑA@cluster.mongodb.net/juegoTavo
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -64,9 +59,6 @@ mongoose.connect(MONGO_URI)
 // CONFIGURACIÓN ADMIN
 // ============================================================
 
-// Para producción puedes cambiar estos valores por variables
-// de entorno ADMIN_EMAIL y ADMIN_PASSWORD.
-
 const ADMIN_EMAIL =
     process.env.ADMIN_EMAIL || "admin@tavo.com";
 
@@ -87,9 +79,12 @@ const NUMERO_MINIMO = 0;
 
 const NUMERO_MAXIMO = 100;
 
-// Premios demo según la tabla que definiste.
+// ============================================================
+// PREMIOS DEMO
+// ============================================================
 
 const PREMIOS = {
+
     1000: 3000,
     2000: 5000,
     3000: 6000,
@@ -100,6 +95,7 @@ const PREMIOS = {
     8000: 11000,
     9000: 12000,
     10000: 20000
+
 };
 
 // ============================================================
@@ -107,19 +103,25 @@ const PREMIOS = {
 // ============================================================
 
 function fecha() {
+
     return new Date().toLocaleString("es-CO");
+
 }
 
 function numeroAleatorio(min, max) {
+
     return Math.floor(
         Math.random() * (max - min + 1)
     ) + min;
+
 }
 
 function limpiarEmail(email) {
+
     return String(email || "")
         .trim()
         .toLowerCase();
+
 }
 
 // ============================================================
@@ -161,7 +163,6 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
 
-    // SALDO DEMO
     saldo: {
         type: Number,
         default: SALDO_INICIAL
@@ -304,7 +305,7 @@ const Movimiento = mongoose.model(
 );
 
 // ============================================================
-// MODELO RETIRO DEMO
+// MODELO RETIROS
 // ============================================================
 
 const RetiroSchema = new mongoose.Schema({
@@ -347,7 +348,7 @@ const Retiro = mongoose.model(
 );
 
 // ============================================================
-// MODELO RECARGAS DEMO
+// MODELO RECARGAS
 // ============================================================
 
 const RecargaSchema = new mongoose.Schema({
@@ -409,49 +410,57 @@ app.post("/api/register", async (req, res) => {
         ) {
 
             return res.json({
+
                 ok: false,
                 msg: "Faltan datos obligatorios"
+
             });
 
         }
 
-        const emailLimpio = limpiarEmail(email);
+        const emailLimpio =
+            limpiarEmail(email);
 
-        const existe = await User.findOne({
-            email: emailLimpio
-        });
+        const existe =
+            await User.findOne({
+                email: emailLimpio
+            });
 
         if (existe) {
 
             return res.json({
+
                 ok: false,
                 msg: "Este correo ya está registrado"
+
             });
 
         }
 
-        const hash = await bcrypt.hash(
-            password,
-            10
-        );
+        const hash =
+            await bcrypt.hash(
+                password,
+                10
+            );
 
-        const usuario = await User.create({
+        const usuario =
+            await User.create({
 
-            nombre: nombre.trim(),
+                nombre: nombre.trim(),
 
-            cedula: cedula || "",
+                cedula: cedula || "",
 
-            telefono: telefono.trim(),
+                telefono: telefono.trim(),
 
-            whatsapp: whatsapp || "",
+                whatsapp: whatsapp || "",
 
-            email: emailLimpio,
+                email: emailLimpio,
 
-            password: hash,
+                password: hash,
 
-            saldo: SALDO_INICIAL
+                saldo: SALDO_INICIAL
 
-        });
+            });
 
         res.json({
 
@@ -475,7 +484,10 @@ app.post("/api/register", async (req, res) => {
 
     } catch (error) {
 
-        console.error("❌ Error registro:", error);
+        console.error(
+            "❌ Error registro:",
+            error
+        );
 
         res.json({
 
@@ -537,9 +549,10 @@ app.post("/api/login", async (req, res) => {
         // USUARIO
         // ====================================================
 
-        const user = await User.findOne({
-            email: emailLimpio
-        });
+        const user =
+            await User.findOne({
+                email: emailLimpio
+            });
 
         if (!user) {
 
@@ -599,7 +612,7 @@ app.post("/api/login", async (req, res) => {
 
                 nequi: user.nequi,
 
-                saldo: user.saldo,
+                saldo: Number(user.saldo || 0),
 
                 rol: "user"
 
@@ -609,7 +622,10 @@ app.post("/api/login", async (req, res) => {
 
     } catch (error) {
 
-        console.error("❌ Error login:", error);
+        console.error(
+            "❌ Error login:",
+            error
+        );
 
         res.json({
 
@@ -624,428 +640,530 @@ app.post("/api/login", async (req, res) => {
 });
 
 // ============================================================
-// OBTENER PERFIL
+// PERFIL
 // ============================================================
 
-app.get("/api/perfil/:email", async (req, res) => {
+app.get(
+    "/api/perfil/:email",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const email =
-            limpiarEmail(req.params.email);
+            const email =
+                limpiarEmail(
+                    req.params.email
+                );
 
-        const user = await User.findOne({
-            email
-        }).select("-password");
+            const user =
+                await User.findOne({
+                    email
+                }).select("-password");
 
-        if (!user) {
+            if (!user) {
 
-            return res.json({
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Usuario no encontrado"
+
+                });
+
+            }
+
+            res.json({
+
+                ok: true,
+
+                usuario: user
+
+            });
+
+        } catch {
+
+            res.json({
 
                 ok: false,
-                msg: "Usuario no encontrado"
+
+                msg:
+                    "Error obteniendo perfil"
 
             });
 
         }
 
-        res.json({
-
-            ok: true,
-            usuario: user
-
-        });
-
-    } catch {
-
-        res.json({
-
-            ok: false,
-            msg: "Error obteniendo perfil"
-
-        });
-
     }
-
-});
+);
 
 // ============================================================
 // GUARDAR NEQUI
 // ============================================================
 
-app.post("/api/nequi", async (req, res) => {
+app.post(
+    "/api/nequi",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const {
-            email,
-            nequi
-        } = req.body;
+            const {
+                email,
+                nequi
+            } = req.body;
 
-        if (!email || !nequi) {
+            if (!email || !nequi) {
 
-            return res.json({
+                return res.json({
 
-                ok: false,
-                msg: "Número Nequi requerido"
+                    ok: false,
 
-            });
+                    msg:
+                        "Número Nequi requerido"
 
-        }
+                });
 
-        await User.updateOne(
-
-            {
-                email: limpiarEmail(email)
-            },
-
-            {
-                nequi: String(nequi).trim()
             }
 
-        );
+            await User.updateOne(
 
-        res.json({
+                {
+                    email:
+                        limpiarEmail(email)
+                },
 
-            ok: true,
+                {
+                    nequi:
+                        String(nequi).trim()
+                }
 
-            msg: "Número Nequi guardado"
-
-        });
-
-    } catch {
-
-        res.json({
-
-            ok: false,
-
-            msg: "No se pudo guardar el Nequi"
-
-        });
-
-    }
-
-});
-
-// ============================================================
-// VER PREMIOS
-// ============================================================
-
-app.get("/api/premios", (req, res) => {
-
-    res.json({
-
-        ok: true,
-
-        apuestaMinima: APUESTA_MINIMA,
-
-        retiroMinimo: RETIRO_MINIMO,
-
-        premios: PREMIOS
-
-    });
-
-});
-
-// ============================================================
-// JUGAR RULETA
-// ============================================================
-
-app.post("/api/jugar", async (req, res) => {
-
-    try {
-
-        const {
-            email,
-            numero,
-            apuesta
-        } = req.body;
-
-        const emailLimpio =
-            limpiarEmail(email);
-
-        const numeroElegido =
-            Number(numero);
-
-        const valorApuesta =
-            Number(apuesta);
-
-        // ====================================================
-        // VALIDACIONES
-        // ====================================================
-
-        if (!emailLimpio) {
-
-            return res.json({
-
-                ok: false,
-                msg: "Usuario no válido"
-
-            });
-
-        }
-
-        if (
-            !Number.isInteger(numeroElegido) ||
-            numeroElegido < NUMERO_MINIMO ||
-            numeroElegido > NUMERO_MAXIMO
-        ) {
-
-            return res.json({
-
-                ok: false,
-
-                msg:
-                    "El número debe estar entre 0 y 100"
-
-            });
-
-        }
-
-        if (
-            !Number.isInteger(valorApuesta) ||
-            valorApuesta < APUESTA_MINIMA
-        ) {
-
-            return res.json({
-
-                ok: false,
-
-                msg:
-                    "La apuesta mínima es de $1.000 demo"
-
-            });
-
-        }
-
-        // Solo permitimos las apuestas de la tabla.
-
-        if (!PREMIOS[valorApuesta]) {
-
-            return res.json({
-
-                ok: false,
-
-                msg:
-                    "Esta cantidad de apuesta no está disponible"
-
-            });
-
-        }
-
-        const user =
-            await User.findOne({
-                email: emailLimpio
-            });
-
-        if (!user) {
-
-            return res.json({
-
-                ok: false,
-
-                msg: "Usuario no encontrado"
-
-            });
-
-        }
-
-        if (user.bloqueado) {
-
-            return res.json({
-
-                ok: false,
-
-                msg: "Usuario bloqueado"
-
-            });
-
-        }
-
-        // ====================================================
-        // COMPROBAR SALDO
-        // ====================================================
-
-        if (user.saldo < valorApuesta) {
-
-            return res.json({
-
-                ok: false,
-
-                msg: "Saldo demo insuficiente",
-
-                saldo: user.saldo
-
-            });
-
-        }
-
-        // ====================================================
-        // SALDO ANTES
-        // ====================================================
-
-        const saldoAntes =
-            Number(user.saldo);
-
-        // ====================================================
-        // DESCONTAR APUESTA
-        // ====================================================
-
-        user.saldo -= valorApuesta;
-
-        // ====================================================
-        // GENERAR RULETA
-        // ====================================================
-
-        const numeroRuleta =
-            numeroAleatorio(
-                NUMERO_MINIMO,
-                NUMERO_MAXIMO
             );
 
-        let gano = false;
+            res.json({
 
-        let premio = 0;
+                ok: true,
 
-        // El jugador gana cuando sale exactamente
-        // el número elegido.
+                msg:
+                    "Número Nequi guardado"
 
-        if (
-            numeroRuleta === numeroElegido
-        ) {
+            });
 
-            gano = true;
+        } catch {
 
-            premio =
-                PREMIOS[valorApuesta];
+            res.json({
 
-            user.saldo += premio;
+                ok: false,
+
+                msg:
+                    "No se pudo guardar el Nequi"
+
+            });
 
         }
 
-        const saldoDespues =
-            Number(user.saldo);
+    }
+);
 
-        // ====================================================
-        // GUARDAR USUARIO
-        // ====================================================
+// ============================================================
+// PREMIOS
+// ============================================================
 
-        await user.save();
-
-        // ====================================================
-        // GUARDAR PARTIDA
-        // ====================================================
-
-        await Juego.create({
-
-            email: user.email,
-
-            nombre: user.nombre,
-
-            numeroElegido,
-
-            numeroRuleta,
-
-            apuesta: valorApuesta,
-
-            premio,
-
-            resultado:
-                gano
-                    ? "gano"
-                    : "perdio",
-
-            saldoAntes,
-
-            saldoDespues,
-
-            fecha: fecha()
-
-        });
-
-        // ====================================================
-        // GUARDAR MOVIMIENTO
-        // ====================================================
-
-        await Movimiento.create({
-
-            email: user.email,
-
-            tipo:
-                gano
-                    ? "premio_demo"
-                    : "apuesta_demo",
-
-            monto:
-                gano
-                    ? premio
-                    : valorApuesta,
-
-            saldoAntes,
-
-            saldoDespues,
-
-            detalle:
-                gano
-                    ?
-                    `Ganó premio demo. Número elegido: ${numeroElegido}. Ruleta: ${numeroRuleta}`
-                    :
-                    `Perdió apuesta demo. Número elegido: ${numeroElegido}. Ruleta: ${numeroRuleta}`,
-
-            fecha: fecha()
-
-        });
-
-        // ====================================================
-        // RESPUESTA
-        // ====================================================
+app.get(
+    "/api/premios",
+    (req, res) => {
 
         res.json({
 
             ok: true,
 
-            resultado:
-                gano
-                    ? "gano"
-                    : "perdio",
+            apuestaMinima:
+                APUESTA_MINIMA,
 
-            numeroElegido,
+            retiroMinimo:
+                RETIRO_MINIMO,
 
-            numeroRuleta,
-
-            apuesta: valorApuesta,
-
-            premio,
-
-            saldo: saldoDespues,
-
-            mensaje:
-                gano
-                    ?
-                    `🎉 ¡Ganaste $${premio.toLocaleString("es-CO")} demo!`
-                    :
-                    `😔 No ganaste esta vez. Salió el ${numeroRuleta}.`
-
-        });
-
-    } catch (error) {
-
-        console.error("❌ Error jugando:", error);
-
-        res.json({
-
-            ok: false,
-
-            msg: "Error procesando la partida"
+            premios:
+                PREMIOS
 
         });
 
     }
-
-});
+);
 
 // ============================================================
-// HISTORIAL DE PARTIDAS
+// JUGAR
+// ============================================================
+
+app.post(
+    "/api/jugar",
+    async (req, res) => {
+
+        try {
+
+            const {
+                email,
+                numero,
+                apuesta
+            } = req.body;
+
+            const emailLimpio =
+                limpiarEmail(email);
+
+            const numeroElegido =
+                Number(numero);
+
+            const valorApuesta =
+                Number(apuesta);
+
+            // =================================================
+            // VALIDAR USUARIO
+            // =================================================
+
+            if (!emailLimpio) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Usuario no válido"
+
+                });
+
+            }
+
+            // =================================================
+            // VALIDAR NÚMERO
+            // =================================================
+
+            if (
+                !Number.isInteger(
+                    numeroElegido
+                ) ||
+                numeroElegido <
+                    NUMERO_MINIMO ||
+                numeroElegido >
+                    NUMERO_MAXIMO
+            ) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "El número debe estar entre 0 y 100"
+
+                });
+
+            }
+
+            // =================================================
+            // VALIDAR APUESTA
+            // =================================================
+
+            if (
+                !Number.isInteger(
+                    valorApuesta
+                ) ||
+                valorApuesta <
+                    APUESTA_MINIMA
+            ) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "La apuesta mínima es de $1.000 demo"
+
+                });
+
+            }
+
+            // =================================================
+            // VALIDAR TABLA DE PREMIOS
+            // =================================================
+
+            if (
+                !Object.prototype.hasOwnProperty.call(
+                    PREMIOS,
+                    valorApuesta
+                )
+            ) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Esta cantidad de apuesta no está disponible"
+
+                });
+
+            }
+
+            // =================================================
+            // BUSCAR USUARIO
+            // =================================================
+
+            const user =
+                await User.findOne({
+                    email: emailLimpio
+                });
+
+            if (!user) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Usuario no encontrado"
+
+                });
+
+            }
+
+            if (user.bloqueado) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Usuario bloqueado"
+
+                });
+
+            }
+
+            // =================================================
+            // SALDO ACTUAL
+            // =================================================
+
+            const saldoAntes =
+                Number(user.saldo || 0);
+
+            // =================================================
+            // COMPROBAR SALDO
+            // =================================================
+
+            if (
+                saldoAntes <
+                valorApuesta
+            ) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Saldo demo insuficiente",
+
+                    saldo:
+                        saldoAntes
+
+                });
+
+            }
+
+            // =================================================
+            // GENERAR NÚMERO
+            // =================================================
+
+            const numeroRuleta =
+                numeroAleatorio(
+                    NUMERO_MINIMO,
+                    NUMERO_MAXIMO
+                );
+
+            // =================================================
+            // DETERMINAR RESULTADO
+            // =================================================
+
+            const gano =
+                numeroRuleta ===
+                numeroElegido;
+
+            let premio = 0;
+
+            if (gano) {
+
+                premio =
+                    Number(
+                        PREMIOS[
+                            valorApuesta
+                        ]
+                    );
+
+            }
+
+            // =================================================
+            // CALCULAR SALDO
+            // =================================================
+
+            // SIEMPRE se descuenta primero
+            // la apuesta.
+
+            let saldoDespues =
+                saldoAntes -
+                valorApuesta;
+
+            // Si gana se suma el premio.
+
+            if (gano) {
+
+                saldoDespues += premio;
+
+            }
+
+            // Evitar números negativos.
+
+            if (saldoDespues < 0) {
+
+                saldoDespues = 0;
+
+            }
+
+            // =================================================
+            // GUARDAR SALDO
+            // =================================================
+
+            user.saldo =
+                saldoDespues;
+
+            await user.save();
+
+            // =================================================
+            // GUARDAR PARTIDA
+            // =================================================
+
+            await Juego.create({
+
+                email:
+                    user.email,
+
+                nombre:
+                    user.nombre,
+
+                numeroElegido,
+
+                numeroRuleta,
+
+                apuesta:
+                    valorApuesta,
+
+                premio,
+
+                resultado:
+                    gano
+                        ? "gano"
+                        : "perdio",
+
+                saldoAntes,
+
+                saldoDespues,
+
+                fecha:
+                    fecha()
+
+            });
+
+            // =================================================
+            // GUARDAR MOVIMIENTO
+            // =================================================
+
+            await Movimiento.create({
+
+                email:
+                    user.email,
+
+                tipo:
+                    gano
+                        ? "premio_demo"
+                        : "apuesta_demo",
+
+                monto:
+                    gano
+                        ? premio
+                        : valorApuesta,
+
+                saldoAntes,
+
+                saldoDespues,
+
+                detalle:
+                    gano
+                        ?
+                        `Ganó premio demo. Número elegido: ${numeroElegido}. Ruleta: ${numeroRuleta}. Apuesta: $${valorApuesta}. Premio: $${premio}.`
+                        :
+                        `Perdió apuesta demo. Número elegido: ${numeroElegido}. Ruleta: ${numeroRuleta}. Apuesta: $${valorApuesta}.`,
+
+                fecha:
+                    fecha()
+
+            });
+
+            // =================================================
+            // RESPUESTA
+            // =================================================
+
+            res.json({
+
+                ok: true,
+
+                resultado:
+                    gano
+                        ? "gano"
+                        : "perdio",
+
+                numeroElegido,
+
+                numeroRuleta,
+
+                apuesta:
+                    valorApuesta,
+
+                premio,
+
+                saldoAntes,
+
+                saldo:
+                    saldoDespues,
+
+                saldoDespues,
+
+                mensaje:
+                    gano
+                        ?
+                        `🎉 ¡Ganaste $${premio.toLocaleString("es-CO")} demo!`
+                        :
+                        `😔 No ganaste esta vez. Salió el ${numeroRuleta}. Se descontaron $${valorApuesta.toLocaleString("es-CO")} demo.`
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error jugando:",
+                error
+            );
+
+            res.json({
+
+                ok: false,
+
+                msg:
+                    "Error procesando la partida"
+
+            });
+
+        }
+
+    }
+);
+
+// ============================================================
+// HISTORIAL
 // ============================================================
 
 app.get(
@@ -1072,7 +1190,8 @@ app.get(
 
                 ok: true,
 
-                historial: data
+                historial:
+                    data
 
             });
 
@@ -1092,7 +1211,7 @@ app.get(
 );
 
 // ============================================================
-// MOVIMIENTOS DEL USUARIO
+// MOVIMIENTOS
 // ============================================================
 
 app.get(
@@ -1119,7 +1238,8 @@ app.get(
 
                 ok: true,
 
-                movimientos: data
+                movimientos:
+                    data
 
             });
 
@@ -1139,7 +1259,7 @@ app.get(
 );
 
 // ============================================================
-// SOLICITAR RETIRO DEMO
+// SOLICITAR RETIRO
 // ============================================================
 
 app.post(
@@ -1162,7 +1282,8 @@ app.post(
 
             const user =
                 await User.findOne({
-                    email: emailLimpio
+                    email:
+                        emailLimpio
                 });
 
             if (!user) {
@@ -1171,7 +1292,8 @@ app.post(
 
                     ok: false,
 
-                    msg: "Usuario no encontrado"
+                    msg:
+                        "Usuario no encontrado"
 
                 });
 
@@ -1183,25 +1305,32 @@ app.post(
 
                     ok: false,
 
-                    msg: "Usuario bloqueado"
+                    msg:
+                        "Usuario bloqueado"
 
                 });
 
             }
 
-            if (!Number.isInteger(valor)) {
+            if (
+                !Number.isInteger(valor)
+            ) {
 
                 return res.json({
 
                     ok: false,
 
-                    msg: "Monto inválido"
+                    msg:
+                        "Monto inválido"
 
                 });
 
             }
 
-            if (valor < RETIRO_MINIMO) {
+            if (
+                valor <
+                RETIRO_MINIMO
+            ) {
 
                 return res.json({
 
@@ -1214,7 +1343,10 @@ app.post(
 
             }
 
-            if (valor > user.saldo) {
+            if (
+                valor >
+                Number(user.saldo || 0)
+            ) {
 
                 return res.json({
 
@@ -1244,16 +1376,14 @@ app.post(
 
             }
 
-            // =================================================
-            // EVITAR VARIOS RETIROS PENDIENTES
-            // =================================================
-
             const pendiente =
                 await Retiro.findOne({
 
-                    email: emailLimpio,
+                    email:
+                        emailLimpio,
 
-                    estado: "pendiente"
+                    estado:
+                        "pendiente"
 
                 });
 
@@ -1275,9 +1405,11 @@ app.post(
             // =================================================
 
             const saldoAntes =
-                user.saldo;
+                Number(user.saldo || 0);
 
-            user.saldo -= valor;
+            user.saldo =
+                saldoAntes -
+                valor;
 
             await user.save();
 
@@ -1287,17 +1419,23 @@ app.post(
 
             await Retiro.create({
 
-                email: user.email,
+                email:
+                    user.email,
 
-                nombre: user.nombre,
+                nombre:
+                    user.nombre,
 
-                nequi: numeroNequi,
+                nequi:
+                    numeroNequi,
 
-                monto: valor,
+                monto:
+                    valor,
 
-                estado: "pendiente",
+                estado:
+                    "pendiente",
 
-                fecha: fecha()
+                fecha:
+                    fecha()
 
             });
 
@@ -1307,20 +1445,25 @@ app.post(
 
             await Movimiento.create({
 
-                email: user.email,
+                email:
+                    user.email,
 
-                tipo: "retiro_demo",
+                tipo:
+                    "retiro_demo",
 
-                monto: valor,
+                monto:
+                    valor,
 
                 saldoAntes,
 
-                saldoDespues: user.saldo,
+                saldoDespues:
+                    user.saldo,
 
                 detalle:
                     "Solicitud de retiro demo enviada",
 
-                fecha: fecha()
+                fecha:
+                    fecha()
 
             });
 
@@ -1331,7 +1474,8 @@ app.post(
                 msg:
                     "Solicitud de retiro demo enviada",
 
-                saldo: user.saldo
+                saldo:
+                    user.saldo
 
             });
 
@@ -1357,7 +1501,7 @@ app.post(
 );
 
 // ============================================================
-// VER MIS RETIROS
+// MIS RETIROS
 // ============================================================
 
 app.get(
@@ -1448,7 +1592,277 @@ app.get(
 );
 
 // ============================================================
-// ADMIN - RECARGAR SALDO DEMO
+// ADMIN - EDITAR SALDO DIRECTAMENTE
+// ============================================================
+
+app.post(
+    "/api/admin/editar-saldo",
+    async (req, res) => {
+
+        try {
+
+            const {
+                email,
+                saldo
+            } = req.body;
+
+            const emailLimpio =
+                limpiarEmail(email);
+
+            const nuevoSaldo =
+                Number(saldo);
+
+            if (!emailLimpio) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Correo requerido"
+
+                });
+
+            }
+
+            if (
+                !Number.isFinite(
+                    nuevoSaldo
+                ) ||
+                nuevoSaldo < 0
+            ) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Saldo inválido"
+
+                });
+
+            }
+
+            const user =
+                await User.findOne({
+                    email:
+                        emailLimpio
+                });
+
+            if (!user) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Usuario no encontrado"
+
+                });
+
+            }
+
+            const saldoAntes =
+                Number(user.saldo || 0);
+
+            user.saldo =
+                Math.floor(
+                    nuevoSaldo
+                );
+
+            await user.save();
+
+            await Movimiento.create({
+
+                email:
+                    user.email,
+
+                tipo:
+                    "edicion_saldo_admin",
+
+                monto:
+                    Math.abs(
+                        user.saldo -
+                        saldoAntes
+                    ),
+
+                saldoAntes,
+
+                saldoDespues:
+                    user.saldo,
+
+                detalle:
+                    `Administrador cambió el saldo demo de $${saldoAntes} a $${user.saldo}.`,
+
+                fecha:
+                    fecha()
+
+            });
+
+            res.json({
+
+                ok: true,
+
+                msg:
+                    "Saldo actualizado correctamente",
+
+                saldo:
+                    user.saldo
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error editando saldo:",
+                error
+            );
+
+            res.json({
+
+                ok: false,
+
+                msg:
+                    "Error editando saldo"
+
+            });
+
+        }
+
+    }
+);
+
+// ============================================================
+// ADMIN - RUTA ALTERNATIVA PARA EDITAR SALDO
+// ============================================================
+
+app.post(
+    "/api/admin/saldo",
+    async (req, res) => {
+
+        try {
+
+            const {
+                email,
+                saldo
+            } = req.body;
+
+            const emailLimpio =
+                limpiarEmail(email);
+
+            const nuevoSaldo =
+                Number(saldo);
+
+            if (
+                !emailLimpio ||
+                !Number.isFinite(
+                    nuevoSaldo
+                ) ||
+                nuevoSaldo < 0
+            ) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Datos inválidos"
+
+                });
+
+            }
+
+            const user =
+                await User.findOne({
+                    email:
+                        emailLimpio
+                });
+
+            if (!user) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg:
+                        "Usuario no encontrado"
+
+                });
+
+            }
+
+            const saldoAntes =
+                Number(user.saldo || 0);
+
+            user.saldo =
+                Math.floor(
+                    nuevoSaldo
+                );
+
+            await user.save();
+
+            await Movimiento.create({
+
+                email:
+                    user.email,
+
+                tipo:
+                    "edicion_saldo_admin",
+
+                monto:
+                    Math.abs(
+                        user.saldo -
+                        saldoAntes
+                    ),
+
+                saldoAntes,
+
+                saldoDespues:
+                    user.saldo,
+
+                detalle:
+                    `Administrador estableció el saldo demo en $${user.saldo}.`,
+
+                fecha:
+                    fecha()
+
+            });
+
+            res.json({
+
+                ok: true,
+
+                msg:
+                    "Saldo actualizado correctamente",
+
+                saldo:
+                    user.saldo
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error actualizando saldo:",
+                error
+            );
+
+            res.json({
+
+                ok: false,
+
+                msg:
+                    "Error actualizando saldo"
+
+            });
+
+        }
+
+    }
+);
+
+// ============================================================
+// ADMIN - RECARGAR SALDO
 // ============================================================
 
 app.post(
@@ -1483,8 +1897,10 @@ app.post(
 
             const user =
                 await User.findOne({
+
                     email:
                         limpiarEmail(email)
+
                 });
 
             if (!user) {
@@ -1501,50 +1917,54 @@ app.post(
             }
 
             const saldoAntes =
-                user.saldo;
+                Number(user.saldo || 0);
 
-            user.saldo += valor;
+            user.saldo =
+                saldoAntes +
+                valor;
 
             await user.save();
 
-            // =================================================
-            // RECARGA
-            // =================================================
-
             await Recarga.create({
 
-                email: user.email,
+                email:
+                    user.email,
 
-                nombre: user.nombre,
+                nombre:
+                    user.nombre,
 
-                monto: valor,
+                monto:
+                    valor,
 
-                tipo: "recarga_demo_admin",
+                tipo:
+                    "recarga_demo_admin",
 
-                fecha: fecha()
+                fecha:
+                    fecha()
 
             });
 
-            // =================================================
-            // MOVIMIENTO
-            // =================================================
-
             await Movimiento.create({
 
-                email: user.email,
+                email:
+                    user.email,
 
-                tipo: "recarga_demo",
+                tipo:
+                    "recarga_demo",
 
-                monto: valor,
+                monto:
+                    valor,
 
                 saldoAntes,
 
-                saldoDespues: user.saldo,
+                saldoDespues:
+                    user.saldo,
 
                 detalle:
                     "Administrador agregó saldo demo",
 
-                fecha: fecha()
+                fecha:
+                    fecha()
 
             });
 
@@ -1555,7 +1975,8 @@ app.post(
                 msg:
                     "Saldo demo agregado correctamente",
 
-                saldo: user.saldo
+                saldo:
+                    user.saldo
 
             });
 
@@ -1581,7 +2002,7 @@ app.post(
 );
 
 // ============================================================
-// ADMIN - QUITAR SALDO DEMO
+// ADMIN - QUITAR SALDO
 // ============================================================
 
 app.post(
@@ -1616,8 +2037,10 @@ app.post(
 
             const user =
                 await User.findOne({
+
                     email:
                         limpiarEmail(email)
+
                 });
 
             if (!user) {
@@ -1633,7 +2056,13 @@ app.post(
 
             }
 
-            if (valor > user.saldo) {
+            const saldoAntes =
+                Number(user.saldo || 0);
+
+            if (
+                valor >
+                saldoAntes
+            ) {
 
                 return res.json({
 
@@ -1646,29 +2075,33 @@ app.post(
 
             }
 
-            const saldoAntes =
-                user.saldo;
-
-            user.saldo -= valor;
+            user.saldo =
+                saldoAntes -
+                valor;
 
             await user.save();
 
             await Movimiento.create({
 
-                email: user.email,
+                email:
+                    user.email,
 
-                tipo: "ajuste_admin",
+                tipo:
+                    "ajuste_admin",
 
-                monto: valor,
+                monto:
+                    valor,
 
                 saldoAntes,
 
-                saldoDespues: user.saldo,
+                saldoDespues:
+                    user.saldo,
 
                 detalle:
                     "Administrador retiró saldo demo",
 
-                fecha: fecha()
+                fecha:
+                    fecha()
 
             });
 
@@ -1679,11 +2112,17 @@ app.post(
                 msg:
                     "Saldo demo descontado",
 
-                saldo: user.saldo
+                saldo:
+                    user.saldo
 
             });
 
-        } catch {
+        } catch (error) {
+
+            console.error(
+                "❌ Error descontando saldo:",
+                error
+            );
 
             res.json({
 
@@ -1719,7 +2158,8 @@ app.post(
                 },
 
                 {
-                    bloqueado: true
+                    bloqueado:
+                        true
                 }
 
             );
@@ -1728,7 +2168,8 @@ app.post(
 
                 ok: true,
 
-                msg: "Usuario bloqueado"
+                msg:
+                    "Usuario bloqueado"
 
             });
 
@@ -1738,7 +2179,8 @@ app.post(
 
                 ok: false,
 
-                msg: "Error bloqueando usuario"
+                msg:
+                    "Error bloqueando usuario"
 
             });
 
@@ -1767,7 +2209,8 @@ app.post(
                 },
 
                 {
-                    bloqueado: false
+                    bloqueado:
+                        false
                 }
 
             );
@@ -1776,7 +2219,8 @@ app.post(
 
                 ok: true,
 
-                msg: "Usuario desbloqueado"
+                msg:
+                    "Usuario desbloqueado"
 
             });
 
@@ -1836,7 +2280,7 @@ app.get(
 );
 
 // ============================================================
-// ADMIN - APROBAR RETIRO DEMO
+// ADMIN - APROBAR RETIRO
 // ============================================================
 
 app.post(
@@ -1888,20 +2332,26 @@ app.post(
 
             await Movimiento.create({
 
-                email: retiro.email,
+                email:
+                    retiro.email,
 
-                tipo: "retiro_aprobado_demo",
+                tipo:
+                    "retiro_aprobado_demo",
 
-                monto: retiro.monto,
+                monto:
+                    retiro.monto,
 
-                saldoAntes: 0,
+                saldoAntes:
+                    0,
 
-                saldoDespues: 0,
+                saldoDespues:
+                    0,
 
                 detalle:
                     "Retiro demo aprobado por administrador",
 
-                fecha: fecha()
+                fecha:
+                    fecha()
 
             });
 
@@ -1916,7 +2366,10 @@ app.post(
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "❌ Error aprobando retiro:",
+                error
+            );
 
             res.json({
 
@@ -1933,7 +2386,7 @@ app.post(
 );
 
 // ============================================================
-// ADMIN - RECHAZAR RETIRO DEMO
+// ADMIN - RECHAZAR RETIRO
 // ============================================================
 
 app.post(
@@ -1980,24 +2433,27 @@ app.post(
 
             const user =
                 await User.findOne({
-                    email: retiro.email
+
+                    email:
+                        retiro.email
+
                 });
 
             if (user) {
 
                 const saldoAntes =
-                    user.saldo;
+                    Number(user.saldo || 0);
 
-                // DEVOLVER EL DINERO DEMO
-
-                user.saldo +=
-                    retiro.monto;
+                user.saldo =
+                    saldoAntes +
+                    Number(retiro.monto);
 
                 await user.save();
 
                 await Movimiento.create({
 
-                    email: user.email,
+                    email:
+                        user.email,
 
                     tipo:
                         "retiro_rechazado_demo",
@@ -2013,7 +2469,8 @@ app.post(
                     detalle:
                         "Retiro demo rechazado. Saldo demo devuelto.",
 
-                    fecha: fecha()
+                    fecha:
+                        fecha()
 
                 });
 
@@ -2035,7 +2492,10 @@ app.post(
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "❌ Error rechazando retiro:",
+                error
+            );
 
             res.json({
 
@@ -2052,7 +2512,7 @@ app.post(
 );
 
 // ============================================================
-// ADMIN - VER TODAS LAS PARTIDAS
+// ADMIN - TODAS LAS PARTIDAS
 // ============================================================
 
 app.get(
@@ -2092,7 +2552,7 @@ app.get(
 );
 
 // ============================================================
-// ADMIN - VER RECARGAS
+// ADMIN - RECARGAS
 // ============================================================
 
 app.get(
@@ -2132,7 +2592,7 @@ app.get(
 );
 
 // ============================================================
-// ADMIN - VER MOVIMIENTOS
+// ADMIN - MOVIMIENTOS
 // ============================================================
 
 app.get(
@@ -2172,7 +2632,7 @@ app.get(
 );
 
 // ============================================================
-// ESTADÍSTICAS DEMO
+// ADMIN - ESTADÍSTICAS
 // ============================================================
 
 app.get(
@@ -2189,29 +2649,42 @@ app.get(
 
             const retirosPendientes =
                 await Retiro.countDocuments({
-                    estado: "pendiente"
+
+                    estado:
+                        "pendiente"
+
                 });
 
             const partidasGanadas =
                 await Juego.countDocuments({
-                    resultado: "gano"
+
+                    resultado:
+                        "gano"
+
                 });
 
             const partidasPerdidas =
                 await Juego.countDocuments({
-                    resultado: "perdio"
+
+                    resultado:
+                        "perdio"
+
                 });
 
             const saldoUsuarios =
                 await User.aggregate([
 
                     {
+
                         $group: {
 
                             _id: null,
 
                             total: {
-                                $sum: "$saldo"
+
+                                $sum:
+                                    "$saldo"
+
                             }
 
                         }
@@ -2247,7 +2720,12 @@ app.get(
 
             });
 
-        } catch {
+        } catch (error) {
+
+            console.error(
+                "❌ Error estadísticas:",
+                error
+            );
 
             res.json({
 
@@ -2267,72 +2745,90 @@ app.get(
 // RUTA PRINCIPAL
 // ============================================================
 
-app.get("/", (req, res) => {
+app.get(
+    "/",
+    (req, res) => {
 
-    res.send(`
-        <html>
-        <head>
-            <title>Juego Tavo Demo</title>
-        </head>
+        res.send(`
 
-        <body style="
-            font-family:Arial;
-            background:#0f172a;
-            color:white;
-            text-align:center;
-            padding:50px;
-        ">
+            <html>
 
-            <h1>🎰 Juego Tavo Demo</h1>
+            <head>
 
-            <p>
-                Servidor funcionando correctamente 🚀
-            </p>
+                <title>
+                    Juego Tavo Demo
+                </title>
 
-            <p>
-                🪙 Sistema de dinero ficticio / demo
-            </p>
+            </head>
 
-        </body>
-        </html>
-    `);
+            <body style="
+                font-family:Arial;
+                background:#0f172a;
+                color:white;
+                text-align:center;
+                padding:50px;
+            ">
 
-});
+                <h1>
+                    🎰 Juego Tavo Demo
+                </h1>
+
+                <p>
+                    Servidor funcionando correctamente 🚀
+                </p>
+
+                <p>
+                    🪙 Sistema de dinero ficticio / demo
+                </p>
+
+            </body>
+
+            </html>
+
+        `);
+
+    }
+);
 
 // ============================================================
-// MANEJO DE ERROR 404
+// 404
 // ============================================================
 
-app.use((req, res) => {
+app.use(
+    (req, res) => {
 
-    res.status(404).json({
+        res.status(404).json({
 
-        ok: false,
+            ok: false,
 
-        msg: "Ruta no encontrada"
+            msg:
+                "Ruta no encontrada"
 
-    });
+        });
 
-});
+    }
+);
 
 // ============================================================
 // ERROR GENERAL
 // ============================================================
 
-app.use((err, req, res, next) => {
+app.use(
+    (err, req, res, next) => {
 
-    console.error(
-        "❌ Error general:",
-        err
-    );
+        console.error(
+            "❌ Error general:",
+            err
+        );
 
-    res.status(500).json({
+        res.status(500).json({
 
-        ok: false,
+            ok: false,
 
-        msg:
-            "Error interno del servidor"
+            msg:
+                "Error interno del servidor"
 
-    });
+        });
 
-});
+    }
+);
