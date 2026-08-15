@@ -266,7 +266,9 @@ text-align:center;
 }
 
 
-/* PUNTERO */
+/* =====================================================
+   PUNTERO
+===================================================== */
 
 .puntero{
 
@@ -289,7 +291,9 @@ z-index:10;
 }
 
 
-/* RUEDA */
+/* =====================================================
+   RUEDA
+===================================================== */
 
 .ruleta{
 
@@ -349,7 +353,9 @@ cubic-bezier(.15,.75,.25,1);
 }
 
 
-/* CENTRO */
+/* =====================================================
+   CENTRO
+===================================================== */
 
 .ruleta-centro{
 
@@ -496,8 +502,20 @@ transform:scale(.98);
 
 }
 
+button:disabled{
 
-/* BOTON JUGAR */
+opacity:.5;
+
+cursor:not-allowed;
+
+transform:none;
+
+}
+
+
+/* =====================================================
+   BOTON JUGAR
+===================================================== */
 
 .btn-jugar{
 
@@ -515,7 +533,9 @@ padding:15px;
 }
 
 
-/* RECARGAR */
+/* =====================================================
+   RECARGAR
+===================================================== */
 
 .btn-recargar{
 
@@ -524,7 +544,9 @@ background:#2563eb;
 }
 
 
-/* RETIRAR */
+/* =====================================================
+   RETIRAR
+===================================================== */
 
 .btn-retirar{
 
@@ -533,7 +555,9 @@ background:#8b5cf6;
 }
 
 
-/* HISTORIAL */
+/* =====================================================
+   HISTORIAL
+===================================================== */
 
 .btn-historial{
 
@@ -542,7 +566,9 @@ background:#3b82f6;
 }
 
 
-/* SALIR */
+/* =====================================================
+   SALIR
+===================================================== */
 
 .btn-salir{
 
@@ -552,7 +578,7 @@ background:#ef4444;
 
 
 /* =====================================================
-   CANTIDAD DE JUEGO
+   APUESTA
 ===================================================== */
 
 .apuesta-info{
@@ -810,7 +836,7 @@ color:#bbf7d0;
 
 
 /* =====================================================
-   MENU INFERIOR
+   MENU
 ===================================================== */
 
 .menu{
@@ -860,17 +886,6 @@ font-size:12px;
 color:#00ffcc;
 
 transform:none;
-
-}
-
-
-/* =====================================================
-   OCULTO
-===================================================== */
-
-.oculto{
-
-display:none !important;
 
 }
 
@@ -1027,11 +1042,10 @@ id="ganadas"
 
 <div class="card">
 
-<h3>🎰 Ruleta 0 - 100</h3>
+<h3>🎰 Ruleta 0 - 99</h3>
 
 
 <div class="ruleta-area">
-
 
 <div class="puntero"></div>
 
@@ -1042,28 +1056,29 @@ id="ruleta"
 >
 
 <div class="ruleta-centro">
-0-100
+0-99
 </div>
 
 </div>
 
-
 </div>
 
 
-<!-- NUMERO -->
+<!-- =================================================
+     NUMERO
+================================================= -->
 
 <div class="numero-box">
 
 <label>
-Elige tu número
+Elige tu número entre 0 y 99
 </label>
 
 <input
 type="number"
 id="numeroElegido"
 min="0"
-max="100"
+max="99"
 placeholder="Ejemplo: 57"
 oninput="mostrarNumero()"
 >
@@ -1078,7 +1093,9 @@ id="numeroMostrar"
 </div>
 
 
-<!-- APUESTA -->
+<!-- =================================================
+     APUESTA
+================================================= -->
 
 <div style="margin-top:15px;">
 
@@ -1152,7 +1169,9 @@ onclick="jugar()"
 </button>
 
 
-<!-- RESULTADO -->
+<!-- =================================================
+     RESULTADO
+================================================= -->
 
 <div
 class="resultado"
@@ -1160,7 +1179,9 @@ id="resultado"
 >
 
 <div class="resultado-titulo">
+
 Resultado de la ruleta
+
 </div>
 
 <div
@@ -1198,7 +1219,7 @@ id="premio"
 <div class="reglas">
 
 <p>
-🎯 Elige un número entre <b>0 y 100</b>.
+🎯 Elige un número entre <b>0 y 99</b>.
 </p>
 
 <p>
@@ -1206,7 +1227,7 @@ id="premio"
 </p>
 
 <p>
-🎰 La ruleta genera un resultado al jugar.
+🎰 La ruleta genera un resultado entre <b>0 y 99</b>.
 </p>
 
 <p>
@@ -1227,7 +1248,7 @@ id="premio"
 
 
 <!-- =================================================
-     RECARGAR
+     RECARGA
 ================================================= -->
 
 <div
@@ -1380,9 +1401,7 @@ class="historial-box"
 id="historialBox"
 >
 
-<div
-id="historial"
->
+<div id="historial">
 
 Cargando...
 
@@ -1415,35 +1434,24 @@ onclick="salir()"
 
 
 <!-- =================================================
-     MENU
+     MENU INFERIOR
 ================================================= -->
 
 <div class="menu">
 
-<button
-onclick="irInicio()"
->
+<button onclick="irInicio()">
 🏠 Inicio
 </button>
 
-
-<button
-onclick="irJuego()"
->
+<button onclick="irJuego()">
 🎰 Jugar
 </button>
 
-
-<button
-onclick="irSaldo()"
->
+<button onclick="irSaldo()">
 💰 Saldo
 </button>
 
-
-<button
-onclick="irHistorial()"
->
+<button onclick="irHistorial()">
 📜 Historial
 </button>
 
@@ -1451,7 +1459,6 @@ onclick="irHistorial()"
 
 
 <script>
-
 
 /* =====================================================
    USUARIO
@@ -1465,9 +1472,7 @@ localStorage.getItem("usuario")
 
 if(!usuario){
 
-alert(
-"Debes iniciar sesión"
-);
+alert("Debes iniciar sesión");
 
 location.href="/";
 
@@ -1475,12 +1480,12 @@ location.href="/";
 
 
 /* =====================================================
-   VARIABLES DEL JUEGO
+   VARIABLES
 ===================================================== */
 
-let jugando=false;
+let jugando = false;
 
-let rotacion=0;
+let rotacion = 0;
 
 
 /* =====================================================
@@ -1502,21 +1507,20 @@ return Number(valor || 0)
 function pintar(){
 
 if(!usuario){
-return;
-}
 
+return;
+
+}
 
 document
 .getElementById("nombreUsuario")
-.innerText=
-"👤 "+usuario.nombre;
-
+.innerText =
+"👤 " + usuario.nombre;
 
 document
 .getElementById("saldo")
-.innerText=
+.innerText =
 dinero(usuario.saldo);
-
 
 }
 
@@ -1528,49 +1532,46 @@ dinero(usuario.saldo);
 function mostrarNumero(){
 
 const input =
-document
-.getElementById("numeroElegido");
-
-
-let numero =
-Number(input.value);
-
+document.getElementById(
+"numeroElegido"
+);
 
 const mostrar =
-document
-.getElementById("numeroMostrar");
+document.getElementById(
+"numeroMostrar"
+);
 
+if(input.value === ""){
 
-if(
-input.value === ""
-){
-
-mostrar.innerText="-";
+mostrar.innerText = "-";
 
 return;
 
 }
 
+let numero =
+Number(input.value);
+
+
+/* LIMITAR 0 - 99 */
 
 if(numero < 0){
 
-numero=0;
+numero = 0;
 
-input.value=0;
-
-}
-
-
-if(numero > 100){
-
-numero=100;
-
-input.value=100;
+input.value = 0;
 
 }
 
+if(numero > 99){
 
-mostrar.innerText=numero;
+numero = 99;
+
+input.value = 99;
+
+}
+
+mostrar.innerText = numero;
 
 }
 
@@ -1588,30 +1589,35 @@ return;
 }
 
 
-const numero =
-Number(
-document
-.getElementById("numeroElegido")
-.value
+const input =
+document.getElementById(
+"numeroElegido"
 );
 
+const numero =
+Number(input.value);
 
 const apuesta =
 Number(
-document
-.getElementById("apuesta")
-.value
+document.getElementById(
+"apuesta"
+).value
 );
 
 
+/* =====================================================
+   VALIDAR NUMERO
+===================================================== */
+
 if(
-isNaN(numero) ||
+input.value === "" ||
+!Number.isInteger(numero) ||
 numero < 0 ||
-numero > 100
+numero > 99
 ){
 
 alert(
-"Debes elegir un número entre 0 y 100."
+"Debes elegir un número entero entre 0 y 99."
 );
 
 return;
@@ -1619,7 +1625,12 @@ return;
 }
 
 
+/* =====================================================
+   VALIDAR APUESTA
+===================================================== */
+
 if(
+!Number.isInteger(apuesta) ||
 apuesta < 1000
 ){
 
@@ -1632,9 +1643,12 @@ return;
 }
 
 
+/* =====================================================
+   VALIDAR SALDO
+===================================================== */
+
 if(
-Number(usuario.saldo || 0)
-< apuesta
+Number(usuario.saldo || 0) < apuesta
 ){
 
 alert(
@@ -1646,57 +1660,62 @@ return;
 }
 
 
-jugando=true;
+jugando = true;
 
+
+/* =====================================================
+   BOTON
+===================================================== */
 
 const boton =
-document
-.getElementById("btnJugar");
+document.getElementById(
+"btnJugar"
+);
 
+boton.disabled = true;
 
-boton.disabled=true;
-
-boton.innerText=
+boton.innerText =
 "🎰 GIRANDO...";
 
 
-/*
-   MOSTRAR RULETA GIRANDO
-*/
+/* =====================================================
+   OCULTAR RESULTADO ANTERIOR
+===================================================== */
+
+document
+.getElementById("resultado")
+.style.display = "none";
+
+
+/* =====================================================
+   ANIMACION
+===================================================== */
 
 const ruleta =
-document
-.getElementById("ruleta");
-
+document.getElementById(
+"ruleta"
+);
 
 rotacion +=
 1440 +
 Math.floor(
-Math.random()*720
+Math.random() * 720
 );
 
+ruleta.style.transform =
+"rotate(" +
+rotacion +
+"deg)";
 
-ruleta.style.transform=
-"rotate("+rotacion+"deg)";
 
-
-/*
-   ESTE RESULTADO ES TEMPORAL.
-   DESPUES LO REEMPLAZAREMOS
-   POR EL RESULTADO DEL BACKEND.
-*/
-
-const resultado =
-Math.floor(
-Math.random()*101
-);
-
+/* =====================================================
+   ESPERAR GIRO
+===================================================== */
 
 setTimeout(
-()=>{
+async function(){
 
-mostrarResultado(
-resultado,
+await enviarJugada(
 numero,
 apuesta
 );
@@ -1709,143 +1728,339 @@ apuesta
 
 
 /* =====================================================
-   MOSTRAR RESULTADO
+   ENVIAR JUGADA AL SERVIDOR
 ===================================================== */
 
-function mostrarResultado(
-resultado,
-numeroElegido,
+async function enviarJugada(
+numero,
 apuesta
 ){
 
+try{
 
-document
-.getElementById("resultado")
-.style.display="block";
+const respuesta =
+await fetch(
+"/api/jugar",
+{
 
+method:"POST",
 
-document
-.getElementById("resultadoNumero")
-.innerText=
-resultado;
+headers:{
+"Content-Type":
+"application/json"
+},
 
+body:JSON.stringify({
 
-/*
-   TEMPORALMENTE:
+email:
+usuario.email,
 
-   Si coincide exactamente,
-   gana.
+numero:
+numero,
 
-   Esto lo cambiaremos en
-   server.js después.
-*/
+apuesta:
+apuesta
 
-const gano =
-resultado === numeroElegido;
+})
 
-
-const estado =
-document
-.getElementById("resultadoEstado");
-
-
-const premio =
-document
-.getElementById("premio");
+});
 
 
-if(gano){
-
-estado.innerHTML=
-`
-<div class="resultado-gano">
-🎉 ¡GANASTE!
-</div>
-`;
-
-premio.innerText=
-"Premio Demo: $"+
-dinero(calcularPremio(apuesta));
+const data =
+await respuesta.json();
 
 
-}else{
+if(!data.ok){
 
-estado.innerHTML=
-`
-<div class="resultado-perdio">
-❌ PERDISTE
-</div>
-`;
+alert(
+data.msg ||
+"Error procesando la partida."
+);
 
-premio.innerText=
-"Perdiste $"+
-dinero(apuesta)+
-" Demo";
+jugando = false;
+
+const boton =
+document.getElementById(
+"btnJugar"
+);
+
+boton.disabled = false;
+
+boton.innerText =
+"🎰 GIRAR RULETA";
+
+return;
 
 }
 
 
-/*
-   POR AHORA NO CAMBIAMOS
-   EL SALDO DESDE EL FRONTEND.
+/* =====================================================
+   ACTUALIZAR SALDO
+===================================================== */
 
-   EL SERVER LO HARÁ.
-*/
+usuario.saldo =
+Number(data.saldo || 0);
 
-jugando=false;
+localStorage.setItem(
+"usuario",
+JSON.stringify(usuario)
+);
+
+
+/* =====================================================
+   MOSTRAR RESULTADO DEL SERVIDOR
+===================================================== */
+
+mostrarResultadoServidor(
+data
+);
+
+
+/* =====================================================
+   ACTUALIZAR ESTADISTICAS
+===================================================== */
+
+cargarEstadisticasUsuario();
+
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"No se pudo conectar con el servidor."
+);
+
+}
+
+
+/* =====================================================
+   RESTAURAR BOTON
+===================================================== */
+
+jugando = false;
 
 const boton =
-document
-.getElementById("btnJugar");
+document.getElementById(
+"btnJugar"
+);
 
-boton.disabled=false;
+boton.disabled = false;
 
-boton.innerText=
+boton.innerText =
 "🎰 GIRAR RULETA";
 
 }
 
 
 /* =====================================================
-   PREMIOS
+   MOSTRAR RESULTADO SERVIDOR
 ===================================================== */
 
-function calcularPremio(apuesta){
+function mostrarResultadoServidor(
+data
+){
 
-switch(apuesta){
+document
+.getElementById("resultado")
+.style.display =
+"block";
 
-case 1000:
-return 3000;
 
-case 2000:
-return 5000;
+document
+.getElementById("resultadoNumero")
+.innerText =
+data.numeroRuleta;
 
-case 3000:
-return 6000;
 
-case 4000:
-return 7000;
+const estado =
+document.getElementById(
+"resultadoEstado"
+);
 
-case 5000:
-return 8000;
+const premio =
+document.getElementById(
+"premio"
+);
 
-case 6000:
-return 9000;
 
-case 7000:
-return 10000;
+if(data.resultado === "gano"){
 
-case 8000:
-return 11000;
+estado.innerHTML =
 
-case 9000:
-return 12000;
+`
+<div class="resultado-gano">
+🎉 ¡GANASTE!
+</div>
+`;
 
-case 10000:
-return 20000;
+premio.innerText =
+"Premio Demo: $" +
+dinero(data.premio);
 
-default:
-return 0;
+}else{
+
+estado.innerHTML =
+
+`
+<div class="resultado-perdio">
+❌ PERDISTE
+</div>
+`;
+
+premio.innerText =
+"Perdiste $" +
+dinero(data.apuesta) +
+" Demo";
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR SALDO VISUAL
+===================================================== */
+
+document
+.getElementById("saldo")
+.innerText =
+dinero(data.saldo);
+
+}
+
+
+/* =====================================================
+   ESTADISTICAS
+===================================================== */
+
+async function cargarEstadisticasUsuario(){
+
+try{
+
+const res =
+await fetch(
+"/api/historial/" +
+encodeURIComponent(
+usuario.email
+)
+);
+
+const data =
+await res.json();
+
+if(
+!data.ok ||
+!Array.isArray(
+data.historial
+)
+){
+
+return;
+
+}
+
+const historial =
+data.historial;
+
+
+const partidas =
+historial.length;
+
+const ganadas =
+historial.filter(
+h =>
+h.resultado === "gano"
+).length;
+
+
+document
+.getElementById("partidas")
+.innerText =
+partidas;
+
+
+document
+.getElementById("ganadas")
+.innerText =
+ganadas;
+
+
+}catch(error){
+
+console.log(
+"Error estadísticas:",
+error
+);
+
+}
+
+}
+
+
+/* =====================================================
+   GUARDAR NEQUI
+===================================================== */
+
+async function guardarNequi(){
+
+const nequi =
+document
+.getElementById("nequi")
+.value
+.trim();
+
+
+if(!nequi){
+
+return;
+
+}
+
+try{
+
+const res =
+await fetch(
+"/api/nequi",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+email:
+usuario.email,
+
+nequi:
+nequi
+
+})
+
+});
+
+
+const data =
+await res.json();
+
+
+if(data.ok){
+
+usuario.nequi =
+nequi;
+
+localStorage.setItem(
+"usuario",
+JSON.stringify(usuario)
+);
+
+}
+
+}catch(error){
+
+console.log(error);
 
 }
 
@@ -1861,23 +2076,40 @@ async function solicitarRecarga(){
 const monto =
 Number(
 document
-.getElementById("montoRecarga")
+.getElementById(
+"montoRecarga"
+)
 .value
 );
 
 
 const mensaje =
-document
-.getElementById("mensajeRecarga");
+document.getElementById(
+"mensajeRecarga"
+);
 
 
-mensaje.style.display="block";
+mensaje.style.display =
+"block";
 
-mensaje.className=
+mensaje.className =
 "mensaje mensaje-ok";
 
-mensaje.innerText=
+mensaje.innerText =
 "Solicitud de recarga Demo enviada al administrador.";
+
+
+/*
+   IMPORTANTE:
+
+   Tu server.js actual NO tiene
+   una ruta para solicitar recarga
+   del usuario.
+
+   Por eso esta sección solamente
+   muestra el aviso y NO modifica
+   el saldo.
+*/
 
 }
 
@@ -1898,24 +2130,27 @@ document
 const monto =
 Number(
 document
-.getElementById("montoRetiro")
-.value
+.getElementById(
+"montoRetiro"
+).value
 );
 
 
 const mensaje =
-document
-.getElementById("mensajeRetiro");
+document.getElementById(
+"mensajeRetiro"
+);
 
 
 if(!nequi){
 
-mensaje.style.display="block";
+mensaje.style.display =
+"block";
 
-mensaje.className=
+mensaje.className =
 "mensaje mensaje-error";
 
-mensaje.innerText=
+mensaje.innerText =
 "Escribe el número Nequi.";
 
 return;
@@ -1924,15 +2159,17 @@ return;
 
 
 if(
+!Number.isInteger(monto) ||
 monto < 10000
 ){
 
-mensaje.style.display="block";
+mensaje.style.display =
+"block";
 
-mensaje.className=
+mensaje.className =
 "mensaje mensaje-error";
 
-mensaje.innerText=
+mensaje.innerText =
 "El retiro mínimo es de $10.000 Demo.";
 
 return;
@@ -1945,12 +2182,13 @@ monto >
 Number(usuario.saldo || 0)
 ){
 
-mensaje.style.display="block";
+mensaje.style.display =
+"block";
 
-mensaje.className=
+mensaje.className =
 "mensaje mensaje-error";
 
-mensaje.innerText=
+mensaje.innerText =
 "No tienes suficiente Dinero Demo.";
 
 return;
@@ -1958,13 +2196,135 @@ return;
 }
 
 
-mensaje.style.display="block";
+/* =====================================================
+   GUARDAR NEQUI
+===================================================== */
 
-mensaje.className=
+await guardarNequi();
+
+
+/* =====================================================
+   ENVIAR RETIRO AL SERVIDOR
+===================================================== */
+
+try{
+
+const res =
+await fetch(
+"/api/solicitar-retiro",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+email:
+usuario.email,
+
+monto:
+monto,
+
+nequi:
+nequi
+
+})
+
+});
+
+
+const data =
+await res.json();
+
+
+if(!data.ok){
+
+mensaje.style.display =
+"block";
+
+mensaje.className =
+"mensaje mensaje-error";
+
+mensaje.innerText =
+data.msg ||
+"Error solicitando retiro.";
+
+return;
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR SALDO
+===================================================== */
+
+usuario.saldo =
+Number(data.saldo || 0);
+
+localStorage.setItem(
+"usuario",
+JSON.stringify(usuario)
+);
+
+
+document
+.getElementById("saldo")
+.innerText =
+dinero(usuario.saldo);
+
+
+mensaje.style.display =
+"block";
+
+mensaje.className =
 "mensaje mensaje-ok";
 
-mensaje.innerText=
+mensaje.innerText =
+data.msg ||
 "Solicitud de retiro Demo enviada.";
+
+
+/* LIMPIAR */
+
+document
+.getElementById(
+"montoRetiro"
+).value = "";
+
+
+/* ACTUALIZAR HISTORIAL */
+
+if(
+document
+.getElementById(
+"historialBox"
+).style.display ===
+"block"
+){
+
+cargarHistorial();
+
+}
+
+
+}catch(error){
+
+console.error(error);
+
+mensaje.style.display =
+"block";
+
+mensaje.className =
+"mensaje mensaje-error";
+
+mensaje.innerText =
+"No se pudo conectar con el servidor.";
+
+}
 
 }
 
@@ -1976,13 +2336,14 @@ mensaje.innerText=
 function toggleHistorial(){
 
 const box =
-document
-.getElementById("historialBox");
-
+document.getElementById(
+"historialBox"
+);
 
 const boton =
-document
-.getElementById("btnHistorial");
+document.getElementById(
+"btnHistorial"
+);
 
 
 if(
@@ -1990,18 +2351,20 @@ box.style.display === "none" ||
 box.style.display === ""
 ){
 
-box.style.display="block";
+box.style.display =
+"block";
 
-boton.innerText=
+boton.innerText =
 "Ocultar historial";
 
 cargarHistorial();
 
 }else{
 
-box.style.display="none";
+box.style.display =
+"none";
 
-boton.innerText=
+boton.innerText =
 "Ver historial";
 
 }
@@ -2016,49 +2379,178 @@ boton.innerText=
 async function cargarHistorial(){
 
 const box =
-document
-.getElementById("historial");
+document.getElementById(
+"historial"
+);
 
-
-box.innerHTML=
+box.innerHTML =
 "Cargando historial...";
 
 
 try{
 
 
-/*
-   ESTE ENDPOINT LO CONECTAREMOS
-   CUANDO MODIFIQUEMOS SERVER.JS
-*/
+/* =====================================================
+   PARTIDAS
+===================================================== */
 
-const res =
+const resPartidas =
 await fetch(
-"/api/historial-juego/"
-+
-encodeURIComponent(usuario.email)
+"/api/historial/" +
+encodeURIComponent(
+usuario.email
+)
 );
 
 
-if(!res.ok){
+const dataPartidas =
+await resPartidas.json();
 
-throw new Error(
-"Historial no disponible"
+
+/* =====================================================
+   MOVIMIENTOS
+===================================================== */
+
+const resMovimientos =
+await fetch(
+"/api/movimientos/" +
+encodeURIComponent(
+usuario.email
+)
+);
+
+
+const dataMovimientos =
+await resMovimientos.json();
+
+
+let elementos = [];
+
+
+if(
+dataPartidas.ok &&
+Array.isArray(
+dataPartidas.historial
+)
+){
+
+dataPartidas.historial.forEach(
+h => {
+
+elementos.push({
+
+tipo:
+h.resultado === "gano"
+? "ganado"
+: "perdido",
+
+detalle:
+h.resultado === "gano"
+?
+`🎉 Ganó. Número elegido: ${h.numeroElegido}. Resultado: ${h.numeroRuleta}. Premio: $${dinero(h.premio)}`
+:
+`❌ Perdió. Número elegido: ${h.numeroElegido}. Resultado: ${h.numeroRuleta}. Apuesta: $${dinero(h.apuesta)}`,
+
+monto:
+h.resultado === "gano"
+? h.premio
+: h.apuesta,
+
+fecha:
+h.fecha
+
+});
+
+}
 );
 
 }
 
 
-const data =
-await res.json();
+if(
+dataMovimientos.ok &&
+Array.isArray(
+dataMovimientos.movimientos
+)
+){
+
+dataMovimientos.movimientos.forEach(
+m => {
+
+let clase =
+"";
+
+if(
+m.tipo === "recarga_demo"
+){
+
+clase =
+"recarga";
+
+}
+
+else if(
+m.tipo === "retiro_demo" ||
+m.tipo ===
+"retiro_aprobado_demo" ||
+m.tipo ===
+"retiro_rechazado_demo"
+){
+
+clase =
+"retiro";
+
+}
+
+else{
+
+clase =
+"recarga";
+
+}
+
+
+elementos.push({
+
+tipo:
+clase,
+
+detalle:
+m.detalle ||
+m.tipo,
+
+monto:
+m.monto,
+
+fecha:
+m.fecha
+
+});
+
+}
+);
+
+}
+
+
+/* =====================================================
+   ORDENAR
+===================================================== */
+
+elementos.sort(
+(a,b) =>
+String(b.fecha)
+.localeCompare(
+String(a.fecha)
+)
+);
 
 
 if(
-!Array.isArray(data) ||
-data.length === 0
+elementos.length === 0
 ){
 
-box.innerHTML=
+box.innerHTML =
 "Sin movimientos todavía.";
 
 return;
@@ -2066,77 +2558,60 @@ return;
 }
 
 
-box.innerHTML="";
+box.innerHTML = "";
 
 
-data.forEach(h=>{
+/* =====================================================
+   MOSTRAR
+===================================================== */
 
-let clase="";
-
-
-if(
-h.tipo === "ganada"
-){
-
-clase="ganado";
-
-}
-
-if(
-h.tipo === "perdida"
-){
-
-clase="perdido";
-
-}
-
-if(
-h.tipo === "recarga"
-){
-
-clase="recarga";
-
-}
-
-if(
-h.tipo === "retiro"
-){
-
-clase="retiro";
-
-}
-
+elementos
+.slice(0,100)
+.forEach(
+h => {
 
 box.innerHTML +=
+
 `
 
-<div class="historial-item ${clase}">
+<div
+class="historial-item ${h.tipo}"
+>
 
-<b>${h.detalle || "Movimiento"}</b>
+<b>
+${escapeHTML(
+h.detalle
+)}
+</b>
 
 <br>
 
 Fecha:
-${h.fecha || ""}
+${escapeHTML(
+h.fecha || ""
+)}
 
 <br>
 
 Monto:
-$${dinero(h.monto || 0)}
+$${dinero(
+h.monto || 0
+)}
 
 </div>
 
 `;
 
-});
+}
+);
 
 
 }catch(error){
 
-console.log(error);
+console.error(error);
 
-box.innerHTML=
-"El historial estará disponible cuando el servidor sea actualizado.";
+box.innerHTML =
+"No se pudo cargar el historial.";
 
 }
 
@@ -2144,7 +2619,38 @@ box.innerHTML=
 
 
 /* =====================================================
-   IR AL INICIO
+   SEGURIDAD HTML
+===================================================== */
+
+function escapeHTML(text){
+
+return String(text || "")
+.replace(
+/&/g,
+"&amp;"
+)
+.replace(
+/</g,
+"&lt;"
+)
+.replace(
+/>/g,
+"&gt;"
+)
+.replace(
+/"/g,
+"&quot;"
+)
+.replace(
+/'/g,
+"&#039;"
+);
+
+}
+
+
+/* =====================================================
+   IR INICIO
 ===================================================== */
 
 function irInicio(){
@@ -2161,7 +2667,7 @@ behavior:"smooth"
 
 
 /* =====================================================
-   IR AL JUEGO
+   IR JUEGO
 ===================================================== */
 
 function irJuego(){
@@ -2178,7 +2684,7 @@ behavior:"smooth"
 
 
 /* =====================================================
-   IR AL SALDO
+   IR SALDO
 ===================================================== */
 
 function irSaldo(){
@@ -2201,21 +2707,26 @@ behavior:"smooth"
 function irHistorial(){
 
 const box =
+document.getElementById(
+"historialBox"
+);
+
+box.style.display =
+"block";
+
+
 document
-.getElementById("historialBox");
-
-
-box.style.display="block";
-
-
-document
-.getElementById("btnHistorial")
-.innerText=
+.getElementById(
+"btnHistorial"
+)
+.innerText =
 "Ocultar historial";
 
 
 document
-.querySelector(".historial-box")
+.querySelector(
+".historial-box"
+)
 .scrollIntoView({
 
 behavior:"smooth"
@@ -2238,7 +2749,7 @@ localStorage.removeItem(
 "usuario"
 );
 
-location.href="/";
+location.href = "/";
 
 }
 
@@ -2249,8 +2760,24 @@ location.href="/";
 
 pintar();
 
+cargarEstadisticasUsuario();
+
+
+/* =====================================================
+   CARGAR NEQUI GUARDADO
+===================================================== */
+
+if(usuario && usuario.nequi){
+
+document
+.getElementById("nequi")
+.value =
+usuario.nequi;
+
+}
+
 </script>
 
 </body>
 
-  </html>
+</html>
