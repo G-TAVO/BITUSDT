@@ -850,7 +850,7 @@ app.post(
                     ok: false,
 
                     msg:
-                        "El número debe estar entre 0 y 100"
+                        "El número debe estar entre 0 y 99"
 
                 });
 
