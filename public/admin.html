@@ -4,244 +4,264 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin | Juego Demo</title>
+<title>Admin | Juego Tavo Demo</title>
 
 <style>
 
 *{
-box-sizing:border-box;
+    box-sizing:border-box;
 }
 
 body{
-margin:0;
-font-family:Arial,Helvetica,sans-serif;
-background:#0f172a;
-color:white;
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#0f172a;
+    color:white;
 }
 
 .container{
-max-width:900px;
-margin:auto;
-padding:20px;
-padding-bottom:80px;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    padding-bottom:80px;
 }
 
 h1{
-text-align:center;
-color:#00ffcc;
-margin:0 0 10px;
+    text-align:center;
+    color:#00ffcc;
+    margin:0 0 10px;
 }
 
 h2{
-margin-top:30px;
-font-size:20px;
-color:#38bdf8;
+    margin-top:30px;
+    font-size:20px;
+    color:#38bdf8;
 }
 
 .top{
-background:#111827;
-padding:18px;
-border-radius:14px;
-margin-bottom:20px;
-text-align:center;
-border:1px solid #334155;
+    background:#111827;
+    padding:18px;
+    border-radius:14px;
+    margin-bottom:20px;
+    text-align:center;
+    border:1px solid #334155;
 }
 
 .demo{
-font-size:18px;
-font-weight:bold;
-color:#facc15;
-margin-top:8px;
+    font-size:18px;
+    font-weight:bold;
+    color:#facc15;
+    margin-top:8px;
 }
 
 .card{
-background:#1e293b;
-padding:18px;
-border-radius:14px;
-margin-top:15px;
-border:1px solid #334155;
+    background:#1e293b;
+    padding:18px;
+    border-radius:14px;
+    margin-top:15px;
+    border:1px solid #334155;
 }
 
 .card b{
-font-size:17px;
+    font-size:17px;
 }
 
 .info{
-line-height:1.7;
-margin-top:8px;
+    line-height:1.8;
+    margin-top:8px;
 }
 
 .saldo{
-font-size:20px;
-font-weight:bold;
-color:#22c55e;
+    font-size:20px;
+    font-weight:bold;
+    color:#22c55e;
 }
 
 .estado{
-font-weight:bold;
+    font-weight:bold;
 }
 
 .pendiente{
-color:#facc15;
+    color:#facc15;
 }
 
 .aprobado{
-color:#22c55e;
+    color:#22c55e;
 }
 
 .rechazado{
-color:#ef4444;
+    color:#ef4444;
 }
 
 button{
-padding:11px 14px;
-border:none;
-border-radius:8px;
-margin:5px 3px;
-cursor:pointer;
-color:white;
-font-weight:bold;
-font-size:14px;
+    padding:11px 14px;
+    border:none;
+    border-radius:8px;
+    margin:5px 3px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    font-size:14px;
 }
 
 button:active{
-transform:scale(.97);
+    transform:scale(.97);
 }
 
 .aprobar{
-background:#22c55e;
+    background:#22c55e;
 }
 
 .rechazar{
-background:#ef4444;
+    background:#ef4444;
 }
 
 .recargar{
-background:#8b5cf6;
+    background:#8b5cf6;
 }
 
 .bloquear{
-background:#f97316;
+    background:#f97316;
 }
 
 .desbloquear{
-background:#3b82f6;
+    background:#3b82f6;
 }
 
 .historial{
-background:#475569;
+    background:#475569;
 }
 
 .salir{
-background:#ef4444;
-width:100%;
-padding:13px;
-margin-top:30px;
-font-size:16px;
+    background:#ef4444;
+    width:100%;
+    padding:13px;
+    margin-top:30px;
+    font-size:16px;
 }
 
 .vacio{
-background:#1e293b;
-padding:15px;
-border-radius:10px;
-opacity:.8;
-text-align:center;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    opacity:.8;
+    text-align:center;
+}
+
+.error{
+    background:#450a0a;
+    border:1px solid #ef4444;
+    color:#fecaca;
+    padding:15px;
+    border-radius:10px;
+    margin-top:10px;
 }
 
 .separador{
-height:1px;
-background:#334155;
-margin:12px 0;
-}
-
-.input-demo{
-width:140px;
-padding:10px;
-border:none;
-border-radius:7px;
-margin:5px;
-font-size:15px;
+    height:1px;
+    background:#334155;
+    margin:12px 0;
 }
 
 .modal{
-display:none;
-position:fixed;
-z-index:1000;
-left:0;
-top:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.75);
-padding:20px;
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.75);
+    padding:20px;
+    overflow:auto;
 }
 
 .modal-content{
-background:#1e293b;
-max-width:420px;
-margin:80px auto;
-padding:22px;
-border-radius:15px;
-border:1px solid #475569;
+    background:#1e293b;
+    max-width:420px;
+    margin:60px auto;
+    padding:22px;
+    border-radius:15px;
+    border:1px solid #475569;
 }
 
 .modal-content h3{
-margin-top:0;
-color:#38bdf8;
+    margin-top:0;
+    color:#38bdf8;
 }
 
 .modal-content input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border:none;
-border-radius:8px;
-font-size:16px;
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
 }
 
 .cerrar-modal{
-background:#64748b;
+    background:#64748b;
 }
 
 .confirmar{
-background:#8b5cf6;
-width:100%;
+    background:#8b5cf6;
+    width:100%;
 }
 
 .stats{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:12px;
-margin-top:15px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+    margin-top:15px;
 }
 
 .stat{
-background:#111827;
-padding:15px;
-border-radius:12px;
-text-align:center;
-border:1px solid #334155;
+    background:#111827;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    border:1px solid #334155;
 }
 
 .stat-numero{
-font-size:24px;
-font-weight:bold;
-color:#38bdf8;
-margin-top:5px;
+    font-size:24px;
+    font-weight:bold;
+    color:#38bdf8;
+    margin-top:5px;
+}
+
+.usuario-correo{
+    word-break:break-all;
+}
+
+.numero{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.gano{
+    color:#22c55e;
+    font-weight:bold;
+}
+
+.perdio{
+    color:#ef4444;
+    font-weight:bold;
 }
 
 @media(max-width:600px){
 
-.container{
-padding:15px;
-}
+    .container{
+        padding:15px;
+    }
 
-.stats{
-grid-template-columns:1fr 1fr;
-}
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
 
-button{
-width:auto;
-}
+    button{
+        width:auto;
+    }
 
 }
 
@@ -271,9 +291,9 @@ Panel administrativo de pruebas
 </div>
 
 
-<!-- ========================= -->
-<!-- ESTADÍSTICAS -->
-<!-- ========================= -->
+<!-- =====================================================
+     ESTADÍSTICAS
+===================================================== -->
 
 <h2>📊 Estadísticas</h2>
 
@@ -310,20 +330,20 @@ Retiros pendientes
 </div>
 
 
-<!-- ========================= -->
-<!-- RECARGAS DEMO PENDIENTES -->
-<!-- ========================= -->
+<!-- =====================================================
+     RECARGAS
+===================================================== -->
 
-<h2>📥 Recargas de Dinero Demo</h2>
+<h2>📥 Historial de Recargas Demo</h2>
 
 <div id="recargas">
 Cargando...
 </div>
 
 
-<!-- ========================= -->
-<!-- RETIROS DEMO -->
-<!-- ========================= -->
+<!-- =====================================================
+     RETIROS
+===================================================== -->
 
 <h2>💸 Retiros de Dinero Demo</h2>
 
@@ -332,9 +352,9 @@ Cargando...
 </div>
 
 
-<!-- ========================= -->
-<!-- USUARIOS -->
-<!-- ========================= -->
+<!-- =====================================================
+     USUARIOS
+===================================================== -->
 
 <h2>👥 Usuarios Registrados</h2>
 
@@ -343,9 +363,9 @@ Cargando...
 </div>
 
 
-<!-- ========================= -->
-<!-- PARTIDAS -->
-<!-- ========================= -->
+<!-- =====================================================
+     PARTIDAS
+===================================================== -->
 
 <h2>🎰 Últimas Partidas</h2>
 
@@ -354,10 +374,6 @@ Cargando...
 </div>
 
 
-<!-- ========================= -->
-<!-- BOTÓN SALIR -->
-<!-- ========================= -->
-
 <button class="salir" onclick="salir()">
 Cerrar sesión
 </button>
@@ -365,9 +381,9 @@ Cerrar sesión
 </div>
 
 
-<!-- ========================= -->
-<!-- MODAL RECARGA DEMO -->
-<!-- ========================= -->
+<!-- =====================================================
+     MODAL RECARGA
+===================================================== -->
 
 <div class="modal" id="modalRecarga">
 
@@ -382,6 +398,7 @@ type="number"
 id="montoRecarga"
 placeholder="Monto de Dinero Demo"
 min="1"
+step="1"
 >
 
 <input
@@ -394,7 +411,7 @@ placeholder="Motivo de la recarga"
 class="confirmar"
 onclick="confirmarRecarga()"
 >
-Confirmar Recarga Demo
+💰 Confirmar Recarga Demo
 </button>
 
 <button
@@ -416,20 +433,20 @@ Cancelar
 ===================================================== */
 
 const usuario = JSON.parse(
-localStorage.getItem("usuario")
+    localStorage.getItem("usuario")
 );
 
 if(!usuario || usuario.rol !== "admin"){
 
-alert("Acceso denegado");
+    alert("Acceso denegado");
 
-location.href="/";
+    location.href="/";
 
 }
 
 
 /* =====================================================
-   VARIABLE USUARIO SELECCIONADO
+   USUARIO SELECCIONADO
 ===================================================== */
 
 let usuarioSeleccionado = null;
@@ -441,9 +458,23 @@ let usuarioSeleccionado = null;
 
 function dinero(valor){
 
-return Number(valor || 0).toLocaleString(
-"es-CO"
-);
+    return Number(valor || 0).toLocaleString("es-CO");
+
+}
+
+
+/* =====================================================
+   ESCAPAR HTML
+===================================================== */
+
+function escaparHTML(texto){
+
+    return String(texto ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
@@ -457,309 +488,286 @@ cargarTodo();
 
 async function cargarTodo(){
 
-await cargarRecargas();
-
-await cargarRetiros();
-
-await cargarUsuarios();
-
-await cargarPartidas();
-
-await cargarEstadisticas();
+    await Promise.all([
+        cargarRecargas(),
+        cargarRetiros(),
+        cargarUsuarios(),
+        cargarPartidas(),
+        cargarEstadisticas()
+    ]);
 
 }
 
 
 /* =====================================================
-   RECARGAS DEMO
+   RECARGAS
 ===================================================== */
 
 async function cargarRecargas(){
 
-try{
+    const box = document.getElementById("recargas");
 
-const res = await fetch("/api/recargas");
+    try{
 
-const data = await res.json();
+        const res = await fetch("/api/admin/recargas");
 
-const box = document.getElementById("recargas");
+        if(!res.ok){
 
-if(!Array.isArray(data) || data.length === 0){
+            throw new Error(
+                "HTTP " + res.status
+            );
 
-box.innerHTML =
-`
-<div class="vacio">
-No hay recargas de Dinero Demo pendientes.
-</div>
-`;
+        }
 
-return;
+        const data = await res.json();
 
-}
+        if(!data.ok){
 
-box.innerHTML = "";
+            throw new Error(
+                data.msg || "No se pudieron cargar las recargas"
+            );
 
-data.forEach(r=>{
+        }
 
-box.innerHTML += `
+        const recargas = Array.isArray(data.recargas)
+            ? data.recargas
+            : [];
 
-<div class="card">
+        if(recargas.length === 0){
 
-<b>👤 ${r.nombre || "Usuario"}</b>
+            box.innerHTML = `
+                <div class="vacio">
+                    No hay recargas de Dinero Demo.
+                </div>
+            `;
 
-<div class="info">
+            return;
 
-Correo:
-${r.email || ""}
+        }
 
-<br>
+        box.innerHTML = "";
 
-Valor:
-<span class="saldo">
-$${dinero(r.valor)}
-</span>
+        recargas.slice(0,50).forEach(r => {
 
-<br>
+            box.innerHTML += `
 
-Estado:
-<span class="estado pendiente">
-${r.estado || "pendiente"}
-</span>
+            <div class="card">
 
-<br>
+                <b>💰 Recarga Demo</b>
 
-<small>
-${r.fecha || ""}
-</small>
+                <div class="info">
 
-</div>
+                    👤 ${escaparHTML(r.nombre || "Usuario")}
 
-<div class="separador"></div>
+                    <br>
 
-<button
-class="aprobar"
-onclick="aprobarRecarga('${r._id}')"
->
-✅ Aprobar
-</button>
+                    📧
+                    <span class="usuario-correo">
+                    ${escaparHTML(r.email || "")}
+                    </span>
 
-<button
-class="rechazar"
-onclick="rechazarRecarga('${r._id}')"
->
-❌ Rechazar
-</button>
+                    <br>
 
-</div>
+                    💵 Monto:
+                    <span class="saldo">
+                    $${dinero(r.monto)}
+                    </span>
 
-`;
+                    <br>
 
-});
+                    📌 Tipo:
+                    ${escaparHTML(r.tipo || "recarga_demo")}
 
-}catch(error){
+                    <br>
 
-console.log(error);
+                    <small>
+                    ${escaparHTML(r.fecha || "")}
+                    </small>
 
-document.getElementById("recargas").innerHTML =
-`
-<div class="vacio">
-No se pudieron cargar las recargas.
-</div>
-`;
+                </div>
 
-}
+            </div>
 
-}
+            `;
 
+        });
 
-/* =====================================================
-   APROBAR RECARGA
-===================================================== */
+    }catch(error){
 
-async function aprobarRecarga(id){
+        console.error(
+            "Error cargando recargas:",
+            error
+        );
 
-if(!confirm(
-"¿Aprobar esta recarga de Dinero Demo?"
-)) return;
+        box.innerHTML = `
+            <div class="error">
+                ❌ No se pudieron cargar las recargas.
+                <br><br>
+                ${escaparHTML(error.message)}
+            </div>
+        `;
 
-try{
-
-const res = await fetch(
-"/api/aprobar-recarga",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({id})
-}
-);
-
-const data = await res.json();
-
-alert(
-data.msg || "Operación realizada"
-);
-
-cargarTodo();
-
-}catch(error){
-
-console.log(error);
-
-alert("Error al aprobar recarga");
-
-}
+    }
 
 }
 
 
 /* =====================================================
-   RECHAZAR RECARGA
-===================================================== */
-
-async function rechazarRecarga(id){
-
-if(!confirm(
-"¿Rechazar esta recarga de Dinero Demo?"
-)) return;
-
-try{
-
-const res = await fetch(
-"/api/rechazar-recarga",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({id})
-}
-);
-
-const data = await res.json();
-
-alert(
-data.msg || "Recarga rechazada"
-);
-
-cargarRecargas();
-
-}catch(error){
-
-console.log(error);
-
-alert("Error al rechazar recarga");
-
-}
-
-}
-
-
-/* =====================================================
-   RETIROS DEMO
+   RETIROS
 ===================================================== */
 
 async function cargarRetiros(){
 
-try{
+    const box =
+        document.getElementById("retiros");
 
-const res = await fetch("/api/retiros");
+    try{
 
-const data = await res.json();
+        const res =
+            await fetch("/api/admin/retiros");
 
-const box = document.getElementById("retiros");
+        if(!res.ok){
 
-if(!Array.isArray(data) || data.length === 0){
+            throw new Error(
+                "HTTP " + res.status
+            );
 
-box.innerHTML =
-`
-<div class="vacio">
-No hay retiros de Dinero Demo pendientes.
-</div>
-`;
+        }
 
-return;
+        const data =
+            await res.json();
 
-}
+        if(!data.ok){
 
-box.innerHTML = "";
+            throw new Error(
+                data.msg || "Error cargando retiros"
+            );
 
-data.forEach(r=>{
+        }
 
-box.innerHTML += `
+        const retiros =
+            Array.isArray(data.retiros)
+            ? data.retiros
+            : [];
 
-<div class="card">
+        if(retiros.length === 0){
 
-<b>👤 ${r.nombre || "Usuario"}</b>
+            box.innerHTML = `
+                <div class="vacio">
+                    No hay retiros registrados.
+                </div>
+            `;
 
-<div class="info">
+            return;
 
-Correo:
-${r.email || ""}
+        }
 
-<br>
+        box.innerHTML = "";
 
-Valor solicitado:
+        retiros.slice(0,50).forEach(r => {
 
-<span class="saldo">
-$${dinero(r.valor)}
-</span>
+            let clase = "pendiente";
 
-<br>
+            if(r.estado === "aprobado"){
+                clase = "aprobado";
+            }
 
-Nequi Demo:
-${r.nequi || "No registrado"}
+            if(r.estado === "rechazado"){
+                clase = "rechazado";
+            }
 
-<br>
+            let botones = "";
 
-Estado:
-<span class="estado pendiente">
-${r.estado || "pendiente"}
-</span>
+            if(r.estado === "pendiente"){
 
-<br>
+                botones = `
 
-<small>
-${r.fechaSolicitud || r.fecha || ""}
-</small>
+                    <div class="separador"></div>
 
-</div>
+                    <button
+                    class="aprobar"
+                    onclick="aprobarRetiro('${escaparJS(r._id)}')"
+                    >
+                    ✅ Aprobar retiro
+                    </button>
 
-<div class="separador"></div>
+                    <button
+                    class="rechazar"
+                    onclick="rechazarRetiro('${escaparJS(r._id)}')"
+                    >
+                    ❌ Rechazar retiro
+                    </button>
 
-<button
-class="aprobar"
-onclick="aprobarRetiro('${r._id}')"
->
-✅ Aprobar retiro
-</button>
+                `;
 
-<button
-class="rechazar"
-onclick="rechazarRetiro('${r._id}')"
->
-❌ Rechazar retiro
-</button>
+            }
 
-</div>
+            box.innerHTML += `
 
-`;
+            <div class="card">
 
-});
+                <b>
+                👤 ${escaparHTML(r.nombre || "Usuario")}
+                </b>
 
-}catch(error){
+                <div class="info">
 
-console.log(error);
+                    📧
+                    <span class="usuario-correo">
+                    ${escaparHTML(r.email || "")}
+                    </span>
 
-document.getElementById("retiros").innerHTML =
-`
-<div class="vacio">
-No se pudieron cargar los retiros.
-</div>
-`;
+                    <br>
 
-}
+                    💵 Valor:
+                    <span class="saldo">
+                    $${dinero(r.monto)}
+                    </span>
+
+                    <br>
+
+                    📱 Nequi Demo:
+                    ${escaparHTML(r.nequi || "No registrado")}
+
+                    <br>
+
+                    Estado:
+                    <span class="estado ${clase}">
+                    ${escaparHTML(r.estado || "pendiente")}
+                    </span>
+
+                    <br>
+
+                    <small>
+                    ${escaparHTML(r.fecha || "")}
+                    </small>
+
+                </div>
+
+                ${botones}
+
+            </div>
+
+            `;
+
+        });
+
+    }catch(error){
+
+        console.error(
+            "Error cargando retiros:",
+            error
+        );
+
+        box.innerHTML = `
+            <div class="error">
+                ❌ No se pudieron cargar los retiros.
+                <br><br>
+                ${escaparHTML(error.message)}
+            </div>
+        `;
+
+    }
 
 }
 
@@ -770,38 +778,50 @@ No se pudieron cargar los retiros.
 
 async function aprobarRetiro(id){
 
-if(!confirm(
-"¿Aprobar este retiro de Dinero Demo?"
-)) return;
+    if(!confirm(
+        "¿Aprobar este retiro de Dinero Demo?"
+    )) return;
 
-try{
+    try{
 
-const res = await fetch(
-"/api/aprobar-retiro",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({id})
-}
-);
+        const res =
+            await fetch(
+                "/api/admin/aprobar-retiro",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body:JSON.stringify({
+                        id:id
+                    })
+                }
+            );
 
-const data = await res.json();
+        const data =
+            await res.json();
 
-alert(
-data.msg || "Retiro aprobado"
-);
+        alert(
+            data.msg ||
+            "Operación realizada"
+        );
 
-cargarTodo();
+        if(data.ok){
 
-}catch(error){
+            await cargarTodo();
 
-console.log(error);
+        }
 
-alert("Error al aprobar retiro");
+    }catch(error){
 
-}
+        console.error(error);
+
+        alert(
+            "Error al aprobar el retiro"
+        );
+
+    }
 
 }
 
@@ -812,38 +832,50 @@ alert("Error al aprobar retiro");
 
 async function rechazarRetiro(id){
 
-if(!confirm(
-"¿Rechazar este retiro de Dinero Demo?"
-)) return;
+    if(!confirm(
+        "¿Rechazar este retiro? El saldo demo será devuelto al usuario."
+    )) return;
 
-try{
+    try{
 
-const res = await fetch(
-"/api/rechazar-retiro",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({id})
-}
-);
+        const res =
+            await fetch(
+                "/api/admin/rechazar-retiro",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body:JSON.stringify({
+                        id:id
+                    })
+                }
+            );
 
-const data = await res.json();
+        const data =
+            await res.json();
 
-alert(
-data.msg || "Retiro rechazado"
-);
+        alert(
+            data.msg ||
+            "Operación realizada"
+        );
 
-cargarTodo();
+        if(data.ok){
 
-}catch(error){
+            await cargarTodo();
 
-console.log(error);
+        }
 
-alert("Error al rechazar retiro");
+    }catch(error){
 
-}
+        console.error(error);
+
+        alert(
+            "Error al rechazar el retiro"
+        );
+
+    }
 
 }
 
@@ -854,193 +886,237 @@ alert("Error al rechazar retiro");
 
 async function cargarUsuarios(){
 
-try{
+    const box =
+        document.getElementById("usuarios");
 
-const res = await fetch("/api/usuarios");
+    try{
 
-const data = await res.json();
+        const res =
+            await fetch(
+                "/api/admin/usuarios"
+            );
 
-const box = document.getElementById("usuarios");
+        if(!res.ok){
 
-if(!Array.isArray(data) || data.length === 0){
+            throw new Error(
+                "HTTP " + res.status
+            );
 
-box.innerHTML =
-`
-<div class="vacio">
-No hay usuarios registrados.
-</div>
-`;
+        }
 
-return;
+        const data =
+            await res.json();
 
-}
+        if(!data.ok){
 
-box.innerHTML = "";
+            throw new Error(
+                data.msg ||
+                "Error cargando usuarios"
+            );
 
-data.forEach(u=>{
+        }
 
-box.innerHTML += `
+        const usuarios =
+            Array.isArray(data.usuarios)
+            ? data.usuarios
+            : [];
 
-<div class="card">
+        if(usuarios.length === 0){
 
-<b>👤 ${u.nombre}</b>
+            box.innerHTML = `
+                <div class="vacio">
+                    No hay usuarios registrados.
+                </div>
+            `;
 
-<div class="info">
+            return;
 
-📧 ${u.email}
+        }
 
-<br>
+        box.innerHTML = "";
 
-📱 ${u.telefono || "Sin teléfono"}
+        usuarios.forEach(u => {
 
-<br>
+            const bloqueado =
+                Boolean(u.bloqueado);
 
-💵 Dinero Demo:
+            const estado =
+                bloqueado
 
-<span class="saldo">
-$${dinero(u.saldo)}
-</span>
+                ?
 
-<br>
+                `
+                <span class="estado rechazado">
+                    🚫 Bloqueado
+                </span>
+                `
 
-Estado:
+                :
 
-${
-u.bloqueado
+                `
+                <span class="estado aprobado">
+                    ✅ Activo
+                </span>
+                `;
 
-?
+            const botonEstado =
+                bloqueado
 
-`<span class="estado rechazado">
-🚫 Bloqueado
-</span>`
+                ?
 
-:
+                `
+                <button
+                class="desbloquear"
+                onclick="desbloquear('${escaparJS(u.email)}')"
+                >
+                🔓 Desbloquear
+                </button>
+                `
 
-`<span class="estado aprobado">
-✅ Activo
-</span>`
-}
+                :
 
-</div>
+                `
+                <button
+                class="bloquear"
+                onclick="bloquear('${escaparJS(u.email)}')"
+                >
+                🚫 Bloquear
+                </button>
+                `;
 
-<div class="separador"></div>
+            box.innerHTML += `
 
-<button
-class="recargar"
-onclick="abrirRecarga(
-'${u._id}',
-'${escapeHtml(u.nombre)}',
-'${u.email}'
-)"
->
-💵 Recargar Demo
-</button>
+            <div class="card">
 
-${
-u.bloqueado
+                <b>
+                👤 ${escaparHTML(u.nombre || "Usuario")}
+                </b>
 
-?
+                <div class="info">
 
-`
+                    📧
+                    <span class="usuario-correo">
+                    ${escaparHTML(u.email || "")}
+                    </span>
 
-<button
-class="desbloquear"
-onclick="desbloquear('${u.email}')"
->
-🔓 Desbloquear
-</button>
+                    <br>
 
-`
+                    📱
+                    ${escaparHTML(u.telefono || "Sin teléfono")}
 
-:
+                    <br>
 
-`
+                    💵 Dinero Demo:
 
-<button
-class="bloquear"
-onclick="bloquear('${u.email}')"
->
-🚫 Bloquear
-</button>
+                    <span class="saldo">
+                    $${dinero(u.saldo)}
+                    </span>
 
-`
-}
+                    <br>
 
-</div>
+                    Estado:
+                    ${estado}
 
-`;
+                </div>
 
-});
+                <div class="separador"></div>
 
-}catch(error){
+                <button
+                class="recargar"
+                onclick="abrirRecarga(
+                    '${escaparJS(u._id)}',
+                    '${escaparJS(u.nombre)}',
+                    '${escaparJS(u.email)}'
+                )"
+                >
+                💵 Recargar Demo
+                </button>
 
-console.log(error);
+                ${botonEstado}
 
-document.getElementById("usuarios").innerHTML =
-`
-<div class="vacio">
-No se pudieron cargar los usuarios.
-</div>
-`;
+            </div>
 
-}
+            `;
+
+        });
+
+    }catch(error){
+
+        console.error(
+            "Error cargando usuarios:",
+            error
+        );
+
+        box.innerHTML = `
+            <div class="error">
+                ❌ No se pudieron cargar los usuarios.
+                <br><br>
+                ${escaparHTML(error.message)}
+            </div>
+        `;
+
+    }
 
 }
 
 
 /* =====================================================
-   ESCAPAR TEXTO
+   ESCAPAR PARA JAVASCRIPT
 ===================================================== */
 
-function escapeHtml(text){
+function escaparJS(texto){
 
-return String(text || "")
-.replace(/'/g,"\\'")
-.replace(/"/g,"&quot;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;");
+    return String(texto ?? "")
+        .replace(/\\/g,"\\\\")
+        .replace(/'/g,"\\'")
+        .replace(/\r/g,"\\r")
+        .replace(/\n/g,"\\n");
 
 }
 
 
 /* =====================================================
-   ABRIR MODAL RECARGA
+   ABRIR MODAL
 ===================================================== */
 
-function abrirRecarga(id,nombre,email){
+function abrirRecarga(
+    id,
+    nombre,
+    email
+){
 
-usuarioSeleccionado = {
-id,
-nombre,
-email
-};
+    usuarioSeleccionado = {
+        id:id,
+        nombre:nombre,
+        email:email
+    };
 
-document.getElementById(
-"nombreUsuarioModal"
-).innerHTML = `
+    document.getElementById(
+        "nombreUsuarioModal"
+    ).innerHTML = `
 
-<p>
-Usuario:
-<b>${nombre}</b>
-</p>
+        <p>
+            Usuario:
+            <b>${escaparHTML(nombre)}</b>
+        </p>
 
-<p>
-${email}
-</p>
+        <p class="usuario-correo">
+            📧 ${escaparHTML(email)}
+        </p>
 
-`;
+    `;
 
-document.getElementById(
-"montoRecarga"
-).value = "";
+    document.getElementById(
+        "montoRecarga"
+    ).value = "";
 
-document.getElementById(
-"motivoRecarga"
-).value = "";
+    document.getElementById(
+        "motivoRecarga"
+    ).value = "";
 
-document.getElementById(
-"modalRecarga"
-).style.display = "block";
+    document.getElementById(
+        "modalRecarga"
+    ).style.display = "block";
 
 }
 
@@ -1051,98 +1127,171 @@ document.getElementById(
 
 function cerrarModal(){
 
-document.getElementById(
-"modalRecarga"
-).style.display = "none";
+    document.getElementById(
+        "modalRecarga"
+    ).style.display = "none";
 
-usuarioSeleccionado = null;
+    usuarioSeleccionado = null;
 
 }
 
 
 /* =====================================================
-   CONFIRMAR RECARGA DIRECTA DEL ADMIN
+   CONFIRMAR RECARGA
 ===================================================== */
 
 async function confirmarRecarga(){
 
-if(!usuarioSeleccionado){
+    if(!usuarioSeleccionado){
 
-alert("Usuario no seleccionado");
+        alert(
+            "Usuario no seleccionado"
+        );
 
-return;
+        return;
 
-}
+    }
 
-const monto = Number(
-document.getElementById(
-"montoRecarga"
-).value
-);
+    const input =
+        document.getElementById(
+            "montoRecarga"
+        );
 
-const motivo =
-document.getElementById(
-"motivoRecarga"
-).value.trim();
+    const monto =
+        Number(input.value);
 
+    const motivo =
+        document.getElementById(
+            "motivoRecarga"
+        ).value.trim();
 
-if(!monto || monto <= 0){
+    if(
+        !Number.isInteger(monto) ||
+        monto <= 0
+    ){
 
-alert(
-"Introduce un monto válido"
-);
+        alert(
+            "Introduce un monto entero válido"
+        );
 
-return;
+        input.focus();
 
-}
+        return;
 
+    }
 
-if(!confirm(
-`¿Agregar $${dinero(monto)} de Dinero Demo a ${usuarioSeleccionado.nombre}?`
-)) return;
+    const nombre =
+        usuarioSeleccionado.nombre;
 
+    const email =
+        usuarioSeleccionado.email;
 
-try{
+    if(!confirm(
+        `¿Agregar $${dinero(monto)} de Dinero Demo a ${nombre}?`
+    )){
 
-const res = await fetch(
-"/api/admin-recargar-demo",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
+        return;
 
-email:usuarioSeleccionado.email,
+    }
 
-monto:monto,
+    try{
 
-motivo:
-motivo || "Recarga manual del administrador"
+        /*
+         * ESTA ES LA RUTA CORRECTA
+         * DEL SERVER.JS
+         */
 
-})
-}
-);
+        const res =
+            await fetch(
+                "/api/admin/recargar",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body:JSON.stringify({
 
-const data = await res.json();
+                        email:email,
 
-alert(
-data.msg || "Recarga realizada"
-);
+                        monto:monto
 
-cerrarModal();
+                    })
+                }
+            );
 
-cargarTodo();
+        /*
+         * Intentamos leer JSON incluso
+         * si el servidor responde con error.
+         */
 
-}catch(error){
+        const texto =
+            await res.text();
 
-console.log(error);
+        let data;
 
-alert(
-"Error realizando la recarga"
-);
+        try{
 
-}
+            data =
+                JSON.parse(texto);
+
+        }catch{
+
+            throw new Error(
+                "El servidor no devolvió una respuesta JSON. HTTP " +
+                res.status
+            );
+
+        }
+
+        if(!res.ok){
+
+            throw new Error(
+                data.msg ||
+                "Error HTTP " + res.status
+            );
+
+        }
+
+        if(!data.ok){
+
+            throw new Error(
+                data.msg ||
+                "No se pudo realizar la recarga"
+            );
+
+        }
+
+        alert(
+            "✅ " +
+            (data.msg ||
+            "Recarga realizada correctamente") +
+            "\n\n" +
+            "Nuevo saldo: $" +
+            dinero(data.saldo)
+        );
+
+        cerrarModal();
+
+        await cargarUsuarios();
+
+        await cargarRecargas();
+
+        await cargarEstadisticas();
+
+    }catch(error){
+
+        console.error(
+            "❌ Error realizando recarga:",
+            error
+        );
+
+        alert(
+            "❌ No se pudo realizar la recarga\n\n" +
+            error.message
+        );
+
+    }
 
 }
 
@@ -1153,40 +1302,50 @@ alert(
 
 async function bloquear(email){
 
-if(!confirm(
-"¿Bloquear este usuario?"
-)) return;
+    if(!confirm(
+        "¿Bloquear este usuario?"
+    )) return;
 
-try{
+    try{
 
-const res = await fetch(
-"/api/bloquear",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
-}
-);
+        const res =
+            await fetch(
+                "/api/admin/bloquear",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body:JSON.stringify({
+                        email:email
+                    })
+                }
+            );
 
-const data = await res.json();
+        const data =
+            await res.json();
 
-alert(
-data.msg || "Usuario bloqueado"
-);
+        alert(
+            data.msg ||
+            "Operación realizada"
+        );
 
-cargarUsuarios();
+        if(data.ok){
 
-}catch(error){
+            await cargarUsuarios();
 
-console.log(error);
+        }
 
-alert(
-"Error al bloquear usuario"
-);
+    }catch(error){
 
-}
+        console.error(error);
+
+        alert(
+            "Error al bloquear usuario"
+        );
+
+    }
 
 }
 
@@ -1197,40 +1356,50 @@ alert(
 
 async function desbloquear(email){
 
-if(!confirm(
-"¿Desbloquear este usuario?"
-)) return;
+    if(!confirm(
+        "¿Desbloquear este usuario?"
+    )) return;
 
-try{
+    try{
 
-const res = await fetch(
-"/api/desbloquear",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
-}
-);
+        const res =
+            await fetch(
+                "/api/admin/desbloquear",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body:JSON.stringify({
+                        email:email
+                    })
+                }
+            );
 
-const data = await res.json();
+        const data =
+            await res.json();
 
-alert(
-data.msg || "Usuario desbloqueado"
-);
+        alert(
+            data.msg ||
+            "Operación realizada"
+        );
 
-cargarUsuarios();
+        if(data.ok){
 
-}catch(error){
+            await cargarUsuarios();
 
-console.log(error);
+        }
 
-alert(
-"Error al desbloquear usuario"
-);
+    }catch(error){
 
-}
+        console.error(error);
+
+        alert(
+            "Error al desbloquear usuario"
+        );
+
+    }
 
 }
 
@@ -1241,115 +1410,170 @@ alert(
 
 async function cargarPartidas(){
 
-try{
+    const box =
+        document.getElementById(
+            "partidas"
+        );
 
-const res = await fetch(
-"/api/partidas"
-);
+    try{
 
-const data = await res.json();
+        const res =
+            await fetch(
+                "/api/admin/partidas"
+            );
 
-const box = document.getElementById(
-"partidas"
-);
+        if(!res.ok){
 
-if(!Array.isArray(data) || data.length === 0){
+            throw new Error(
+                "HTTP " + res.status
+            );
 
-box.innerHTML =
-`
-<div class="vacio">
-Todavía no hay partidas.
-</div>
-`;
+        }
 
-return;
+        const data =
+            await res.json();
 
-}
+        if(!data.ok){
 
-box.innerHTML = "";
+            throw new Error(
+                data.msg ||
+                "Error cargando partidas"
+            );
 
-data.slice(0,20).forEach(p=>{
+        }
 
-const resultado =
-p.gano
+        const partidas =
+            Array.isArray(data.partidas)
+            ? data.partidas
+            : [];
 
-?
+        if(partidas.length === 0){
 
-`
-<span class="estado aprobado">
-🎉 GANÓ
-</span>
-`
+            box.innerHTML = `
+                <div class="vacio">
+                    Todavía no hay partidas.
+                </div>
+            `;
 
-:
+            return;
 
-`
-<span class="estado rechazado">
-❌ PERDIÓ
-</span>
-`;
+        }
 
-box.innerHTML += `
+        box.innerHTML = "";
 
-<div class="card">
+        partidas.slice(0,30).forEach(p => {
 
-<b>
-👤 ${p.nombre || p.email}
-</b>
+            const gano =
+                p.resultado === "gano";
 
-<div class="info">
+            const resultado =
+                gano
 
-Número elegido:
-<b>${p.numeroElegido}</b>
+                ?
 
-<br>
+                `
+                <span class="gano">
+                    🎉 GANÓ
+                </span>
+                `
 
-Resultado:
-<b>${p.resultado}</b>
+                :
 
-<br>
+                `
+                <span class="perdio">
+                    ❌ PERDIÓ
+                </span>
+                `;
 
-Apuesta:
-$${dinero(p.apuesta)}
+            box.innerHTML += `
 
-<br>
+            <div class="card">
 
-Premio:
-$${dinero(p.premio)}
+                <b>
+                👤 ${escaparHTML(
+                    p.nombre ||
+                    p.email ||
+                    "Usuario"
+                )}
+                </b>
 
-<br>
+                <div class="info">
 
-Resultado:
-${resultado}
+                    📧
+                    <span class="usuario-correo">
+                    ${escaparHTML(p.email || "")}
+                    </span>
 
-<br>
+                    <br>
 
-<small>
-${p.fecha || ""}
-</small>
+                    🎯 Número elegido:
+                    <span class="numero">
+                    ${String(
+                        p.numeroElegido
+                    ).padStart(2,"0")}
+                    </span>
 
-</div>
+                    <br>
 
-</div>
+                    🎰 Número de ruleta:
+                    <span class="numero">
+                    ${String(
+                        p.numeroRuleta
+                    ).padStart(2,"0")}
+                    </span>
 
-`;
+                    <br>
 
-});
+                    💵 Apuesta:
+                    $${dinero(p.apuesta)}
 
-}catch(error){
+                    <br>
 
-console.log(error);
+                    🏆 Premio:
+                    $${dinero(p.premio)}
 
-document.getElementById(
-"partidas"
-).innerHTML =
-`
-<div class="vacio">
-No se pudieron cargar las partidas.
-</div>
-`;
+                    <br>
 
-}
+                    Resultado:
+                    ${resultado}
+
+                    <br>
+
+                    Saldo después:
+                    <span class="saldo">
+                    $${dinero(p.saldoDespues)}
+                    </span>
+
+                    <br>
+
+                    <small>
+                    ${escaparHTML(p.fecha || "")}
+                    </small>
+
+                </div>
+
+            </div>
+
+            `;
+
+        });
+
+    }catch(error){
+
+        console.error(
+            "Error cargando partidas:",
+            error
+        );
+
+        box.innerHTML = `
+            <div class="error">
+                ❌ No se pudieron cargar las partidas.
+                <br><br>
+                ${escaparHTML(error.message)}
+            </div>
+        `;
+
+    }
 
 }
 
@@ -1360,76 +1584,103 @@ No se pudieron cargar las partidas.
 
 async function cargarEstadisticas(){
 
-try{
+    try{
 
-const res = await fetch(
-"/api/estadisticas"
-);
+        const res =
+            await fetch(
+                "/api/admin/estadisticas"
+            );
 
-const data = await res.json();
+        if(!res.ok){
 
-document.getElementById(
-"totalUsuarios"
-).textContent =
-data.usuarios || 0;
+            throw new Error(
+                "HTTP " + res.status
+            );
 
-document.getElementById(
-"totalPartidas"
-).textContent =
-data.partidas || 0;
+        }
 
-document.getElementById(
-"totalDinero"
-).textContent =
-"$" + dinero(data.dineroDemo || 0);
+        const data =
+            await res.json();
 
-document.getElementById(
-"totalRetiros"
-).textContent =
-data.retirosPendientes || 0;
+        if(!data.ok){
 
-}catch(error){
+            throw new Error(
+                data.msg ||
+                "Error cargando estadísticas"
+            );
 
-console.log(
-"Estadísticas todavía no disponibles"
-);
+        }
 
-}
+        const e =
+            data.estadisticas || {};
+
+        document.getElementById(
+            "totalUsuarios"
+        ).textContent =
+            e.usuarios || 0;
+
+        document.getElementById(
+            "totalPartidas"
+        ).textContent =
+            e.partidas || 0;
+
+        document.getElementById(
+            "totalDinero"
+        ).textContent =
+            "$" +
+            dinero(
+                e.dineroDemoTotal || 0
+            );
+
+        document.getElementById(
+            "totalRetiros"
+        ).textContent =
+            e.retirosPendientes || 0;
+
+    }catch(error){
+
+        console.error(
+            "Error estadísticas:",
+            error
+        );
+
+    }
 
 }
 
 
 /* =====================================================
-   CERRAR SESIÓN
+   SALIR
 ===================================================== */
 
 function salir(){
 
-localStorage.removeItem(
-"usuario"
-);
+    localStorage.removeItem(
+        "usuario"
+    );
 
-location.href="/";
+    location.href="/";
 
 }
 
 
 /* =====================================================
-   CERRAR MODAL AL HACER CLICK AFUERA
+   CERRAR MODAL
 ===================================================== */
 
-window.onclick = function(event){
+window.onclick =
+function(event){
 
-const modal =
-document.getElementById(
-"modalRecarga"
-);
+    const modal =
+        document.getElementById(
+            "modalRecarga"
+        );
 
-if(event.target === modal){
+    if(event.target === modal){
 
-cerrarModal();
+        cerrarModal();
 
-}
+    }
 
 };
 
@@ -1439,8 +1690,8 @@ cerrarModal();
 ===================================================== */
 
 setInterval(
-cargarTodo,
-10000
+    cargarTodo,
+    10000
 );
 
 </script>
