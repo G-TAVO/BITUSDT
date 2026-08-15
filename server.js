@@ -77,7 +77,7 @@ const RETIRO_MINIMO = 10000;
 
 const NUMERO_MINIMO = 0;
 
-const NUMERO_MAXIMO = 100;
+const NUMERO_MAXIMO = 99;
 
 // ============================================================
 // PREMIOS DEMO
