@@ -243,6 +243,20 @@ background:#ef4444;
 
 }
 
+.eliminar{
+
+background:#b91c1c;
+
+margin-top:15px;
+
+}
+
+.eliminar:hover{
+
+background:#991b1b;
+
+}
+
 .numero{
 
 text-align:center;
@@ -256,6 +270,194 @@ color:#facc15;
 margin:15px 0;
 
 }
+
+/* ==============================
+   RULETA
+============================== */
+
+.ruleta-contenedor{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+margin:20px 0;
+
+position:relative;
+
+}
+
+.ruleta{
+
+width:260px;
+
+height:260px;
+
+border-radius:50%;
+
+border:8px solid #facc15;
+
+position:relative;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+background:
+
+conic-gradient(
+
+#ef4444 0deg 18deg,
+
+#111827 18deg 36deg,
+
+#22c55e 36deg 54deg,
+
+#111827 54deg 72deg,
+
+#ef4444 72deg 90deg,
+
+#111827 90deg 108deg,
+
+#22c55e 108deg 126deg,
+
+#111827 126deg 144deg,
+
+#ef4444 144deg 162deg,
+
+#111827 162deg 180deg,
+
+#22c55e 180deg 198deg,
+
+#111827 198deg 216deg,
+
+#ef4444 216deg 234deg,
+
+#111827 234deg 252deg,
+
+#22c55e 252deg 270deg,
+
+#111827 270deg 288deg,
+
+#ef4444 288deg 306deg,
+
+#111827 306deg 324deg,
+
+#22c55e 324deg 342deg,
+
+#111827 342deg 360deg
+
+);
+
+box-shadow:
+
+0 0 20px rgba(250,204,21,.35),
+
+inset 0 0 20px rgba(0,0,0,.7);
+
+transition:transform 4s cubic-bezier(.15,.85,.15,1);
+
+}
+
+.ruleta-centro{
+
+width:75px;
+
+height:75px;
+
+border-radius:50%;
+
+background:#020617;
+
+border:5px solid #facc15;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:20px;
+
+font-weight:bold;
+
+color:#facc15;
+
+z-index:2;
+
+}
+
+.puntero{
+
+position:absolute;
+
+top:-10px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+width:0;
+
+height:0;
+
+border-left:15px solid transparent;
+
+border-right:15px solid transparent;
+
+border-top:30px solid #facc15;
+
+z-index:5;
+
+filter:drop-shadow(0 2px 3px #000);
+
+}
+
+.ruleta-numero{
+
+text-align:center;
+
+font-size:18px;
+
+color:#cbd5e1;
+
+margin-top:5px;
+
+}
+
+.girando{
+
+animation:brillo 0.5s infinite alternate;
+
+}
+
+@keyframes brillo{
+
+from{
+
+box-shadow:
+
+0 0 15px rgba(250,204,21,.3);
+
+}
+
+to{
+
+box-shadow:
+
+0 0 35px rgba(250,204,21,.8);
+
+}
+
+}
+
+/* ==============================
+   RESULTADO
+============================== */
 
 .resultado{
 
@@ -395,6 +597,14 @@ font-size:28px;
 
 }
 
+.ruleta{
+
+width:230px;
+
+height:230px;
+
+}
+
 }
 
 </style>
@@ -403,9 +613,7 @@ font-size:28px;
 
 <body>
 
-
 <div class="container">
-
 
 <!-- ==============================
      ENCABEZADO
@@ -466,6 +674,39 @@ onclick="cargarPerfil()">
 Elige un número entre:
 
 <b>00 y 99</b>
+
+</div>
+
+
+<!-- ==============================
+     RULETA VISIBLE
+============================== -->
+
+<div class="ruleta-contenedor">
+
+<div class="puntero"></div>
+
+<div
+id="ruleta"
+class="ruleta">
+
+<div
+id="ruletaCentro"
+class="ruleta-centro">
+
+🎰
+
+</div>
+
+</div>
+
+</div>
+
+<div
+id="ruletaNumero"
+class="ruleta-numero">
+
+🎯 Esperando partida...
 
 </div>
 
@@ -533,6 +774,7 @@ $10.000 → Premio $35.000
 
 
 <button
+id="btnJugar"
 class="jugar"
 onclick="jugar()">
 
@@ -649,6 +891,14 @@ class="mensaje">
 Cargando...
 
 </div>
+
+<button
+class="eliminar"
+onclick="eliminarHistorial()">
+
+🗑️ ELIMINAR TODO EL HISTORIAL
+
+</button>
 
 </div>
 
@@ -785,8 +1035,6 @@ document.getElementById(
 u.nequi || "";
 
 
-/* actualizar localStorage */
-
 usuario.saldo =
 u.saldo;
 
@@ -807,6 +1055,67 @@ error
 );
 
 }
+
+}
+
+
+/* ==========================================
+   RULETA ANIMADA
+========================================== */
+
+function animarRuleta(numeroGanador){
+
+const ruleta =
+document.getElementById(
+"ruleta"
+);
+
+const numero =
+document.getElementById(
+"ruletaNumero"
+);
+
+ruleta.classList.add(
+"girando"
+);
+
+numero.textContent =
+"🎰 La ruleta está girando...";
+
+const vueltas =
+8;
+
+const gradosNumero =
+numeroGanador * 3.6;
+
+const grados =
+(vueltas * 360) +
+(360 - gradosNumero);
+
+ruleta.style.transform =
+"rotate(" + grados + "deg)";
+
+return new Promise(
+resolve => {
+
+setTimeout(
+() => {
+
+ruleta.classList.remove(
+"girando"
+);
+
+numero.textContent =
+"🎯 Número: " +
+numeroVisual(numeroGanador);
+
+resolve();
+
+},
+4200
+);
+
+});
 
 }
 
@@ -836,7 +1145,6 @@ const apuesta =
 Number(
 apuestaInput.value
 );
-
 
 if(
 !Number.isInteger(numero) ||
@@ -891,6 +1199,18 @@ return;
 }
 
 
+const btn =
+document.getElementById(
+"btnJugar"
+);
+
+btn.disabled =
+true;
+
+btn.textContent =
+"🎰 PROCESANDO...";
+
+
 mostrarMensaje(
 "mensajeJuego",
 "🎰 Jugando...",
@@ -941,12 +1261,29 @@ data.msg ||
 "error"
 );
 
+btn.disabled =
+false;
+
+btn.textContent =
+"🎰 JUGAR";
+
 return;
 
 }
 
 
-/* ACTUALIZAR SALDO */
+/* ==========================
+   ANIMAR RULETA
+========================== */
+
+await animarRuleta(
+data.numeroRuleta
+);
+
+
+/* ==========================
+   ACTUALIZAR SALDO
+========================== */
 
 usuario.saldo =
 data.saldo;
@@ -963,7 +1300,9 @@ document.getElementById(
 dinero(data.saldo);
 
 
-/* RESULTADO */
+/* ==========================
+   RESULTADO
+========================== */
 
 const resultado =
 document.getElementById(
@@ -1059,6 +1398,15 @@ mostrarMensaje(
 );
 
 }
+
+
+/* ACTIVAR BOTÓN */
+
+btn.disabled =
+false;
+
+btn.textContent =
+"🎰 JUGAR";
 
 }
 
@@ -1451,6 +1799,88 @@ document.getElementById(
 No se pudo cargar el historial.
 </div>
 `;
+
+}
+
+}
+
+
+/* ==========================================
+   ELIMINAR TODO EL HISTORIAL
+========================================== */
+
+async function eliminarHistorial(){
+
+const confirmar =
+confirm(
+"⚠️ ¿Estás seguro?\n\nSe eliminarán TODAS tus partidas del historial.\n\nEsta acción no se puede deshacer."
+);
+
+if(!confirmar){
+
+return;
+
+}
+
+
+try{
+
+const res =
+await fetch(
+"/api/historial/" +
+encodeURIComponent(email),
+{
+
+method:"DELETE"
+
+}
+
+);
+
+
+const data =
+await res.json();
+
+
+if(!data.ok){
+
+mostrarMensaje(
+"mensajeJuego",
+data.msg ||
+"No se pudo eliminar el historial.",
+"error"
+);
+
+return;
+
+}
+
+
+document.getElementById(
+"historial"
+).innerHTML = `
+
+<div class="info">
+
+🗑️ Historial eliminado correctamente.
+
+</div>
+
+`;
+
+
+alert(
+"✅ Todo tu historial fue eliminado."
+);
+
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"❌ No se pudo conectar con el servidor."
+);
 
 }
 
