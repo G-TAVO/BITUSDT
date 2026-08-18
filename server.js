@@ -1207,7 +1207,68 @@ app.post(
 
     }
 );
+// ============================================================
+// ELIMINAR HISTORIAL DEL USUARIO
+// ============================================================
 
+app.delete(
+    "/api/historial/:email",
+    async (req, res) => {
+
+        try {
+
+            const email =
+                limpiarEmail(
+                    req.params.email
+                );
+
+            if (!email) {
+
+                return res.json({
+
+                    ok: false,
+
+                    msg: "Usuario no válido"
+
+                });
+
+            }
+
+            const resultado =
+                await Juego.deleteMany({
+                    email
+                });
+
+            res.json({
+
+                ok: true,
+
+                msg: "Historial eliminado correctamente",
+
+                eliminadas:
+                    resultado.deletedCount
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error eliminando historial:",
+                error
+            );
+
+            res.json({
+
+                ok: false,
+
+                msg: "No se pudo eliminar el historial"
+
+            });
+
+        }
+
+    }
+);
 // ============================================================
 // HISTORIAL DEL USUARIO
 // ============================================================
