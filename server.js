@@ -51,18 +51,22 @@ const NUMERO_MAXIMO = 99;
 // PREMIOS DEMO
 // ============================================================
 
+// MODIFICADO:
+// Premios nuevos para la demo.
+// Cada premio equivale a 5 veces la apuesta.
+
 const PREMIOS = {
 
-    1000: 3000,
-    2000: 5000,
-    3000: 6000,
-    4000: 7000,
-    5000: 8000,
-    6000: 9000,
-    7000: 10000,
-    8000: 11000,
-    9000: 12000,
-    10000: 20000
+    1000: 5000,
+    2000: 10000,
+    3000: 15000,
+    4000: 20000,
+    5000: 25000,
+    6000: 30000,
+    7000: 35000,
+    8000: 40000,
+    9000: 45000,
+    10000: 50000
 
 };
 
@@ -957,20 +961,63 @@ app.post(
 
             }
 
-            // NÚMERO GANADOR
+            // ==================================================
+            // PROBABILIDAD DE GANAR
+            // ==================================================
 
-            const numeroRuleta =
-                numeroAleatorio(
-                    NUMERO_MINIMO,
-                    NUMERO_MAXIMO
+            // 5% de probabilidad de ganar.
+            // Aproximadamente 1 de cada 20 partidas.
+
+            const PROBABILIDAD_GANAR = 0.05;
+
+            const ganaPorProbabilidad =
+                Math.random() < PROBABILIDAD_GANAR;
+
+
+            // ==================================================
+            // NÚMERO DE LA RULETA
+            // ==================================================
+
+            let numeroRuleta;
+
+
+            if (ganaPorProbabilidad) {
+
+                // En una partida ganadora,
+                // el número coincide con el elegido.
+
+                numeroRuleta =
+                    numero;
+
+            } else {
+
+                // En una partida perdida,
+                // generamos un número diferente.
+
+                do {
+
+                    numeroRuleta =
+                        numeroAleatorio(
+                            NUMERO_MINIMO,
+                            NUMERO_MAXIMO
+                        );
+
+                } while (
+                    numeroRuleta === numero
                 );
 
+            }
+
+
+            // ==================================================
             // RESULTADO
+            // ==================================================
 
             const gano =
                 numeroRuleta === numero;
 
             let premio = 0;
+
 
             if (gano) {
 
@@ -981,7 +1028,10 @@ app.post(
 
             }
 
+
+            // ==================================================
             // SALDO FINAL
+            // ==================================================
 
             let saldoDespues =
                 saldoAntes - apuesta;
@@ -998,14 +1048,20 @@ app.post(
 
             }
 
+
+            // ==================================================
             // ACTUALIZAR USUARIO
+            // ==================================================
 
             user.saldo =
                 saldoDespues;
 
             await user.save();
 
+
+            // ==================================================
             // GUARDAR PARTIDA
+            // ==================================================
 
             await Juego.create({
 
@@ -1043,7 +1099,10 @@ app.post(
 
             });
 
+
+            // ==================================================
             // GUARDAR MOVIMIENTO
+            // ==================================================
 
             await Movimiento.create({
 
@@ -1078,7 +1137,10 @@ app.post(
 
             });
 
+
+            // ==================================================
             // RESPUESTA
+            // ==================================================
 
             res.json({
 
@@ -1136,7 +1198,8 @@ app.post(
 
                 ok: false,
 
-                msg: "Error procesando la partida"
+                msg:
+                    "Error procesando la partida"
 
             });
 
